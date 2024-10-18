@@ -96,6 +96,7 @@ repositories {
             includeGroupByRegex "org.wordpress.react-native-libraries.*"
             includeGroup "com.automattic"
             includeGroup "com.automattic.tracks"
+            includeGroup "com.automattic.ucrop"
             includeGroup "com.gravatar"
             includeGroup "rs.wordpress.api"
         }
@@ -479,7 +480,7 @@ dependencies {
     implementation(libs.apache.commons.text)
     implementation(libs.airbnb.lottie.main)
     implementation(libs.facebook.shimmer)
-    implementation(libs.yalantis.ucrop) {
+    implementation(libs.automattic.ucrop) {
         exclude group: 'androidx.core', module: 'core'
         exclude group: 'androidx.constraintlayout', module: 'constraintlayout'
         exclude group: 'androidx.appcompat', module: 'appcompat'
