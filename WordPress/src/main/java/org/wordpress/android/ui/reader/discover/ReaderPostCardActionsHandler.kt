@@ -18,7 +18,6 @@ import org.wordpress.android.models.ReaderPost
 import org.wordpress.android.modules.BG_THREAD
 import org.wordpress.android.ui.pages.SnackbarMessageHolder
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
-import org.wordpress.android.ui.reader.actions.ReaderBlogActions.BlockedBlogResult
 import org.wordpress.android.ui.reader.comments.ThreadedCommentsActionSource
 import org.wordpress.android.ui.reader.discover.ReaderCardUiState.ReaderRecommendedBlogsCardUiState.ReaderRecommendedBlogUiState
 import org.wordpress.android.ui.reader.discover.ReaderNavigationEvents.OpenPost
