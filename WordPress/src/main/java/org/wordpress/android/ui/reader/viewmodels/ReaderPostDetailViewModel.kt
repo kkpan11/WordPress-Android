@@ -463,10 +463,6 @@ class ReaderPostDetailViewModel @Inject constructor(
                 }
 
                 _uiState.value = it.copy(moreMenuItems = moreMenuItems)
-            }?: run{
-                if (_postBlocked.value == true) {
-                    readerPostCardActionsHandler.handleUndoClicked()
-                }
             }
         }
     }
