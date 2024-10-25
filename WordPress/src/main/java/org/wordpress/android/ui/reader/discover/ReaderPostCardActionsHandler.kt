@@ -105,10 +105,6 @@ class ReaderPostCardActionsHandler @Inject constructor(
 ) {
     private lateinit var coroutineScope: CoroutineScope
 
-    private lateinit var blockedBlogResult: BlockedBlogResult
-
-    private lateinit var blockedBlogSource: String
-
     private lateinit var updateBlockedStateFunction:(Boolean)->Unit
 
     private val _navigationEvents = MediatorLiveData<Event<ReaderNavigationEvents>>()
@@ -407,14 +403,6 @@ class ReaderPostCardActionsHandler @Inject constructor(
         _navigationEvents.postValue(Event(ShowReadingPreferences))
     }
 
-    fun handleUndoClicked(){
-       coroutineScope.launch {
-           undoBlockBlogUseCase.undoBlockBlog(blockedBlogResult, blockedBlogSource)
-           _refreshPosts.postValue(Event(Unit))
-           updateBlockedStateFunction(false)
-       }
-    }
-
     fun initUpdateBlockedStateFunction(func: (Boolean)->Unit){
         updateBlockedStateFunction = func
     }
@@ -427,8 +415,6 @@ class ReaderPostCardActionsHandler @Inject constructor(
         blockBlogUseCase.blockBlog(blogId, feedId).collect {
             when (it) {
                 is BlockSiteState.SiteBlockedInLocalDb -> {
-                    blockedBlogSource = source
-                    blockedBlogResult = it.blockedBlogData
                     _refreshPosts.postValue(Event(Unit))
                     updateBlockedStateFunction(true)
                     _snackbarEvents.postValue(
