@@ -992,10 +992,10 @@ class ReaderPostDetailFragment : ViewPagerFragment(),
     ){
         val moreMenu:MenuItem? = toolBar.menu.findItem(R.id.menu_more)
         if (postBlocked){
-            moreMenu?.setIcon(R.drawable.ic_undo_white_24dp)
+            moreMenu?.setVisible(false)
         }
         else{
-            moreMenu?.setIcon(R.drawable.ic_ellipsis_vertical_white_24dp)
+            moreMenu?.setVisible(true)
         }
     }
 
