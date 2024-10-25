@@ -31,7 +31,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.gravatar.services.AvatarService
-import com.gravatar.services.Result
+import com.gravatar.services.GravatarResult
 import com.gravatar.types.Email
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.UCropActivity
@@ -725,12 +725,14 @@ class SignupEpilogueFragment : LoginBaseFormFragment<SignupEpilogueListener?>(),
                 mAccountStore.accessToken?.let { accessToken ->
                     startProgress(false)
                     lifecycleScope.launch {
-                        val result = mAvatarService.upload(
-                            file, Email(mAccountStore.account.email),
-                            accessToken
+                        val result = mAvatarService.uploadCatching(
+                            file,
+                            accessToken,
+                            hash = Email(mAccountStore.account.email).hash(),
+                            selectAvatar = true
                         )
                         when (result) {
-                            is Result.Success -> {
+                            is GravatarResult.Success -> {
                                 endProgress()
                                 AnalyticsTracker.track(Stat.ME_GRAVATAR_UPLOADED)
                                 mPhotoUrl = WPAvatarUtils.rewriteAvatarUrl(
@@ -742,7 +744,7 @@ class SignupEpilogueFragment : LoginBaseFormFragment<SignupEpilogueListener?>(),
                                 mIsAvatarAdded = true
                             }
 
-                            is Result.Failure -> {
+                            is GravatarResult.Failure -> {
                                 endProgress()
                                 showErrorDialogWithCloseButton(getString(R.string.signup_epilogue_error_avatar))
                                 val properties: MutableMap<String, Any?> = HashMap()
@@ -834,8 +836,8 @@ class SignupEpilogueFragment : LoginBaseFormFragment<SignupEpilogueListener?>(),
                 val uri = MediaUtils.downloadExternalMedia(context, Uri.parse(mUrl))
                 val file = File(URI(uri.toString()))
                 lifecycleScope.launch {
-                    when (val result = mAvatarService.upload(file, Email(mEmail), mToken)) {
-                        is Result.Success -> {
+                    when (val result = mAvatarService.uploadCatching(file, mToken, Email(mEmail).hash(), true)) {
+                        is GravatarResult.Success -> {
                             AppLog.i(
                                 AppLog.T.NUX,
                                 "Google avatar download and Gravatar upload succeeded."
@@ -843,7 +845,7 @@ class SignupEpilogueFragment : LoginBaseFormFragment<SignupEpilogueListener?>(),
                             AnalyticsTracker.track(Stat.ME_GRAVATAR_UPLOADED)
                         }
 
-                        is Result.Failure -> {
+                        is GravatarResult.Failure -> {
                             AppLog.i(
                                 AppLog.T.NUX,
                                 "Google avatar download and Gravatar upload failed."

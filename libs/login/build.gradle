@@ -40,7 +40,7 @@ ext {
     // libs
     wordpressLintVersion = '2.1.0'
     wordpressUtilsVersion = '3.5.0'
-    gravatarSdkVersion = '0.2.0'
+    gravatarSdkVersion = '2.0.0'
 
     // main
     androidxAppCompatVersion = '1.7.0'
