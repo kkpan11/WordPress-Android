@@ -1314,8 +1314,7 @@ public class ActivityLauncher {
 
     public static void viewFeedbackForm(@NonNull Context context) {
         warnIfIdentityA8C(context);
-        // TODO verify tracks event with iOS
-        AnalyticsTracker.track(Stat.FEEDBACK_FORM_OPENED);
+        AnalyticsTracker.track(Stat.APP_REVIEWS_FEEDBACK_SCREEN_OPENED);
         Intent intent = new Intent(context, FeedbackFormActivity.class);
         context.startActivity(intent);
     }
