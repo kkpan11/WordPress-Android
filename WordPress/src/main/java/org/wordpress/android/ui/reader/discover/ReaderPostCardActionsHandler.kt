@@ -104,7 +104,7 @@ class ReaderPostCardActionsHandler @Inject constructor(
 ) {
     private lateinit var coroutineScope: CoroutineScope
 
-    private lateinit var updateBlockedStateFunction:(Boolean)->Unit
+    private var updateBlockedStateFunction: ((Boolean) -> Unit)? = null
 
     private val _navigationEvents = MediatorLiveData<Event<ReaderNavigationEvents>>()
     val navigationEvents: LiveData<Event<ReaderNavigationEvents>> = _navigationEvents
@@ -415,7 +415,7 @@ class ReaderPostCardActionsHandler @Inject constructor(
             when (it) {
                 is BlockSiteState.SiteBlockedInLocalDb -> {
                     _refreshPosts.postValue(Event(Unit))
-                    updateBlockedStateFunction(true)
+                    updateBlockedStateFunction?.let { func -> func(true) }
                     _snackbarEvents.postValue(
                         Event(
                             SnackbarMessageHolder(
@@ -425,7 +425,7 @@ class ReaderPostCardActionsHandler @Inject constructor(
                                     coroutineScope.launch {
                                         undoBlockBlogUseCase.undoBlockBlog(it.blockedBlogData, source)
                                         _refreshPosts.postValue(Event(Unit))
-                                        updateBlockedStateFunction(false)
+                                        updateBlockedStateFunction?.let { func -> func(false) }
                                     }
                                 })
                         )
@@ -436,12 +436,14 @@ class ReaderPostCardActionsHandler @Inject constructor(
                     _snackbarEvents.postValue(
                         Event(SnackbarMessageHolder(UiStringRes(R.string.reader_toast_err_unable_to_block_blog)))
                     )
+                    updateBlockedStateFunction?.let { func -> func(false) }
                 }
                 BlockSiteState.Failed.RequestFailed -> {
                     _refreshPosts.postValue(Event(Unit))
                     _snackbarEvents.postValue(
                         Event(SnackbarMessageHolder(UiStringRes(R.string.reader_toast_err_unable_to_block_blog)))
                     )
+                    updateBlockedStateFunction?.let { func -> func(false) }
                 }
             }
         }
