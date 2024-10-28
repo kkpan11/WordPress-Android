@@ -73,8 +73,8 @@ dependencies {
 
     implementation project(":libs:fluxc")
 
-    implementation "com.github.bumptech.glide:glide:$glideVersion"
-    kapt "com.github.bumptech.glide:compiler:$glideVersion"
+    implementation libs.bumptech.glide.main
+    kapt libs.bumptech.glide.compiler
 
     implementation "androidx.credentials:credentials:$credentialManagerVersion"
     implementation "androidx.credentials:credentials-play-services-auth:$credentialManagerVersion"
