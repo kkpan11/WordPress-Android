@@ -37,9 +37,6 @@ android {
 }
 
 ext {
-    // libs
-    wordpressLintVersion = '2.1.0'
-    wordpressUtilsVersion = '3.5.0'
     gravatarSdkVersion = '0.2.0'
 
     // main
@@ -62,9 +59,7 @@ ext {
 }
 
 dependencies {
-    implementation ("org.wordpress:utils:$wordpressUtilsVersion") {
-        exclude group: "com.android.volley"
-    }
+    implementation libs.wordpress.utils
     implementation ("com.gravatar:gravatar:$gravatarSdkVersion")
 
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
@@ -91,7 +86,7 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$daggerVersion"
     kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
 
-    lintChecks "org.wordpress:lint:$wordpressLintVersion"
+    lintChecks libs.wordpress.lint
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
