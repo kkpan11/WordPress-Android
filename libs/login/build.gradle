@@ -67,7 +67,7 @@ dependencies {
     implementation libs.androidx.constraintlayout.main
     implementation "com.google.android.material:material:$materialVersion"
 
-    implementation "androidx.core:core:$androidxCoreVersion"
+    implementation libs.androidx.core.main
 
     api "com.google.android.gms:play-services-auth:$playServicesAuthVersion"
 
