@@ -64,7 +64,7 @@ dependencies {
 
     implementation libs.androidx.appcompat.main
 
-    implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
+    implementation libs.androidx.constraintlayout.main
     implementation "com.google.android.material:material:$materialVersion"
 
     implementation "androidx.core:core:$androidxCoreVersion"
