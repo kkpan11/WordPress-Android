@@ -76,8 +76,8 @@ dependencies {
     implementation libs.bumptech.glide.main
     kapt libs.bumptech.glide.compiler
 
-    implementation "androidx.credentials:credentials:$credentialManagerVersion"
-    implementation "androidx.credentials:credentials-play-services-auth:$credentialManagerVersion"
+    implementation libs.androidx.credentials
+    implementation libs.androidx.credentials.play.service.auth
 
     // Dagger
     implementation "com.google.dagger:dagger:$daggerVersion"
