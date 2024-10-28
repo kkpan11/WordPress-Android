@@ -69,7 +69,7 @@ dependencies {
 
     implementation libs.androidx.core.main
 
-    api "com.google.android.gms:play-services-auth:$playServicesAuthVersion"
+    api libs.google.play.services.auth
 
     implementation project(":libs:fluxc")
 
