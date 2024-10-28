@@ -62,7 +62,7 @@ dependencies {
     implementation libs.wordpress.utils
     implementation ("com.gravatar:gravatar:$gravatarSdkVersion")
 
-    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation libs.androidx.appcompat.main
 
     implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
     implementation "com.google.android.material:material:$materialVersion"
