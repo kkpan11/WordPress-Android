@@ -13,10 +13,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
@@ -63,6 +69,7 @@ private val ContentTextStyle
 
 private val ContentMargin = 20.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
 fun WPJetpackIndividualPluginOverlayScreen(
@@ -77,6 +84,14 @@ fun WPJetpackIndividualPluginOverlayScreen(
                 title = null,
                 navigationIcon = NavigationIcons.CloseIcon,
                 onNavigationIconClick = onCloseClick
+            )
+            TopAppBar(
+                title = { },
+                navigationIcon = {
+                    IconButton(onClick = onCloseClick) {
+                        Icon(Icons.Filled.Close, stringResource(R.string.close))
+                    }
+                },
             )
         }
     ) {
