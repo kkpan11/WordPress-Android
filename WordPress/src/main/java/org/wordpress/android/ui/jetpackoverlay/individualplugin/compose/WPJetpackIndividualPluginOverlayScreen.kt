@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
@@ -35,10 +35,10 @@ import org.wordpress.android.R
 import org.wordpress.android.ui.compose.components.MainTopAppBar
 import org.wordpress.android.ui.compose.components.NavigationIcons
 import org.wordpress.android.ui.compose.components.buttons.ButtonSize
-import org.wordpress.android.ui.compose.components.buttons.PrimaryButton
-import org.wordpress.android.ui.compose.components.buttons.SecondaryButton
+import org.wordpress.android.ui.compose.components.buttons.PrimaryButtonM3
+import org.wordpress.android.ui.compose.components.buttons.SecondaryButtonM3
 import org.wordpress.android.ui.compose.theme.AppColor
-import org.wordpress.android.ui.compose.theme.AppThemeM2
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.theme.JpColorPalette
 import org.wordpress.android.ui.jetpackoverlay.individualplugin.SiteWithIndividualJetpackPlugins
 import org.wordpress.android.ui.jetpackplugininstall.fullplugin.onboarding.compose.component.JPInstallFullPluginAnimation
@@ -64,7 +64,7 @@ private val ContentTextStyle
 private val ContentMargin = 20.dp
 
 @Composable
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
 fun WPJetpackIndividualPluginOverlayScreen(
     sites: List<SiteWithIndividualJetpackPlugins>,
     onCloseClick: () -> Unit,
@@ -141,23 +141,23 @@ fun WPJetpackIndividualPluginOverlayScreen(
                     .padding(horizontal = ContentMargin),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                PrimaryButton(
+                PrimaryButtonM3(
                     text = stringResource(R.string.wp_jetpack_individual_plugin_overlay_primary_button),
                     onClick = onPrimaryButtonClick,
                     buttonSize = ButtonSize.LARGE,
                     padding = PaddingValues(0.dp),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = JpColorPalette().primary,
+                        containerColor = JpColorPalette().primary,
                         contentColor = AppColor.White,
                     ),
                 )
-                SecondaryButton(
+                SecondaryButtonM3(
                     text = stringResource(R.string.wp_jetpack_continue_without_jetpack),
                     onClick = onSecondaryButtonClick,
                     buttonSize = ButtonSize.LARGE,
                     padding = PaddingValues(0.dp),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color.Transparent,
+                        containerColor = Color.Transparent,
                         contentColor = JpColorPalette().primary,
                     ),
                 )
@@ -179,7 +179,7 @@ private fun getTitle(siteCount: Int): String = if (siteCount > 1) {
 @Preview(widthDp = 720, heightDp = 360)
 @Composable
 fun WPJetpackIndividualPluginOverlayScreenSingleSiteSinglePluginPreview() {
-    AppThemeM2 {
+    AppThemeM3 {
         WPJetpackIndividualPluginOverlayScreen(
             sites = listOf(
                 SiteWithIndividualJetpackPlugins(
@@ -200,7 +200,7 @@ fun WPJetpackIndividualPluginOverlayScreenSingleSiteSinglePluginPreview() {
 @Preview(widthDp = 720, heightDp = 360)
 @Composable
 fun WPJetpackIndividualPluginOverlayScreenSingleSiteMultiplePluginsPreview() {
-    AppThemeM2 {
+    AppThemeM3 {
         WPJetpackIndividualPluginOverlayScreen(
             sites = listOf(
                 SiteWithIndividualJetpackPlugins(
@@ -222,7 +222,7 @@ fun WPJetpackIndividualPluginOverlayScreenSingleSiteMultiplePluginsPreview() {
 @Preview(widthDp = 720, heightDp = 360)
 @Composable
 fun WPJetpackIndividualPluginOverlayScreenMultipleSitesPreview() {
-    AppThemeM2 {
+    AppThemeM3 {
         WPJetpackIndividualPluginOverlayScreen(
             sites = listOf(
                 SiteWithIndividualJetpackPlugins(
