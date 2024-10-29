@@ -60,7 +60,7 @@ ext {
 
 dependencies {
     implementation libs.wordpress.utils
-    implementation ("com.gravatar:gravatar:$gravatarSdkVersion")
+    implementation libs.gravatar
 
     implementation libs.androidx.appcompat.main
 
