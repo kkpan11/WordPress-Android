@@ -18,6 +18,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.res.ResourcesCompat
 import org.wordpress.android.R
 import org.wordpress.android.ui.compose.unit.Margin
@@ -69,3 +70,10 @@ fun ReadingPreferencesPreviewTag(
         )
     }
 }
+
+@Preview
+@Composable
+fun ReadingPreferencesPreviewTagPreview() {
+    ReadingPreferencesPreviewTag(text = "Preview")
+}
+
