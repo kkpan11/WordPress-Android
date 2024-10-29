@@ -87,7 +87,7 @@ dependencies {
 
     lintChecks libs.wordpress.lint
 
-    testImplementation "junit:junit:$junitVersion"
+    testImplementation libs.junit
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
     testImplementation "androidx.arch.core:core-testing:$androidxArchCoreVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
