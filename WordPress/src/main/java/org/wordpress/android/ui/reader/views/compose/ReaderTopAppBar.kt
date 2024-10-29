@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -37,7 +37,7 @@ import kotlinx.coroutines.delay
 import org.wordpress.android.R
 import org.wordpress.android.ui.compose.components.menu.dropdown.JetpackDropdownMenu
 import org.wordpress.android.ui.compose.components.menu.dropdown.MenuElementData
-import org.wordpress.android.ui.compose.theme.AppThemeM2
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.Margin
 import org.wordpress.android.ui.compose.utils.horizontalFadingEdges
 import org.wordpress.android.ui.reader.viewmodels.ReaderViewModel
@@ -136,7 +136,7 @@ fun ReaderTopAppBar(
                     contentDescription = stringResource(
                         R.string.reader_search_content_description
                     ),
-                    tint = MaterialTheme.colors.onSurface,
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -215,7 +215,7 @@ fun ReaderTopAppBarPreview() {
         )
     }
 
-    AppThemeM2 {
+    AppThemeM3 {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
