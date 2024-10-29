@@ -97,7 +97,6 @@ import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureFullScreenOverlayFr
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalOverlayUtil;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalOverlayUtil.JetpackFeatureCollectionOverlaySource;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalPhaseHelper;
-import org.wordpress.android.ui.jetpackoverlay.individualplugin.WPJetpackIndividualPluginFragment;
 import org.wordpress.android.ui.main.MainActionListItem.ActionType;
 import org.wordpress.android.ui.main.WPMainNavigationView.OnPageListener;
 import org.wordpress.android.ui.main.WPMainNavigationView.PageType;
@@ -186,17 +185,17 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import dagger.hilt.android.AndroidEntryPoint;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function3;
-
 import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static org.wordpress.android.WordPress.SITE;
 import static org.wordpress.android.fluxc.store.SiteStore.CompleteQuickStartVariant.NEXT_STEPS;
 import static org.wordpress.android.login.LoginAnalyticsListener.CreatedAccountSource.EMAIL;
 import static org.wordpress.android.push.NotificationsProcessingService.ARG_NOTIFICATION_TYPE;
 import static org.wordpress.android.ui.JetpackConnectionSource.NOTIFICATIONS;
+
+import dagger.hilt.android.AndroidEntryPoint;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function3;
 
 /**
  * Main activity which hosts sites, reader, me and notifications pages
@@ -510,9 +509,6 @@ public class WPMainActivity extends LocaleAwareActivity implements
         if (savedInstanceState != null) {
             mIsChangingConfiguration = savedInstanceState.getBoolean(ARG_IS_CHANGING_CONFIGURATION, false);
         }
-
-        // TODO remove before merging
-        WPJetpackIndividualPluginFragment.show(getSupportFragmentManager());
     }
 
     private void initBackPressHandler() {
