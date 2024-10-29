@@ -91,7 +91,7 @@ dependencies {
     testImplementation libs.mockito.core
     testImplementation libs.androidx.arch.core.testing
     testImplementation libs.robolectric
-    testImplementation "org.assertj:assertj-core:$assertjVersion"
+    testImplementation libs.assertj.core
 }
 
 // Add properties named "wp.xxx" to our BuildConfig
