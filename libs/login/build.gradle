@@ -5,19 +5,6 @@ plugins {
     alias(libs.plugins.kotlinx.kover)
 }
 
-repositories {
-    maven {
-        url "https://a8c-libs.s3.amazonaws.com/android"
-        content {
-            includeGroup "org.wordpress"
-            includeGroup "com.gravatar"
-        }
-    }
-    mavenCentral()
-    google()
-    maven { url "https://www.jitpack.io" }
-}
-
 android {
     namespace "org.wordpress.android.login"
 
