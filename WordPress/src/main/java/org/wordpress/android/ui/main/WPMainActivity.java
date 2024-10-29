@@ -509,6 +509,9 @@ public class WPMainActivity extends LocaleAwareActivity implements
         if (savedInstanceState != null) {
             mIsChangingConfiguration = savedInstanceState.getBoolean(ARG_IS_CHANGING_CONFIGURATION, false);
         }
+
+        // TODO remove before merging
+        ActivityLauncher.startJetpackInstall(this, NOTIFICATIONS, mSelectedSiteRepository.getSelectedSite());
     }
 
     private void initBackPressHandler() {
