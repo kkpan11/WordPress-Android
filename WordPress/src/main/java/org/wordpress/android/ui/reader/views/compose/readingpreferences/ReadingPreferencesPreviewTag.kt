@@ -5,8 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,13 +29,12 @@ import org.wordpress.android.ui.compose.unit.Margin
 @Composable
 fun ReadingPreferencesPreviewTag(
     text: String,
-    baseTextColor: Color = MaterialTheme.colorScheme.onSurface,
+    baseTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     fontSizeMultiplier: Float = 1f,
     fontFamily: FontFamily = FontFamily.Default,
 ) {
     val minHeight = dimensionResource(R.dimen.reader_expandable_tags_view_chip_new_height)
     val horizontalPadding = Margin.ExtraLarge.value
-    val textColor = baseTextColor.copy(alpha = ContentAlpha.medium)
     val cornerRadius = dimensionResource(R.dimen.reader_expandable_tags_view_chip_new_radius)
     val strokeAlpha = with(LocalContext.current) {
         ResourcesCompat.getFloat(resources, R.dimen.expandable_chips_chip_stroke_alpha)
@@ -60,7 +58,7 @@ fun ReadingPreferencesPreviewTag(
     ) {
         Text(
             text,
-            color = textColor,
+            color = baseTextColor,
             maxLines = 1,
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = baseTextColor,
