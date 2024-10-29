@@ -1,6 +1,5 @@
 package org.wordpress.android.ui.jetpackoverlay.individualplugin.compose
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Arrangement
@@ -71,7 +70,6 @@ private val ContentMargin = 20.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
 fun WPJetpackIndividualPluginOverlayScreen(
     sites: List<SiteWithIndividualJetpackPlugins>,
     onCloseClick: () -> Unit,
@@ -94,29 +92,21 @@ fun WPJetpackIndividualPluginOverlayScreen(
                 },
             )
         }
-    ) {
+    ) { contentPadding ->
         val orientation = LocalConfiguration.current.orientation
         val isLandscape = remember(orientation) { orientation == Configuration.ORIENTATION_LANDSCAPE }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .let {
-                    if (isLandscape) it.verticalScroll(rememberScrollState()) else it
-                }
+                .verticalScroll(rememberScrollState())
+                .padding(contentPadding),
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .let {
-                        if (!isLandscape) {
-                            it
-                                .weight(1f)
-                                .verticalScroll(rememberScrollState())
-                        } else {
-                            it
-                        }
-                    }
+                    .verticalScroll(rememberScrollState())
+                    .weight(1f)
                     .padding(ContentMargin),
                 verticalArrangement = Arrangement.Center,
             ) {
