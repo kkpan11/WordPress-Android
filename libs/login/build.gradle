@@ -90,7 +90,7 @@ dependencies {
     testImplementation libs.junit
     testImplementation libs.mockito.core
     testImplementation libs.androidx.arch.core.testing
-    testImplementation "org.robolectric:robolectric:$robolectricVersion"
+    testImplementation libs.robolectric
     testImplementation "org.assertj:assertj-core:$assertjVersion"
 }
 
