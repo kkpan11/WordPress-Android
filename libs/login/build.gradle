@@ -41,7 +41,7 @@ dependencies {
     implementation libs.bumptech.glide.main
     kapt libs.bumptech.glide.compiler
 
-    implementation libs.androidx.credentials
+    implementation libs.androidx.credentials.main
     implementation libs.androidx.credentials.play.service.auth
 
     // Dagger
