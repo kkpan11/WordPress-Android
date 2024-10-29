@@ -221,7 +221,7 @@ fun ReaderTagsFeedPostListItem(
                         }
                     ),
                     tint = if (isPostLiked) {
-                        androidx.compose.material.MaterialTheme.colors.primary
+                        MaterialTheme.colorScheme.primary
                     } else {
                         secondaryElementColor
                     },
@@ -229,7 +229,7 @@ fun ReaderTagsFeedPostListItem(
                 Text(
                     text = stringResource(R.string.reader_label_like),
                     color = if (isPostLiked) {
-                        androidx.compose.material.MaterialTheme.colors.primary
+                        MaterialTheme.colorScheme.primary
                     } else {
                         secondaryElementColor
                     },

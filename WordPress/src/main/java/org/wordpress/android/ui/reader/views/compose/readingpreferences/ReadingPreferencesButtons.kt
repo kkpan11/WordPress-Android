@@ -189,7 +189,7 @@ fun ReadingPreferencesThemeButtonPreview() {
         Row(
             horizontalArrangement = Arrangement.spacedBy(Margin.Medium.value),
         ) {
-            ReaderReadingPreferences.Theme.values().forEach { theme ->
+            ReaderReadingPreferences.Theme.entries.forEach { theme ->
                 ReadingPreferencesThemeButton(
                     theme = theme,
                     isSelected = theme == selectedItem,
@@ -209,7 +209,7 @@ fun ReadingPreferencesFontFamilyButtonPreview() {
         Row(
             horizontalArrangement = Arrangement.spacedBy(Margin.Medium.value),
         ) {
-            ReaderReadingPreferences.FontFamily.values().forEach { fontFamily ->
+            ReaderReadingPreferences.FontFamily.entries.forEach { fontFamily ->
                 ReadingPreferencesFontFamilyButton(
                     fontFamily = fontFamily,
                     isSelected = fontFamily == selectedItem,
