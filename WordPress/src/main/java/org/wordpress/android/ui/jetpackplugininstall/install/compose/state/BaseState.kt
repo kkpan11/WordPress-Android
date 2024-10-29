@@ -21,12 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.wordpress.android.R
-import org.wordpress.android.ui.compose.components.ContentAlphaProvider
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.Margin
 import org.wordpress.android.ui.jetpackplugininstall.install.UiState
@@ -72,20 +72,19 @@ fun BaseState(
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.jetpack_new_remote_install_icon_size))
                 )
-                ContentAlphaProvider(ContentAlpha.high) {
-                    Text(
-                        text = stringResource(title),
-                        style = TitleTextStyle,
-                        modifier = Modifier.padding(top = Margin.ExtraMediumLarge.value),
-                    )
-                }
-                ContentAlphaProvider(ContentAlpha.medium) {
-                    Text(
-                        text = stringResource(description).fixWidows(),
-                        style = DescriptionTextStyle,
-                        modifier = Modifier.padding(top = Margin.Medium.value),
-                    )
-                }
+                Text(
+                    text = stringResource(title),
+                    style = TitleTextStyle,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = Margin.ExtraMediumLarge.value),
+                )
+                Text(
+                    text = stringResource(description).fixWidows(),
+                    style = DescriptionTextStyle,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = Margin.Medium.value),
+                )
                 Spacer(modifier = Modifier.weight(1f))
                 content()
             }
@@ -100,6 +99,6 @@ fun BaseState(
 private fun PreviewInitialState() {
     AppThemeM3 {
         val uiState = UiState.Installing
-        BaseState(uiState, {})
+        BaseState(uiState) {}
     }
 }
