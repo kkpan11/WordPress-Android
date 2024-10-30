@@ -97,7 +97,6 @@ import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureFullScreenOverlayFr
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalOverlayUtil;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalOverlayUtil.JetpackFeatureCollectionOverlaySource;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalPhaseHelper;
-import org.wordpress.android.ui.jetpackoverlay.individualplugin.WPJetpackIndividualPluginFragment;
 import org.wordpress.android.ui.main.MainActionListItem.ActionType;
 import org.wordpress.android.ui.main.WPMainNavigationView.OnPageListener;
 import org.wordpress.android.ui.main.WPMainNavigationView.PageType;
@@ -510,9 +509,6 @@ public class WPMainActivity extends LocaleAwareActivity implements
         if (savedInstanceState != null) {
             mIsChangingConfiguration = savedInstanceState.getBoolean(ARG_IS_CHANGING_CONFIGURATION, false);
         }
-
-        // TODO remove before merging
-        WPJetpackIndividualPluginFragment.show(getSupportFragmentManager());
     }
 
     private void initBackPressHandler() {
