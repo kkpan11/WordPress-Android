@@ -2300,7 +2300,7 @@
     <string name="reader_toast_err_unable_to_unfollow_blog">Unable to unsubscribe from blog</string>
     <string name="reader_toast_posts_from_this_blog_blocked">Posts from this blog will no longer be shown</string>
     <string name="reader_toast_err_unable_to_block_blog">Unable to block this blog</string>
-    <string name="reader_toast_success_UNDO">This blog has been unblocked!\nPosts from this blog will still be shown</string>
+    <string name="reader_toast_success_undo">Blog unblocked</string>
     <string name="reader_toast_user_blocked">Posts from this user will no longer be shown</string>
     <string name="reader_toast_err_generic">Unable to perform this action</string>
     <string name="reader_toast_err_cannot_like_post">Failed to like this post</string>
