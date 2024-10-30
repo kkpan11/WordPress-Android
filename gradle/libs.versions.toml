@@ -17,11 +17,12 @@ androidx-compose-material3 = '1.2.1'
 androidx-constraintlayout-compose = '1.0.1'
 androidx-constraintlayout-main = '2.1.4'
 androidx-core = '1.13.1'
-androidx-exifinterface = '1.0.0'
+androidx-credentials = '1.2.0'
+androidx-exifinterface = '1.3.7'
 androidx-fragment = '1.8.4'
 androidx-lifecycle = '2.8.5'
 androidx-navigation = '2.7.7'
-androidx-paging-runtime = '2.1.2'
+androidx-paging = '2.1.2'
 androidx-percentlayout = '1.0.0'
 androidx-preference = '1.2.1'
 androidx-recyclerview = '1.3.2'
@@ -54,8 +55,8 @@ facebook-react = '0.73.3'
 facebook-shimmer = '0.5.0'
 fastlane-screengrab = '2.1.1'
 fladle = '0.17.5'
-google-autoservice = '1.0-rc4'
-google-dagger = '2.50'
+google-autoservice = '1.1.1'
+google-dagger = '2.52'
 google-exoplayer = '2.13.3'
 google-firebase-bom = '33.5.1'
 google-firebase-iid = '21.1.0'
@@ -92,7 +93,7 @@ robolectric = '4.11'
 sentry = '4.12.0'
 squareup-java-poet = '1.7.0'
 squareup-kotlin-poet = '1.18.1'
-squareup-okhttp3 = '4.9.0'
+squareup-okhttp3 = '4.12.0'
 squareup-retrofit = '2.11.0'
 violation-comments = '1.70.0'
 wellsql = '2.0.0'
@@ -141,6 +142,8 @@ androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name 
 androidx-constraintlayout-main = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout-main" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
 androidx-core-main = { group = "androidx.core", name = "core", version.ref = "androidx-core" }
+androidx-credentials-main = { module = "androidx.credentials:credentials", version.ref = "androidx-credentials" }
+androidx-credentials-play-service-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "androidx-credentials" }
 androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "androidx-exifinterface" }
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "androidx-fragment" }
 androidx-fragment-main = { group = "androidx.fragment", name = "fragment", version.ref = "androidx-fragment" }
@@ -155,7 +158,7 @@ androidx-lifecycle-viewmodel-savedstate = { group = "androidx.lifecycle", name =
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidx-navigation" }
 androidx-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "androidx-navigation" }
 androidx-navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "androidx-navigation" }
-androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "androidx-paging-runtime" }
+androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "androidx-paging" }
 androidx-percentlayout = { group = "androidx.percentlayout", name = "percentlayout", version.ref = "androidx-percentlayout" }
 androidx-preference = { group = "androidx.preference", name = "preference", version.ref = "androidx-preference" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "androidx-recyclerview" }
@@ -182,6 +185,7 @@ assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "as
 automattic-rest = { group = "com.automattic", name = "rest", version.ref = "automattic-rest" }
 automattic-tracks-android = { group = "com.automattic", name = "Automattic-Tracks-Android", version.ref = "automattic-tracks" }
 automattic-tracks-crashlogging = { group = "com.automattic.tracks", name = "crashlogging", version.ref = "automattic-tracks" }
+bumptech-glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "bumptech-glide" }
 bumptech-glide-ksp = { group = "com.github.bumptech.glide", name = "ksp", version.ref = "bumptech-glide" }
 bumptech-glide-main = { group = "com.github.bumptech.glide", name = "glide", version.ref = "bumptech-glide" }
 bumptech-glide-volley-integration = { group = "com.github.bumptech.glide", name = "volley-integration", version.ref = "bumptech-glide" }
@@ -216,6 +220,7 @@ google-mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recog
 google-play-app-update = { group = "com.google.android.play", name = "app-update", version.ref = "google-play-app-update" }
 google-play-review = { group = "com.google.android.play", name = "review", version.ref = "google-play-review" }
 google-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "google-play-services-auth" }
+gravatar = { module = "com.gravatar:gravatar", version.ref = "gravatar" }
 greenrobot-eventbus-java = { group = "org.greenrobot", name = "eventbus-java", version.ref = "greenrobot-eventbus" }
 greenrobot-eventbus-main = { group = "org.greenrobot", name = "eventbus", version.ref = "greenrobot-eventbus" }
 indexos-media-for-mobile-android = { group = "com.github.indexos.media-for-mobile", name = "android", version.ref = "indexos-media-for-mobile" }

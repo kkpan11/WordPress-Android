@@ -16,6 +16,50 @@ plugins {
     id "com.gradle.develocity" version "3.18.1"
 }
 
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://a8c-libs.s3.amazonaws.com/android"
+            content {
+                includeGroup "org.wordpress"
+                includeGroup "org.wordpress.aztec"
+                includeGroup "org.wordpress.wellsql"
+                includeGroup "org.wordpress.gutenberg-mobile"
+                includeGroup "org.wordpress.gutenbergkit"
+                includeGroupByRegex "org.wordpress.react-native-libraries.*"
+                includeGroup "com.automattic"
+                includeGroup "com.automattic.tracks"
+                includeGroup "com.gravatar"
+                includeGroup "rs.wordpress.api"
+            }
+        }
+        maven {
+            url "https://a8c-libs.s3.amazonaws.com/android/react-native-mirror"
+            content {
+                includeGroup "com.facebook.react"
+            }
+        }
+        maven {
+            url 'https://zendesk.jfrog.io/zendesk/repo'
+            content {
+                includeGroup "com.zendesk"
+                includeGroup "com.zendesk.belvedere2"
+            }
+        }
+        maven {
+            url "https://a8c-libs.s3.amazonaws.com/android/jcenter-mirror"
+            content {
+                includeVersion "com.automattic", "rest", "1.0.8"
+                includeVersion "org.wordpress", "persistentedittext", "1.0.2"
+            }
+        }
+        maven { url "https://www.jitpack.io" }
+    }
+}
+
 rootProject.name = 'WPAndroid'
 
 include ':WordPress'
