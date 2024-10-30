@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,10 +28,10 @@ import org.wordpress.android.ui.bloggingprompts.promptslist.model.BloggingPrompt
 import org.wordpress.android.ui.compose.components.EmptyContent
 import org.wordpress.android.ui.compose.components.MainTopAppBar
 import org.wordpress.android.ui.compose.components.NavigationIcons
-import org.wordpress.android.ui.compose.theme.AppThemeM2
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 
 @Composable
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 fun BloggingPromptsListScreen(
     uiState: UiState,
     onNavigateUp: () -> Unit,
@@ -68,7 +68,7 @@ private fun ListContent(
     } else {
         LazyColumn(Modifier.fillMaxSize()) {
             itemsIndexed(promptsList) { index, item ->
-                if (index != 0) Divider()
+                if (index != 0) HorizontalDivider()
 
                 BloggingPromptsListItem(
                     model = item,
@@ -125,7 +125,7 @@ private fun NetworkErrorContent() {
 fun BloggingPromptsListScreenPreview(
     @PreviewParameter(provider = BloggingPromptsListScreenPreviewProvider::class) uiState: UiState
 ) {
-    AppThemeM2 {
+    AppThemeM3 {
         BloggingPromptsListScreen(uiState = uiState, onNavigateUp = {}, onItemClick = {})
     }
 }
