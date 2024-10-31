@@ -59,7 +59,7 @@ fun JetpackDropdownMenu(
 ) {
     Column {
         var isMenuVisible by remember { mutableStateOf(false) }
-        DropdownMenuButton(
+        JetpackDropdownMenuButton(
             height = menuButtonHeight,
             contentSizeAnimation = contentSizeAnimation,
             selectedItem = selectedItem,
