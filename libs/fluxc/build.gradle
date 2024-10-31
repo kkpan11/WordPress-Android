@@ -15,9 +15,8 @@ android {
 
     namespace "org.wordpress.android.fluxc"
 
-    compileSdkVersion rootProject.compileSdkVersion
-
     defaultConfig {
+        compileSdk rootProject.compileSdkVersion
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
         room {
