@@ -163,7 +163,6 @@ fun ReaderFilterChip(
 
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
-        // TODO LocalContentAlpha provides 1f,
     ) {
         Row(
             modifier = modifier
