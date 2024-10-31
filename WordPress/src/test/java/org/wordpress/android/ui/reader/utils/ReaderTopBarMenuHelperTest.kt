@@ -9,7 +9,7 @@ import org.wordpress.android.R
 import org.wordpress.android.models.ReaderTag
 import org.wordpress.android.models.ReaderTagList
 import org.wordpress.android.models.ReaderTagType
-import org.wordpress.android.ui.compose.components.menu.dropdown.MenuElementData
+import org.wordpress.android.ui.reader.views.compose.dropdown.MenuElementData
 import org.wordpress.android.ui.utils.UiString.UiStringRes
 import org.wordpress.android.ui.utils.UiString.UiStringText
 import org.wordpress.android.util.config.ReaderTagsFeedFeatureConfig

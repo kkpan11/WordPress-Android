@@ -1,4 +1,4 @@
-package org.wordpress.android.ui.compose.components.menu.dropdown
+package org.wordpress.android.ui.reader.views.compose.dropdown
 
 import android.content.res.Configuration
 import androidx.compose.animation.core.FiniteAnimationSpec

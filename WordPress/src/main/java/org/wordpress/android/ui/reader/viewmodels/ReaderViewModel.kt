@@ -25,7 +25,7 @@ import org.wordpress.android.models.ReaderTag
 import org.wordpress.android.models.ReaderTagList
 import org.wordpress.android.modules.BG_THREAD
 import org.wordpress.android.modules.UI_THREAD
-import org.wordpress.android.ui.compose.components.menu.dropdown.MenuElementData
+import org.wordpress.android.ui.reader.views.compose.dropdown.MenuElementData
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalOverlayUtil
 import org.wordpress.android.ui.jetpackoverlay.JetpackOverlayConnectedFeature.READER
 import org.wordpress.android.ui.mysite.SelectedSiteRepository

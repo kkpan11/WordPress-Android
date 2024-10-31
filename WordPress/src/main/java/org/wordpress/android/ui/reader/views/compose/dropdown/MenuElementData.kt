@@ -1,4 +1,4 @@
-package org.wordpress.android.ui.compose.components.menu.dropdown
+package org.wordpress.android.ui.reader.views.compose.dropdown
 
 import androidx.annotation.DrawableRes
 import org.wordpress.android.ui.utils.UiString

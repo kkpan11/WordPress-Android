@@ -2,8 +2,8 @@ package org.wordpress.android.ui.compose.components.menu
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import org.wordpress.android.ui.compose.components.menu.dropdown.MenuElementData
-import org.wordpress.android.ui.compose.components.menu.dropdown.NO_ICON
+import org.wordpress.android.ui.reader.views.compose.dropdown.MenuElementData
+import org.wordpress.android.ui.reader.views.compose.dropdown.NO_ICON
 import org.wordpress.android.ui.utils.UiString.UiStringText
 
 class MenuElementDataTest {

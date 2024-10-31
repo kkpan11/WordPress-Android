@@ -35,8 +35,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.wordpress.android.R
-import org.wordpress.android.ui.compose.components.menu.dropdown.JetpackDropdownMenu
-import org.wordpress.android.ui.compose.components.menu.dropdown.MenuElementData
+import org.wordpress.android.ui.reader.views.compose.dropdown.JetpackDropdownMenu
+import org.wordpress.android.ui.reader.views.compose.dropdown.MenuElementData
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.Margin
 import org.wordpress.android.ui.compose.utils.horizontalFadingEdges
