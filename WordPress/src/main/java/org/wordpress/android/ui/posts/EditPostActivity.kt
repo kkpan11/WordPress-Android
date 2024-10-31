@@ -2470,6 +2470,15 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                                 storePostViewModel.savePostWithDelay()
                             }
                         })
+                        editorFragment?.onOpenMediaLibrary(object: GutenbergView.OpenMediaLibraryListener {
+                            override fun onOpenMediaLibrary(config: GutenbergView.OpenMediaLibraryConfig) {
+                                editorPhotoPicker?.allowMultipleSelection = config.multiple
+                                // TODO: Set initial media selection
+                                // TODO: Scope to correct media type
+                                openMediaLibrary(MediaBrowserType.GUTENBERG_IMAGE_PICKER)
+                                // TODO: The above launches the picker, but nothing occurs after selecting media.
+                            }
+                        })
                     } else {
                         editorFragment?.titleOrContentChanged?.observe(this@EditPostActivity) { _: Editable? ->
                             storePostViewModel.savePostWithDelay()
@@ -2493,6 +2502,14 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
         }
 
         private val numPagesInEditor: Int = 4
+    }
+
+    private fun openMediaLibrary(mediaType: MediaBrowserType) {
+        mediaPickerLauncher.viewWPMediaLibraryPickerForResult(
+            activity = this,
+            site = siteModel,
+            browserType = mediaType
+        )
     }
 
     private fun onXpostsSettingsCapability(isXpostsCapable: Boolean) {

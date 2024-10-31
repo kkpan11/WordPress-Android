@@ -68,6 +68,11 @@ import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.helpers.MediaFile;
 import org.wordpress.android.util.helpers.MediaGallery;
 import org.wordpress.aztec.IHistoryListener;
+import org.wordpress.gutenberg.GutenbergView;
+import org.wordpress.gutenberg.GutenbergView.TitleAndContentCallback;
+import org.wordpress.gutenberg.GutenbergView.ContentChangeListener;
+import org.wordpress.gutenberg.GutenbergWebViewPool;
+import org.wordpress.gutenberg.GutenbergView.OpenMediaLibraryListener;
 import org.wordpress.mobile.ReactNativeGutenbergBridge.GutenbergBridgeJS2Parent.LogExceptionCallback;
 import org.wordpress.mobile.ReactNativeGutenbergBridge.GutenbergEmbedWebViewActivity;
 import org.wordpress.mobile.WPAndroidGlue.GutenbergJsException;
@@ -92,10 +97,6 @@ import org.wordpress.mobile.WPAndroidGlue.WPAndroidGlueCode.OnLogExceptionListen
 import org.wordpress.mobile.WPAndroidGlue.WPAndroidGlueCode.OnMediaLibraryButtonListener;
 import org.wordpress.mobile.WPAndroidGlue.WPAndroidGlueCode.OnReattachMediaUploadQueryListener;
 import org.wordpress.mobile.WPAndroidGlue.WPAndroidGlueCode.OnSetFeaturedImageListener;
-import org.wordpress.gutenberg.GutenbergView;
-import org.wordpress.gutenberg.GutenbergView.TitleAndContentCallback;
-import org.wordpress.gutenberg.GutenbergView.ContentChangeListener;
-import org.wordpress.gutenberg.GutenbergWebViewPool;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -157,6 +158,7 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
 
     private LiveTextWatcher mTextWatcher = new LiveTextWatcher();
     @Nullable private ContentChangeListener mContentChangeListener = null;
+    @Nullable private OpenMediaLibraryListener mOpenMediaLibraryListener = null;
 
     // pointer (to the Gutenberg container fragment) that outlives this fragment's Android lifecycle. The retained
     //  fragment can be alive and accessible even before it gets attached to an activity.
@@ -288,6 +290,7 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
                 return null;
             });
             mGutenbergView.setContentChangeListener(mContentChangeListener);
+            mGutenbergView.setOpenMediaLibraryListener(mOpenMediaLibraryListener);
             mGutenbergView.setEditorDidBecomeAvailable(view -> {
                 mEditorFragmentListener.onEditorFragmentContentReady(new ArrayList<Object>(), false);
             });
@@ -1385,6 +1388,10 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
 
     public void onEditorContentChanged(@NonNull ContentChangeListener listener) {
         mContentChangeListener = listener;
+    }
+
+    public void onOpenMediaLibrary(@NonNull OpenMediaLibraryListener listener) {
+        mOpenMediaLibraryListener = listener;
     }
 
     @Override
