@@ -280,4 +280,5 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 kotlinx-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kotlinx-kover" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 sentry = { id = "io.sentry.android.gradle", version.ref = "sentry" }
+room = { id = "androidx.room", version.ref = "androidx-room" }
 violation-comments = { id = "se.bjurr.violations.violation-comments-to-github-gradle-plugin", version.ref = "violation-comments" }
