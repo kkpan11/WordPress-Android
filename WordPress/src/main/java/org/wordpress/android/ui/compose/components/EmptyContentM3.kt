@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +23,7 @@ import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.FontSize
 import org.wordpress.android.ui.compose.unit.Margin
 
-private fun Modifier.emptyContentTextModifier() = padding(horizontal = 30.dp).requiredWidthIn(max = 440.dp)
+private fun Modifier.emptyContentTextModifier() = padding(horizontal = 30.dp)
 
 /**
  * Reusable Material 3 component for empty screen states such as: empty lists, errors, and loading states. Based on the

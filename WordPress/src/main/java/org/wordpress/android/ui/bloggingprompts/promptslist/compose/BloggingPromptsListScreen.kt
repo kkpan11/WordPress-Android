@@ -35,6 +35,8 @@ import org.wordpress.android.ui.bloggingprompts.promptslist.model.BloggingPrompt
 import org.wordpress.android.ui.compose.components.EmptyContentM3
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 
+private val emptyContentModifier: Modifier = Modifier.fillMaxSize()
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BloggingPromptsListScreen(
@@ -102,7 +104,7 @@ private fun NoContent() {
     EmptyContentM3(
         title = stringResource(R.string.blogging_prompts_list_no_prompts),
         image = R.drawable.img_illustration_empty_results_216dp,
-        modifier = Modifier.fillMaxSize(),
+        modifier = emptyContentModifier,
     )
 }
 
@@ -122,7 +124,7 @@ private fun FetchErrorContent() {
         title = stringResource(R.string.blogging_prompts_list_error_fetch_title),
         subtitle = stringResource(R.string.blogging_prompts_list_error_fetch_subtitle),
         image = R.drawable.img_illustration_empty_results_216dp,
-        modifier = Modifier.fillMaxSize(),
+        modifier = emptyContentModifier,
     )
 }
 
@@ -132,7 +134,7 @@ private fun NetworkErrorContent() {
         title = stringResource(R.string.no_connection_error_title),
         subtitle = stringResource(R.string.no_connection_error_description),
         image = R.drawable.img_illustration_cloud_off_152dp,
-        modifier = Modifier.fillMaxSize(),
+        modifier = emptyContentModifier,
     )
 }
 
