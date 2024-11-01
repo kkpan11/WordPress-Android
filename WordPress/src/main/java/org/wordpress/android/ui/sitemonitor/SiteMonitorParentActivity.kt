@@ -117,6 +117,7 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
             siteMonitorParentViewModel.start(getSite())
             currentSelectItemId = getInitialTab()
         }
+
         setContent {
             AppThemeM3 {
                 Surface(
@@ -146,12 +147,6 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
             SiteMonitorType.PHP_LOGS -> 1
             SiteMonitorType.WEB_SERVER_LOGS -> 2
         }
-    }
-
-    companion object {
-        const val ARG_SITE_MONITOR_TYPE_KEY = "ARG_SITE_MONITOR_TYPE_KEY"
-        const val SAVED_STATE_CONTAINER_KEY = "ContainerKey"
-        const val SAVED_STATE_CURRENT_TAB_KEY = "CurrentTabKey"
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -298,7 +293,6 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
         tabType: SiteMonitorType,
         modifier: Modifier = Modifier
     ) {
-        // retrieve the webview from the activity
         val webView = when (tabType) {
             SiteMonitorType.METRICS -> metricsWebView
             SiteMonitorType.PHP_LOGS -> phpLogsWebView
@@ -373,5 +367,11 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
     override fun onWebViewReceivedError(url: String, tabType: SiteMonitorType) {
         siteMonitorParentViewModel.onWebViewError(tabType)
         siteMonitorUtils.trackTabLoadingError(tabType)
+    }
+
+    companion object {
+        const val ARG_SITE_MONITOR_TYPE_KEY = "ARG_SITE_MONITOR_TYPE_KEY"
+        const val SAVED_STATE_CONTAINER_KEY = "ContainerKey"
+        const val SAVED_STATE_CURRENT_TAB_KEY = "CurrentTabKey"
     }
 }
