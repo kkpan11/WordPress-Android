@@ -23,15 +23,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -314,15 +313,12 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
 
         val refreshState = siteMonitorParentViewModel.getRefreshState(tabType)
 
-        val pullRefreshState = rememberPullRefreshState(
-            refreshing = refreshState.value,
-            onRefresh = { siteMonitorParentViewModel.refreshData(tabType) }
-        )
-
-        Box(
+        PullToRefreshBox(
+            isRefreshing = refreshState.value,
+            state = rememberPullToRefreshState(),
+            onRefresh = { siteMonitorParentViewModel.refreshData(tabType) },
             modifier = modifier
                 .fillMaxSize()
-                .pullRefresh(pullRefreshState)
         ) {
             LazyColumn(modifier = Modifier.fillMaxHeight()) {
                 item {
@@ -333,12 +329,12 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
                     )
                 }
             }
-            PullRefreshIndicator(
+            /*PullRefreshIndicator(
                 refreshing = refreshState.value,
                 state = pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter),
                 contentColor = MaterialTheme.colorScheme.secondary,
-            )
+            )*/
         }
     }
 
