@@ -1,7 +1,6 @@
 package org.wordpress.android.ui.reader.views.compose.tagsfeed
 
 import android.content.res.Configuration
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -28,7 +27,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.ripple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -90,7 +89,7 @@ fun ReaderTagsFeed(uiState: UiState) {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun Loaded(uiState: UiState.Loaded) {
     val pullRefreshState = rememberPullRefreshState(
@@ -137,7 +136,7 @@ private fun Loaded(uiState: UiState.Loaded) {
 
                 Column(
                     modifier = Modifier
-                        .animateItemPlacement()
+                        .animateItem(fadeInSpec = null, fadeOutSpec = null)
                         .fillMaxWidth()
                         .padding(
                             top = Margin.Large.value,
@@ -370,7 +369,7 @@ private fun PostListLoaded(
                         .align(Alignment.Center)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(bounded = false),
+                            indication = ripple(bounded = false),
                             onClick = {
                                 tagChip.onMoreFromTagClick(tagChip.tag)
                             }
