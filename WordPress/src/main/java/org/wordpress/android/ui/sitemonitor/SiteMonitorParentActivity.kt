@@ -19,17 +19,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -312,13 +313,22 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
         var webView = tabWebView
 
         val refreshState = siteMonitorParentViewModel.getRefreshState(tabType)
+        val pullToRefreshState = rememberPullToRefreshState()
 
         PullToRefreshBox(
-            isRefreshing = refreshState.value,
-            state = rememberPullToRefreshState(),
-            onRefresh = { siteMonitorParentViewModel.refreshData(tabType) },
             modifier = modifier
-                .fillMaxSize()
+                .fillMaxSize(),
+            isRefreshing = refreshState.value,
+            state = pullToRefreshState,
+            onRefresh = { siteMonitorParentViewModel.refreshData(tabType) },
+            indicator = {
+                PullToRefreshDefaults.Indicator(
+                    state = pullToRefreshState,
+                    isRefreshing = refreshState.value,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                )
+            }
         ) {
             LazyColumn(modifier = Modifier.fillMaxHeight()) {
                 item {
@@ -329,12 +339,6 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
                     )
                 }
             }
-            /*PullRefreshIndicator(
-                refreshing = refreshState.value,
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
-                contentColor = MaterialTheme.colorScheme.secondary,
-            )*/
         }
     }
 
