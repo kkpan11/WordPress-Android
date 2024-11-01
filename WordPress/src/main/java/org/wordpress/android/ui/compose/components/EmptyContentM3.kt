@@ -33,20 +33,16 @@ private fun Modifier.emptyContentTextModifier() = padding(horizontal = 30.dp)
  *
  * @param modifier [Modifier] applied on the box that wraps the content of this Composable, the actual content is not
  * directly affected, so use this mainly to define the size and padding of the composable.
- * @param title (optional) [String] that will be displayed as title.
+ * @param title [String] that will be displayed as title.
  * @param subtitle (optional) [String] that will be displayed as subtitle.
  * @param image (optional) Drawable resource ID for the image that will be displayed. Note the drawable original size
  * is directly used when displaying the image.
  * @param imageContentDescription (optional) Content Description passed directly to the internal [Image] Composable
- * showing the [image] drawable, for accessibility purposes.
- *
- * @see Modifier
- * @see Image
  */
 @Composable
 fun EmptyContentM3(
     modifier: Modifier = Modifier,
-    title: String? = null,
+    title: String,
     subtitle: String? = null,
     @DrawableRes image: Int? = null,
     imageContentDescription: String? = null,
@@ -63,30 +59,20 @@ fun EmptyContentM3(
                     painterResource(imageRes),
                     contentDescription = imageContentDescription
                 )
-            }
-
-            // show spacer if something will be shown below and something was shown above
-            if (image != null && (title != null || subtitle != null)) {
                 Spacer(Modifier.height(Margin.ExtraLarge.value))
             }
 
-            title?.let {
-                Text(
-                    it,
-                    modifier = Modifier.emptyContentTextModifier(),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = FontSize.ExtraLarge.value,
-                        fontWeight = FontWeight.Normal
-                    )
+            Text(
+                title,
+                modifier = Modifier.emptyContentTextModifier(),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = FontSize.ExtraLarge.value,
+                    fontWeight = FontWeight.Normal
                 )
-            }
-
-            // show spacer if something will be shown below and title was shown above
-            if (subtitle != null && title != null) {
-                Spacer(Modifier.height(Margin.Medium.value))
-            }
+            )
 
             subtitle?.let {
+                Spacer(Modifier.height(Margin.Medium.value))
                 Text(
                     it,
                     modifier = Modifier.emptyContentTextModifier(),
