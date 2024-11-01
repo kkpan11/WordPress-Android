@@ -32,7 +32,7 @@ import org.wordpress.android.ui.bloggingprompts.promptslist.BloggingPromptsListV
 import org.wordpress.android.ui.bloggingprompts.promptslist.BloggingPromptsListViewModel.UiState.NetworkError
 import org.wordpress.android.ui.bloggingprompts.promptslist.BloggingPromptsListViewModel.UiState.None
 import org.wordpress.android.ui.bloggingprompts.promptslist.model.BloggingPromptsListItemModel
-import org.wordpress.android.ui.compose.components.EmptyContent
+import org.wordpress.android.ui.compose.components.EmptyContentM3
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,7 +99,7 @@ private fun ListContent(
 
 @Composable
 private fun NoContent() {
-    EmptyContent(
+    EmptyContentM3(
         title = stringResource(R.string.blogging_prompts_list_no_prompts),
         image = R.drawable.img_illustration_empty_results_216dp,
         modifier = Modifier.fillMaxSize(),
@@ -118,7 +118,7 @@ private fun LoadingContent() {
 
 @Composable
 private fun FetchErrorContent() {
-    EmptyContent(
+    EmptyContentM3(
         title = stringResource(R.string.blogging_prompts_list_error_fetch_title),
         subtitle = stringResource(R.string.blogging_prompts_list_error_fetch_subtitle),
         image = R.drawable.img_illustration_empty_results_216dp,
@@ -128,7 +128,7 @@ private fun FetchErrorContent() {
 
 @Composable
 private fun NetworkErrorContent() {
-    EmptyContent(
+    EmptyContentM3(
         title = stringResource(R.string.no_connection_error_title),
         subtitle = stringResource(R.string.no_connection_error_description),
         image = R.drawable.img_illustration_cloud_off_152dp,
@@ -143,6 +143,10 @@ fun BloggingPromptsListScreenPreview(
     @PreviewParameter(provider = BloggingPromptsListScreenPreviewProvider::class) uiState: UiState
 ) {
     AppThemeM3 {
-        BloggingPromptsListScreen(uiState = uiState, onNavigateUp = {}, onItemClick = {})
+        BloggingPromptsListScreen(
+            uiState = uiState,
+            onNavigateUp = {},
+            onItemClick = {}
+        )
     }
 }
