@@ -199,7 +199,8 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
                 indicator = {
                     TabRowDefaults.SecondaryIndicator(
                         color = MaterialTheme.colorScheme.onSurface,
-                        height = 2.0.dp
+                        height = 2.0.dp,
+                        modifier = Modifier.tabIndicatorOffset(tabIndex)
                     )
                 }
             ) {
