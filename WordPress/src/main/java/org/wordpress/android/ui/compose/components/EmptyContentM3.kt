@@ -18,7 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.wordpress.android.R
-import org.wordpress.android.ui.ActionableEmptyView
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.FontSize
 import org.wordpress.android.ui.compose.unit.Margin
@@ -26,18 +25,13 @@ import org.wordpress.android.ui.compose.unit.Margin
 private fun Modifier.emptyContentTextModifier() = padding(horizontal = 30.dp)
 
 /**
- * Reusable Material 3 component for empty screen states such as: empty lists, errors, and loading states. Based on the
- * existing [ActionableEmptyView] implementation, which is used throughout the project in the XML view screens.
+ * Reusable Material 3 component for empty screen states
  *
- * Note: this currently has a subset of the implementation of [ActionableEmptyView], see params below.
- *
- * @param modifier [Modifier] applied on the box that wraps the content of this Composable, the actual content is not
- * directly affected, so use this mainly to define the size and padding of the composable.
- * @param title [String] that will be displayed as title.
- * @param subtitle (optional) [String] that will be displayed as subtitle.
- * @param image (optional) Drawable resource ID for the image that will be displayed. Note the drawable original size
- * is directly used when displaying the image.
- * @param imageContentDescription (optional) Content Description passed directly to the internal [Image] Composable
+ * @param modifier [Modifier] applied on the containing [Box]
+ * @param title [String] that will be displayed as title
+ * @param subtitle (optional) [String] that will be displayed as subtitle
+ * @param image (optional) Drawable resource ID for the image that will be displayed
+ * @param imageContentDescription (optional) Content Description for the above image
  */
 @Composable
 fun EmptyContentM3(
@@ -91,20 +85,9 @@ fun EmptyContentM3(
 @Composable
 private fun EmptyContentM3Preview() {
     AppThemeM3 {
-        EmptyContent(
+        EmptyContentM3(
             title = "Title",
             subtitle = "Subtitle",
-            image = R.drawable.img_illustration_empty_results_216dp,
-        )
-    }
-}
-
-@Preview(name = "Image Only", showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun EmptyContentM3ImagePreview() {
-    AppThemeM3 {
-        EmptyContent(
             image = R.drawable.img_illustration_empty_results_216dp,
         )
     }
@@ -115,20 +98,8 @@ private fun EmptyContentM3ImagePreview() {
 @Composable
 private fun EmptyContentM3ImageTitlePreview() {
     AppThemeM3 {
-        EmptyContent(
+        EmptyContentM3(
             title = "Title",
-            image = R.drawable.img_illustration_empty_results_216dp,
-        )
-    }
-}
-
-@Preview(name = "Image and Subtitle Only", showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun EmptyContentM3ImageSubtitlePreview() {
-    AppThemeM3 {
-        EmptyContent(
-            subtitle = "Subtitle",
             image = R.drawable.img_illustration_empty_results_216dp,
         )
     }
@@ -139,7 +110,7 @@ private fun EmptyContentM3ImageSubtitlePreview() {
 @Composable
 private fun EmptyContentM3TitlePreview() {
     AppThemeM3 {
-        EmptyContent(
+        EmptyContentM3(
             title = "Title",
         )
     }
@@ -150,19 +121,8 @@ private fun EmptyContentM3TitlePreview() {
 @Composable
 private fun EmptyContentM3TitleSubtitlePreview() {
     AppThemeM3 {
-        EmptyContent(
+        EmptyContentM3(
             title = "Title",
-            subtitle = "Subtitle",
-        )
-    }
-}
-
-@Preview(name = "Subtitle Only", showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun EmptyContentM3SubtitlePreview() {
-    AppThemeM3 {
-        EmptyContent(
             subtitle = "Subtitle",
         )
     }
