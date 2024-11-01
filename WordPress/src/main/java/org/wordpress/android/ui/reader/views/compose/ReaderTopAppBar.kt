@@ -1,6 +1,6 @@
 package org.wordpress.android.ui.reader.views.compose
 
-import android.content.res.Configuration
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -35,8 +35,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.wordpress.android.R
-import org.wordpress.android.ui.compose.components.menu.dropdown.JetpackDropdownMenu
-import org.wordpress.android.ui.compose.components.menu.dropdown.MenuElementData
+import org.wordpress.android.ui.reader.views.compose.dropdown.JetpackDropdownMenu
+import org.wordpress.android.ui.reader.views.compose.dropdown.JetpackMenuElementData
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.Margin
 import org.wordpress.android.ui.compose.utils.horizontalFadingEdges
@@ -51,7 +51,7 @@ private val chipHeight = 36.dp
 @Composable
 fun ReaderTopAppBar(
     topBarUiState: ReaderViewModel.TopBarUiState,
-    onMenuItemClick: (MenuElementData.Item.Single) -> Unit,
+    onMenuItemClick: (JetpackMenuElementData.Item.Single) -> Unit,
     onFilterClick: (ReaderFilterType) -> Unit,
     onClearFilterClick: () -> Unit,
     isSearchVisible: Boolean,
@@ -164,40 +164,40 @@ private fun Filter(
     )
 }
 
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Light Mode", showBackground = true)
+@Preview(name = "Dark Mode", showBackground = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun ReaderTopAppBarPreview() {
-    val menuItems = mutableListOf<MenuElementData>(
-        MenuElementData.Item.Single(
+    val menuItems = mutableListOf<JetpackMenuElementData>(
+        JetpackMenuElementData.Item.Single(
             id = "discover",
             text = UiString.UiStringRes(R.string.reader_dropdown_menu_discover),
             leadingIcon = R.drawable.ic_reader_discover_24dp,
         ),
-        MenuElementData.Item.Single(
+        JetpackMenuElementData.Item.Single(
             id = "subscriptions",
             text = UiString.UiStringRes(R.string.reader_dropdown_menu_subscriptions),
             leadingIcon = R.drawable.ic_reader_subscriptions_24dp,
         ),
-        MenuElementData.Item.Single(
+        JetpackMenuElementData.Item.Single(
             id = "saved",
             text = UiString.UiStringRes(R.string.reader_dropdown_menu_saved),
             leadingIcon = R.drawable.ic_reader_saved_24dp,
         ),
-        MenuElementData.Item.Single(
+        JetpackMenuElementData.Item.Single(
             id = "liked",
             text = UiString.UiStringRes(R.string.reader_dropdown_menu_liked),
             leadingIcon = R.drawable.ic_reader_liked_24dp,
         ),
-        MenuElementData.Item.SubMenu(
+        JetpackMenuElementData.Item.SubMenu(
             id = "subMenu1",
             text = UiString.UiStringText("Funny Blogs"),
             children = listOf(
-                MenuElementData.Item.Single(
+                JetpackMenuElementData.Item.Single(
                     id = "funnyBlog1",
                     text = UiString.UiStringText("Funny Blog 1"),
                 ),
-                MenuElementData.Item.Single(
+                JetpackMenuElementData.Item.Single(
                     id = "funnyBlog2",
                     text = UiString.UiStringText("Funny Blog 2"),
                 ),
@@ -209,7 +209,7 @@ fun ReaderTopAppBarPreview() {
         mutableStateOf(
             ReaderViewModel.TopBarUiState(
                 menuItems = menuItems,
-                selectedItem = menuItems.first() as MenuElementData.Item.Single,
+                selectedItem = menuItems.first() as JetpackMenuElementData.Item.Single,
                 onDropdownMenuClick = {},
             )
         )
