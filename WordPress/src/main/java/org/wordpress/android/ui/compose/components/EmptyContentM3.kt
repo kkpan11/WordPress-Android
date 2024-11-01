@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.wordpress.android.R
@@ -46,7 +47,7 @@ fun EmptyContentM3(
         contentAlignment = Alignment.Center,
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             image?.let { imageRes ->
                 Image(
@@ -59,6 +60,7 @@ fun EmptyContentM3(
             Text(
                 title,
                 modifier = Modifier.emptyContentTextModifier(),
+                textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontSize = FontSize.ExtraLarge.value,
                     fontWeight = FontWeight.Normal
@@ -70,6 +72,7 @@ fun EmptyContentM3(
                 Text(
                     it,
                     modifier = Modifier.emptyContentTextModifier(),
+                    textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = FontSize.Large.value,
                         fontWeight = FontWeight.Normal
