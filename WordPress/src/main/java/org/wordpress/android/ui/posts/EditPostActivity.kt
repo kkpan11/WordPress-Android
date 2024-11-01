@@ -2474,8 +2474,8 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                             override fun onOpenMediaLibrary(config: GutenbergView.OpenMediaLibraryConfig) {
                                 editorPhotoPicker?.allowMultipleSelection = config.multiple
                                 // TODO: Set initial media selection
-                                // TODO: Scope to correct media type
-                                openMediaLibrary(MediaBrowserType.GUTENBERG_IMAGE_PICKER)
+                                val mediaType = mapAllowedTypesToMediaBrowserType(config.allowedTypes, config.multiple)
+                                openMediaLibrary(mediaType)
                                 // TODO: The above launches the picker, but nothing occurs after selecting media.
                             }
                         })
@@ -4081,5 +4081,21 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
         const val GROUP_ONE = 1
         const val GROUP_TWO = 2
         const val GROUP_THREE = 3
+    }
+}
+
+fun mapAllowedTypesToMediaBrowserType(allowedTypes: Array<GutenbergView.MediaType>, multiple: Boolean): MediaBrowserType {
+    return when {
+        allowedTypes.contains(GutenbergView.MediaType.IMAGE) && allowedTypes.contains(GutenbergView.MediaType.VIDEO) -> {
+            if (multiple) MediaBrowserType.GUTENBERG_MEDIA_PICKER else MediaBrowserType.GUTENBERG_SINGLE_MEDIA_PICKER
+        }
+        allowedTypes.contains(GutenbergView.MediaType.IMAGE) -> {
+            if (multiple) MediaBrowserType.GUTENBERG_IMAGE_PICKER else MediaBrowserType.GUTENBERG_SINGLE_IMAGE_PICKER
+        }
+        allowedTypes.contains(GutenbergView.MediaType.VIDEO) -> {
+            if (multiple) MediaBrowserType.GUTENBERG_VIDEO_PICKER else MediaBrowserType.GUTENBERG_SINGLE_VIDEO_PICKER
+        }
+        allowedTypes.contains(GutenbergView.MediaType.AUDIO) -> MediaBrowserType.GUTENBERG_SINGLE_AUDIO_FILE_PICKER
+        else -> if (multiple) MediaBrowserType.GUTENBERG_MEDIA_PICKER else MediaBrowserType.GUTENBERG_SINGLE_FILE_PICKER
     }
 }
