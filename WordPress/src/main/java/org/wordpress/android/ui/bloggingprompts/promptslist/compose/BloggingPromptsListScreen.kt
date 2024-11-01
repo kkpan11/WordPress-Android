@@ -1,10 +1,10 @@
 package org.wordpress.android.ui.bloggingprompts.promptslist.compose
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -37,7 +37,6 @@ import org.wordpress.android.ui.compose.theme.AppThemeM3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 fun BloggingPromptsListScreen(
     uiState: UiState,
     onNavigateUp: () -> Unit,
@@ -59,8 +58,12 @@ fun BloggingPromptsListScreen(
                 },
             )
         },
-    ) {
-        Surface(modifier = Modifier.fillMaxSize()) {
+    ) { contentPadding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+        ) {
             when (uiState) {
                 is Content -> ListContent(uiState.content, onItemClick)
                 Loading -> LoadingContent()
