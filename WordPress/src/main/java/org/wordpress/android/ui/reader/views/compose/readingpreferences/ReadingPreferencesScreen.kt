@@ -292,6 +292,7 @@ private fun ReadingPreferencesPreviewFeedback(
     }
 
     val buttonLabel = stringResource(R.string.reader_preferences_screen_preview_text_feedback_label)
+    @Suppress("DEPRECATION")
     ClickableText(
         text = annotatedString,
         style = textStyle,
