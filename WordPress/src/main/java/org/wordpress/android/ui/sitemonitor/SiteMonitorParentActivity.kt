@@ -45,9 +45,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
@@ -180,31 +180,6 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
         }
     }
 
-    // TODO remove this preview
-    @Preview
-    @Composable
-    @OptIn(ExperimentalMaterial3Api::class)
-    fun TestPreview() {
-        var state by remember { mutableIntStateOf(0) }
-        val titles = listOf("Tab 1", "Tab 2", "Tab 3 with lots of text")
-        Column {
-            PrimaryTabRow(selectedTabIndex = state) {
-                titles.forEachIndexed { index, title ->
-                    Tab(
-                        selected = state == index,
-                        onClick = { state = index },
-                        text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) }
-                    )
-                }
-            }
-            Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = "Text tab ${state + 1} selected",
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-    }
-
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -223,7 +198,6 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 indicator = {
                     TabRowDefaults.SecondaryIndicator(
-                        // Modifier.tabIndicatorOffset(tabPositions[tabIndex]),
                         color = MaterialTheme.colorScheme.onSurface,
                         height = 2.0.dp
                     )
@@ -235,7 +209,8 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
                             Text(
                                 text = stringResource(item.title).uppercase(),
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
+                                fontWeight = FontWeight.Normal
                             )
                         },
                         selected = tabIndex == index,
