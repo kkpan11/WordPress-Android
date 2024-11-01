@@ -24,16 +24,15 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,7 +59,7 @@ import org.wordpress.android.R
 import org.wordpress.android.models.ReaderTag
 import org.wordpress.android.models.ReaderTagType
 import org.wordpress.android.ui.compose.theme.AppColor
-import org.wordpress.android.ui.compose.theme.AppTheme
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.Margin
 import org.wordpress.android.ui.reader.viewmodels.tagsfeed.ReaderTagsFeedViewModel.ErrorType
 import org.wordpress.android.ui.reader.viewmodels.tagsfeed.ReaderTagsFeedViewModel.PostList
@@ -238,10 +237,8 @@ private fun Empty(uiState: UiState.Empty) {
             text = stringResource(id = R.string.reader_discover_empty_title),
             textAlign = TextAlign.Center,
             fontSize = 20.sp,
-            style = MaterialTheme.typography.subtitle1,
-            color = MaterialTheme.colors.onSurface.copy(
-                alpha = ContentAlpha.medium,
-            ),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         // Subtitle
         Text(
@@ -253,10 +250,8 @@ private fun Empty(uiState: UiState.Empty) {
                 ),
             text = stringResource(id = R.string.reader_discover_empty_subtitle_follow),
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.subtitle1,
-            color = MaterialTheme.colors.onSurface.copy(
-                alpha = ContentAlpha.medium,
-            ),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         // Button
         Button(
@@ -270,19 +265,19 @@ private fun Empty(uiState: UiState.Empty) {
                 horizontal = 32.dp,
                 vertical = 8.dp,
             ),
-            elevation = ButtonDefaults.elevation(
+            elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 0.dp,
                 pressedElevation = 0.dp,
             ),
             colors = ButtonDefaults.buttonColors(
-                contentColor = MaterialTheme.colors.onPrimary,
-                backgroundColor = MaterialTheme.colors.onSurface,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                containerColor = MaterialTheme.colorScheme.onSurface,
             ),
         ) {
-            androidx.compose.material.Text(
+            Text(
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
-                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium,
                 text = stringResource(id = R.string.reader_discover_empty_button_text),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
@@ -392,7 +387,7 @@ private fun PostListLoaded(
                                 )
                             },
                         painter = painterResource(R.drawable.ic_arrow_right_white_24dp),
-                        tint = MaterialTheme.colors.onSurface,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         contentDescription = null,
                     )
                     Spacer(modifier = Modifier.height(Margin.ExtraMediumLarge.value))
@@ -403,7 +398,7 @@ private fun PostListLoaded(
                             id = R.string.reader_tags_feed_see_more_from_tag,
                             tagChip.tag.tagDisplayName
                         ),
-                        style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelLarge,
                         color = primaryElementColor,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -462,20 +457,20 @@ private fun ErrorMessage(
                 )
                 .padding(Margin.Medium.value),
             painter = painterResource(R.drawable.ic_wifi_off_24px),
-            tint = MaterialTheme.colors.onSurface,
+            tint = MaterialTheme.colorScheme.onSurface,
             contentDescription = null
         )
         Spacer(modifier = Modifier.height(Margin.ExtraMediumLarge.value))
         Text(
             text = titleText,
-            style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colors.onSurface,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(Margin.Small.value))
         Text(
             text = descriptionText,
-            style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall,
             color = if (isSystemInDarkTheme()) {
                 AppColor.White.copy(alpha = 0.4F)
             } else {
@@ -489,22 +484,22 @@ private fun ErrorMessage(
             modifier = Modifier
                 .height(36.dp)
                 .widthIn(min = 114.dp),
-            elevation = ButtonDefaults.elevation(
+            elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 0.dp,
                 pressedElevation = 0.dp,
             ),
             colors = ButtonDefaults.buttonColors(
-                contentColor = MaterialTheme.colors.onPrimary,
-                backgroundColor = MaterialTheme.colors.onSurface,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                containerColor = MaterialTheme.colorScheme.onSurface,
             ),
             shape = RoundedCornerShape(50),
         ) {
             Text(
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
-                style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colors.surface,
+                color = MaterialTheme.colorScheme.surface,
                 text = actionText,
             )
         }
@@ -533,7 +528,7 @@ data class TagsFeedPostItem(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun ReaderTagsFeedLoaded() {
-    AppTheme {
+    AppThemeM3 {
         val postListLoaded = PostList.Loaded(
             listOf(
                 TagsFeedPostItem(
@@ -651,7 +646,7 @@ fun ReaderTagsFeedLoaded() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun ReaderTagsFeedLoading() {
-    AppTheme {
+    AppThemeM3 {
         ReaderTagsFeed(
             uiState = UiState.Loading
         )
@@ -662,7 +657,7 @@ fun ReaderTagsFeedLoading() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun ReaderTagsFeedEmpty() {
-    AppTheme {
+    AppThemeM3 {
         ReaderTagsFeed(
             uiState = UiState.Empty(
                 onOpenTagsListClick = {},

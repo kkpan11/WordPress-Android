@@ -1,0 +1,82 @@
+plugins {
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "org.jetbrains.kotlin.kapt"
+    alias(libs.plugins.kotlinx.kover)
+}
+
+android {
+    namespace "org.wordpress.android.login"
+
+    compileSdkVersion rootProject.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+    }
+    buildFeatures {
+        buildConfig true
+    }
+    lint {
+        enable += 'UnknownNullness'
+        disable 'UseTomlInstead'
+    }
+}
+
+dependencies {
+    implementation libs.wordpress.utils
+    implementation libs.gravatar
+
+    implementation libs.androidx.appcompat.main
+
+    implementation libs.androidx.constraintlayout.main
+    implementation libs.google.material
+
+    implementation libs.androidx.core.main
+
+    api libs.google.play.services.auth
+
+    implementation project(":libs:fluxc")
+
+    implementation libs.bumptech.glide.main
+    kapt libs.bumptech.glide.compiler
+
+    implementation libs.androidx.credentials.main
+    implementation libs.androidx.credentials.play.service.auth
+
+    // Dagger
+    implementation libs.google.dagger
+    kapt libs.google.dagger.compiler
+    implementation libs.google.dagger.android.support
+    kapt libs.google.dagger.android.processor
+
+    lintChecks libs.wordpress.lint
+
+    testImplementation libs.junit
+    testImplementation libs.mockito.core
+    testImplementation libs.androidx.arch.core.testing
+    testImplementation libs.robolectric
+    testImplementation libs.assertj.core
+}
+
+// Add properties named "wp.xxx" to our BuildConfig
+android.buildTypes.all { buildType ->
+    Properties gradleProperties = new Properties()
+    File propertiesFile = file("gradle.properties")
+    if (propertiesFile.exists()) {
+        gradleProperties.load(new FileInputStream(propertiesFile))
+    } else {
+        // Load defaults
+        gradleProperties.load(new FileInputStream(file("gradle.properties-example")))
+    }
+    gradleProperties.any { property ->
+        if (property.key.toLowerCase().startsWith("wp.")) {
+            buildType.buildConfigField "String", property.key.replace("wp.", "").replace(".", "_").toUpperCase(),
+                    "\"${property.value}\""
+        }
+        if (property.key.toLowerCase().startsWith("wp.res.")) {
+            buildType.resValue "string", property.key.replace("wp.res.", "").replace(".", "_").toLowerCase(),
+                    "${property.value}"
+        }
+    }
+}

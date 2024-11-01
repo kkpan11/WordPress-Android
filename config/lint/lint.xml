@@ -4,6 +4,7 @@
     <issue id="MissingTranslation" severity="ignore" />
     <issue id="ExtraTranslation" severity="ignore" />
     <issue id="PluralsCandidate" severity="ignore" /> <!-- GlotPress doesn't support plurals -->
+    <issue id="CredentialDependency" severity="ignore" /> <!-- False positive, fixed in AGP 8.6.0: https://issuetracker.google.com/issues/339841694 -->
     <!-- TODO: https://github.com/wordpress-mobile/WordPress-Android/issues/18226 -->
     <issue id="LocaleFolder">
         <!-- MAIN -->
@@ -21,6 +22,7 @@
         <!-- GCM -->
         <ignore path="**/generated/ksp/**/org/wordpress/android/push/Hilt_GCMMessageService.java" />
     </issue>
+    <issue id="AndroidGradlePluginVersion" severity="ignore" /> <!-- The AGP update is done manually -->
     <issue id="GradleDependency" severity="ignore" /> <!-- Dependabot will take care of this -->
     <issue id="MissingNullAnnotationOnField">
         <ignore path="**/generated/**" />
@@ -34,6 +36,7 @@
     <issue id="MissingNullAnnotationOnMethodReturnType">
         <ignore path="**/generated/**" />
     </issue>
+    <issue id="VectorRaster" severity="warning" /> <!--    fluxc-->
     <!-- SECURITY -->
     <issue id="TrustAllX509TrustManager">
         <!-- EDITOR -->
@@ -45,6 +48,7 @@
     <issue id="WeakPrng" severity="warning" />
     <issue id="TapjackingVulnerable" severity="warning" />
     <issue id="InsecurePermissionProtectionLevel" severity="warning" />
+    <issue id="CustomX509TrustManager" severity="warning" /> <!--    fluxc-->
     <!-- PERFORMANCE -->
     <issue id="UnusedResources">
         <!-- EDITOR -->
@@ -58,6 +62,7 @@
         <ignore regexp=".*\/values\-([a-z]|[A-Z]|\-){2,6}\/strings\.xml$"/>
         <ignore regexp=".*\/values\/strings\.xml$"/>
     </issue>
+    <issue id="KaptUsageInsteadOfKsp" severity="warning" /> <!--    fluxc-->
     <!-- USABILITY -->
     <issue id="IconDipSize">
         <!-- EDITOR -->
@@ -72,6 +77,7 @@
     <issue id="ObsoleteSdkInt">
         <ignore path="**/generated/ksp/**/org/wordpress/android/ui/main/Hilt_WPMainNavigationView.java" />
     </issue>
+    <issue id="IconDensities" severity="warning" /> <!--    fluxc-->
     <!-- INTEROPERABILITY -->
     <issue id="UnknownNullness" severity="informational">
         <ignore path="**/generated/**" />
@@ -81,4 +87,5 @@
     <issue id="UsingMaterialAndMaterial3Libraries" severity="warning" />
     <!--  We rely on more granural checks from WordPress-Lint-Android  -->
     <issue id="UnknownNullness" severity="ignore" />
+
 </lint>

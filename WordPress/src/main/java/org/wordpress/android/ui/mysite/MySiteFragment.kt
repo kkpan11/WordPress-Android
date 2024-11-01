@@ -597,7 +597,12 @@ class MySiteFragment : Fragment(R.layout.my_site_fragment),
             action.isNewSite
         )
         is SiteNavigationAction.OpenAdmin -> ActivityLauncher.viewBlogAdmin(activity, action.site)
-        is SiteNavigationAction.OpenPeople -> ActivityLauncher.viewCurrentBlogPeople(activity, action.site)
+        is SiteNavigationAction.OpenPeople -> {
+            ActivityLauncher.viewCurrentBlogPeople(activity, action.site)
+        }
+        is SiteNavigationAction.OpenSelfHostedUsers -> {
+            ActivityLauncher.viewSelfHostedUsers(activity, action.site)
+        }
         is SiteNavigationAction.OpenSharing -> ActivityLauncher.viewBlogSharing(activity, action.site)
         is SiteNavigationAction.OpenSiteSettings -> ActivityLauncher.viewBlogSettingsForResult(activity, action.site)
         is SiteNavigationAction.OpenThemes -> ActivityLauncher.viewCurrentBlogThemes(activity, action.site)
@@ -720,15 +725,19 @@ class MySiteFragment : Fragment(R.layout.my_site_fragment),
         )
 
         is SiteNavigationAction.OpenBloganuaryNudgeOverlay -> {
-            BloganuaryNudgeLearnMoreOverlayFragment
-                .newInstance(action.isPromptsEnabled)
-                .show(requireActivity().supportFragmentManager, BloganuaryNudgeLearnMoreOverlayFragment.TAG)
+            openBloganuaryNudgeOverlay(action.isPromptsEnabled)
         }
 
         is SiteNavigationAction.OpenSiteMonitoring -> activityNavigator.navigateToSiteMonitoring(
             requireActivity(),
             action.site
         )
+    }
+
+    private fun openBloganuaryNudgeOverlay(isPromptsEnabled: Boolean) {
+        BloganuaryNudgeLearnMoreOverlayFragment
+            .newInstance(isPromptsEnabled)
+            .show(requireActivity().supportFragmentManager, BloganuaryNudgeLearnMoreOverlayFragment.TAG)
     }
 
     private fun handleNavigation(action: BloggingPromptCardNavigationAction) {

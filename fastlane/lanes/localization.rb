@@ -134,8 +134,7 @@ platform :android do
 
     push_to_git_remote(tags: false)
 
-    release_branch = "release/#{version}"
-    create_release_management_pull_request(release_branch, "Merge #{version} editorialized release notes to #{release_branch}")
+    create_backmerge_pr
   end
 
   # Updates the metadata in the Play Store (Main store listing) from the content of `fastlane/{metadata|jetpack_metadata}/android/*/*.txt` files
@@ -244,27 +243,20 @@ platform :android do
     # NOTE: for those we don't set `add_ignore_attr` to true because we currently use `checkDependencies true` in `WordPress/build.gradle`
     # Which will correctly detect strings from the app's `strings.xml` being used by one of the module.
     { library: 'Image Editor', strings_path: './libs/image-editor/src/main/res/values/strings.xml', source_id: 'module:image-editor' },
-    { library: 'Editor', strings_path: './libs/editor/src/main/res/values/strings.xml', source_id: 'module:editor' }
+    { library: 'Editor', strings_path: './libs/editor/src/main/res/values/strings.xml', source_id: 'module:editor' },
+    { library: 'Login Library', strings_path: './libs/login/src/main/res/values/strings.xml', source_id: 'module:login' }
   ].freeze
   REMOTE_LIBRARIES_STRINGS_PATHS = [
     {
       name: 'Gutenberg Native',
-      import_key: 'gutenbergMobileVersion',
+      import_key: 'gutenberg-mobile',
       repository: 'wordpress-mobile/gutenberg-mobile',
       strings_file_path: 'bundle/android/strings.xml',
       source_id: 'gutenberg'
     },
     {
-      name: 'Login Library',
-      import_key: 'wordPressLoginVersion',
-      repository: 'wordpress-mobile/WordPress-Login-Flow-Android',
-      strings_file_path: 'WordPressLoginFlow/src/main/res/values/strings.xml',
-      exclusions: ['default_web_client_id'],
-      source_id: 'login'
-    },
-    {
       name: 'About Library',
-      import_key: 'automatticAboutVersion',
+      import_key: 'automattic-about',
       repository: 'Automattic/about-automattic-android',
       strings_file_path: 'library/src/main/res/values/strings.xml',
       source_id: 'about'
@@ -296,7 +288,7 @@ platform :android do
         import_key: lib[:import_key],
         repository: lib[:repository],
         file_path: lib[:strings_file_path],
-        build_gradle_path: File.join(PROJECT_ROOT_FOLDER, 'build.gradle')
+        build_gradle_path: File.join(PROJECT_ROOT_FOLDER, 'gradle/libs.versions.toml')
       )
 
       if download_path.nil?

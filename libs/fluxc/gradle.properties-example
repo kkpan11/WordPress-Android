@@ -1,0 +1,2 @@
+fluxc.ENABLE_WPAPI = false
+wp.ENABLE_DATABASE_DOWNGRADE = true

@@ -47,7 +47,7 @@ import org.wordpress.android.R
 import org.wordpress.android.ui.compose.components.MediaUriPager
 import org.wordpress.android.ui.compose.components.ProgressDialog
 import org.wordpress.android.ui.compose.components.ProgressDialogState
-import org.wordpress.android.ui.compose.theme.M3Theme
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 
 @Composable
 fun FeedbackFormScreen(
@@ -71,7 +71,7 @@ fun FeedbackFormScreen(
         )
         MediaUriPager(
             mediaUris = attachments.value.map { it.uri },
-            onButtonClick =  { uri -> onRemoveMediaClick(uri) },
+            onButtonClick = { uri -> onRemoveMediaClick(uri) },
             modifier = Modifier
                 .padding(
                     vertical = V_PADDING.dp,
@@ -107,7 +107,7 @@ private fun MessageSection(
         focusRequester.requestFocus()
     }
 
-    Box(
+    Column(
         modifier = Modifier
             .padding(
                 vertical = V_PADDING.dp,
@@ -130,6 +130,14 @@ private fun MessageSection(
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 180.dp)
                 .focusRequester(focusRequester),
+        )
+        Text(
+            text = stringResource(id = R.string.feedback_form_note),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .padding(top = V_PADDING.dp)
+
         )
     }
 }
@@ -200,7 +208,7 @@ private fun Screen(
     content: @Composable () -> Unit,
     onCloseClick: () -> Unit
 ) {
-    M3Theme {
+    AppThemeM3 {
         Scaffold(
             topBar = {
                 TopAppBar(
