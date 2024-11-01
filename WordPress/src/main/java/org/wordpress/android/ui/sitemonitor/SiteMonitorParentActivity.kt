@@ -18,11 +18,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Button
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -53,7 +53,7 @@ import org.wordpress.android.fluxc.model.SiteModel
 import org.wordpress.android.ui.WPWebViewActivity
 import org.wordpress.android.ui.compose.components.MainTopAppBar
 import org.wordpress.android.ui.compose.components.NavigationIcons
-import org.wordpress.android.ui.compose.theme.AppThemeM2
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.utils.uiStringText
 import org.wordpress.android.util.extensions.getSerializableExtraCompat
 import javax.inject.Inject
@@ -115,7 +115,7 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
             currentSelectItemId = getInitialTab()
         }
         setContent {
-            AppThemeM2 {
+            AppThemeM3 {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                 ) {
@@ -152,7 +152,7 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
     }
 
     @Composable
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     fun SiteMonitorScreen(initialTab: Int, modifier: Modifier = Modifier) {
         Scaffold(
             topBar = {
@@ -182,13 +182,13 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
         Column(modifier = modifier.fillMaxWidth()) {
             TabRow(
                 selectedTabIndex = tabIndex,
-                containerColor = MaterialTheme.colors.surface,
-                contentColor = MaterialTheme.colors.onSurface,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 indicator = { tabPositions ->
                     // Customizing the indicator color and style
                     TabRowDefaults.SecondaryIndicator(
                         Modifier.tabIndicatorOffset(tabPositions[tabIndex]),
-                        color = MaterialTheme.colors.onSurface,
+                        color = MaterialTheme.colorScheme.onSurface,
                         height = 2.0.dp
                     )
                 }
@@ -226,11 +226,12 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
             siteMonitorParentViewModel.getUiState(tabType)
         }
         when (uiState) {
-            is SiteMonitorUiState.Preparing -> LoadingState(modifier)
+            is SiteMonitorUiState.Preparing ->
+                LoadingState(modifier)
             is SiteMonitorUiState.Prepared, is SiteMonitorUiState.Loaded ->
                 SiteMonitorWebViewContent(uiState, tabType, modifier)
-
-            is SiteMonitorUiState.Error -> SiteMonitorError(uiState as SiteMonitorUiState.Error, modifier)
+            is SiteMonitorUiState.Error ->
+                SiteMonitorError(uiState as SiteMonitorUiState.Error, modifier)
         }
     }
 
@@ -241,7 +242,7 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
             modifier = modifier.fillMaxSize()
         ) {
             CircularProgressIndicator(
-                color = MaterialTheme.colors.onSurface
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -256,14 +257,14 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
                 .fillMaxWidth()
                 .fillMaxHeight(),
         ) {
-            androidx.compose.material.Text(
+            Text(
                 text = uiStringText(uiString = error.title),
-                style = androidx.compose.material.MaterialTheme.typography.h5,
+                style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
-            androidx.compose.material.Text(
+            Text(
                 text = uiStringText(uiString = error.description),
-                style = androidx.compose.material.MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -285,7 +286,7 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
         tabType: SiteMonitorType,
         modifier: Modifier = Modifier
     ) {
-        // retrieve the webview from the actvity
+        // retrieve the webview from the activity
         val webView = when (tabType) {
             SiteMonitorType.METRICS -> metricsWebView
             SiteMonitorType.PHP_LOGS -> phpLogsWebView
@@ -304,7 +305,7 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
         }
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun SiteMonitorWebView(tabWebView: WebView, tabType: SiteMonitorType, modifier: Modifier = Modifier) {
         // the webview is retrieved from the activity, so we need to use a mutable variable
@@ -336,7 +337,7 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
                 refreshing = refreshState.value,
                 state = pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter),
-                contentColor = MaterialTheme.colors.primaryVariant,
+                contentColor = MaterialTheme.colorScheme.secondary,
             )
         }
     }
