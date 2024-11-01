@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.ripple
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -58,7 +58,7 @@ fun DomainItem(uiState: DomainUiState): Unit = with(uiState) {
             modifier = Modifier
                 .clickable(
                     interactionSource = remember(::MutableInteractionSource),
-                    indication = rememberRipple(color = HighlightBgColor),
+                    indication = ripple(color = HighlightBgColor),
                     onClick = onClick::invoke,
                 )
                 .then(if (cost is Cost.Paid) {
