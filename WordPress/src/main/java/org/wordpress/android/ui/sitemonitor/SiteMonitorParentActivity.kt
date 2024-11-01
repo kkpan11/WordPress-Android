@@ -18,17 +18,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -43,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
@@ -51,8 +56,6 @@ import org.wordpress.android.R
 import org.wordpress.android.WordPress
 import org.wordpress.android.fluxc.model.SiteModel
 import org.wordpress.android.ui.WPWebViewActivity
-import org.wordpress.android.ui.compose.components.MainTopAppBar
-import org.wordpress.android.ui.compose.components.NavigationIcons
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.utils.uiStringText
 import org.wordpress.android.util.extensions.getSerializableExtraCompat
@@ -151,28 +154,62 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
         const val SAVED_STATE_CURRENT_TAB_KEY = "CurrentTabKey"
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    fun SiteMonitorScreen(initialTab: Int, modifier: Modifier = Modifier) {
+    fun SiteMonitorScreen(initialTab: Int) {
         Scaffold(
             topBar = {
-                MainTopAppBar(
-                    title = stringResource(id = R.string.site_monitoring),
-                    navigationIcon = NavigationIcons.BackIcon,
-                    onNavigationIconClick = onBackPressedDispatcher::onBackPressed,
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(id = R.string.site_monitoring)
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBackPressedDispatcher::onBackPressed) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                stringResource(R.string.back)
+                            )
+                        }
+                    },
                 )
             },
-            content = {
-                SiteMonitorHeader(initialTab, modifier = modifier)
-            }
-        )
+        ) { contentPadding ->
+            SiteMonitorHeader(initialTab, modifier = Modifier.padding(contentPadding))
+        }
     }
 
+    // TODO remove this preview
+    @Preview
+    @Composable
+    @OptIn(ExperimentalMaterial3Api::class)
+    fun TestPreview() {
+        var state by remember { mutableIntStateOf(0) }
+        val titles = listOf("Tab 1", "Tab 2", "Tab 3 with lots of text")
+        Column {
+            PrimaryTabRow(selectedTabIndex = state) {
+                titles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = state == index,
+                        onClick = { state = index },
+                        text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) }
+                    )
+                }
+            }
+            Text(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                text = "Text tab ${state + 1} selected",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     fun SiteMonitorHeader(initialTab: Int, modifier: Modifier = Modifier) {
         var tabIndex by remember { mutableIntStateOf(initialTab) }
-
         val tabs = SiteMonitorTabItem.entries
 
         LaunchedEffect(true) {
@@ -180,14 +217,13 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
         }
 
         Column(modifier = modifier.fillMaxWidth()) {
-            TabRow(
+            PrimaryTabRow(
                 selectedTabIndex = tabIndex,
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurface,
-                indicator = { tabPositions ->
-                    // Customizing the indicator color and style
+                indicator = {
                     TabRowDefaults.SecondaryIndicator(
-                        Modifier.tabIndicatorOffset(tabPositions[tabIndex]),
+                        // Modifier.tabIndicatorOffset(tabPositions[tabIndex]),
                         color = MaterialTheme.colorScheme.onSurface,
                         height = 2.0.dp
                     )
@@ -196,13 +232,11 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
                 tabs.forEachIndexed { index, item ->
                     Tab(
                         text = {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text = stringResource(item.title).uppercase(),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
+                            Text(
+                                text = stringResource(item.title).uppercase(),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         },
                         selected = tabIndex == index,
                         onClick = {
@@ -228,8 +262,10 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
         when (uiState) {
             is SiteMonitorUiState.Preparing ->
                 LoadingState(modifier)
+
             is SiteMonitorUiState.Prepared, is SiteMonitorUiState.Loaded ->
                 SiteMonitorWebViewContent(uiState, tabType, modifier)
+
             is SiteMonitorUiState.Error ->
                 SiteMonitorError(uiState as SiteMonitorUiState.Error, modifier)
         }
@@ -293,21 +329,27 @@ class SiteMonitorParentActivity : AppCompatActivity(), SiteMonitorWebViewClient.
             SiteMonitorType.WEB_SERVER_LOGS -> webServerLogsWebView
         }
 
-        when(uiState) {
+        when (uiState) {
             is SiteMonitorUiState.Prepared -> {
                 webView.postUrl(WPWebViewActivity.WPCOM_LOGIN_URL, uiState.model.addressToLoad.toByteArray())
                 LoadingState()
             }
+
             is SiteMonitorUiState.Loaded -> {
                 SiteMonitorWebView(webView, tabType, modifier)
             }
+
             else -> {}
         }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun SiteMonitorWebView(tabWebView: WebView, tabType: SiteMonitorType, modifier: Modifier = Modifier) {
+    private fun SiteMonitorWebView(
+        tabWebView: WebView,
+        tabType: SiteMonitorType,
+        modifier: Modifier = Modifier
+    ) {
         // the webview is retrieved from the activity, so we need to use a mutable variable
         // to assign to android view
         var webView = tabWebView
