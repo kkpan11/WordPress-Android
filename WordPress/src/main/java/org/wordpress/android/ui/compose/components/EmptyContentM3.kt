@@ -30,9 +30,9 @@ private fun Modifier.emptyContentTextModifier() = padding(horizontal = 30.dp)
  *
  * @param modifier [Modifier] applied on the containing [Box]
  * @param title [String] that will be displayed as title
- * @param subtitle (optional) [String] that will be displayed as subtitle
- * @param image (optional) Drawable resource ID for the image that will be displayed
- * @param imageContentDescription (optional) Content Description for the above image
+ * @param subtitle [String?] that will be displayed as subtitle
+ * @param image [Int?] Drawable resource ID for the image that will be displayed
+ * @param imageContentDescription [String?] Content Description for the above image
  */
 @Composable
 fun EmptyContentM3(
