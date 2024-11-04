@@ -17,9 +17,6 @@ android {
     buildFeatures {
         buildConfig true
     }
-    lint {
-        disable 'UseTomlInstead'
-    }
 }
 
 dependencies {
