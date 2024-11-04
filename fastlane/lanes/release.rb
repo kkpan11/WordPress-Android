@@ -577,8 +577,8 @@ platform :android do
 
       #{e.message}
 
-      If this is not the first time you are running the release task, the backmerge PR for the version `#{current_release_version}` might have already been previously created.
-      Please close any previous backmerge PR for `#{current_release_version}`, delete the previous merge branch, then run the release task again.
+      If this is not the first time you are running the automation that creates a backmerge, the backmerge PR for the `#{source_branch}` branch might have already been previously created.
+      Please close any previous backmerge PR for the `#{source_branch}` branch, delete the previous merge branch, then run the release task again.
     MESSAGE
 
     buildkite_annotate(style: 'error', context: 'error-creating-backmerge', message: error_message) if is_ci
