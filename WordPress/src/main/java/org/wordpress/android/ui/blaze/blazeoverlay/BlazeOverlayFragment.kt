@@ -377,6 +377,7 @@ class BlazeOverlayFragment : Fragment() {
     }
 
     @Preview
+    @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
     @Composable
     private fun PreviewBlazeOverlayScreenPostFlow() {
         AppThemeM3 {
