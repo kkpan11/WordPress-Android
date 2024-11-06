@@ -1,6 +1,7 @@
 package org.wordpress.android.ui.blaze.blazecampaigns.campaigndetail
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
@@ -124,7 +126,6 @@ class CampaignDetailFragment : Fragment(), CampaignDetailWebViewClient.CampaignD
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     fun CampaignDetailPage(
         navigationUp: () -> Unit = { },
         viewModel: CampaignDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
@@ -146,8 +147,14 @@ class CampaignDetailFragment : Fragment(), CampaignDetailWebViewClient.CampaignD
                     },
                 )
             },
-        ) {
-            CampaignDetailContent(uiState)
+        ) { contentPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+            ) {
+                CampaignDetailContent(uiState)
+            }
         }
     }
 
@@ -231,6 +238,17 @@ class CampaignDetailFragment : Fragment(), CampaignDetailWebViewClient.CampaignD
                     )
                 }
             }
+        }
+    }
+
+    @Preview(showBackground = true)
+    @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+    @Composable
+    private fun CampaignDetailPagePreview() {
+        AppThemeM3 {
+            CampaignDetailPage(
+                navigationUp = { },
+            )
         }
     }
 }
