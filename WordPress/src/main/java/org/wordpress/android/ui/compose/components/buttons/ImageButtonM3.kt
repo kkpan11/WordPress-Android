@@ -75,11 +75,13 @@ fun ImageButtonM3(
         drawableRight?.let { drawable ->
             val (imageRight) = createRefs()
             Image(
-                modifier = Modifier.constrainAs(imageRight) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(buttonTextRef.end, margin = drawable.padding)
-                }.size(drawable.iconSize),
+                modifier = Modifier
+                    .constrainAs(imageRight) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(buttonTextRef.end, margin = drawable.padding)
+                    }
+                    .size(drawable.iconSize),
                 painter = painterResource(id = drawable.resId),
                 contentDescription = null
             )
