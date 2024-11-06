@@ -65,7 +65,7 @@ import org.wordpress.android.ui.blaze.PageUIModel
 import org.wordpress.android.ui.blaze.PostUIModel
 import org.wordpress.android.ui.compose.components.buttons.Button
 import org.wordpress.android.ui.compose.components.buttons.Drawable
-import org.wordpress.android.ui.compose.components.buttons.ImageButton
+import org.wordpress.android.ui.compose.components.buttons.ImageButtonM3
 import org.wordpress.android.ui.compose.theme.AppColor
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.FontSize
@@ -210,7 +210,7 @@ class BlazeOverlayFragment : Fragment() {
                 modifier = Modifier
                     .padding(top = 15.dp)
             )
-            ImageButton(
+            ImageButtonM3(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
