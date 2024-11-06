@@ -15,12 +15,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,7 +51,6 @@ import org.wordpress.android.ui.blaze.BlazeWebViewClient
 import org.wordpress.android.ui.blaze.BlazeWebViewHeaderUiState
 import org.wordpress.android.ui.blaze.OnBlazeWebViewClientListener
 import org.wordpress.android.ui.blaze.blazeoverlay.BlazeViewModel
-import org.wordpress.android.ui.compose.components.MainTopAppBar
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.utils.uiStringText
 import org.wordpress.android.ui.main.jetpack.migration.compose.state.LoadingState
@@ -147,25 +147,27 @@ class BlazePromoteWebViewFragment: Fragment(), OnBlazeWebViewClientListener,
     // The next 2 Composable(s) live in the fragment because they need access to the chromeClient outside of the fun
     // Also the clients needs access to activity and we are not holding on to that elsewhere
     @Composable
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     private fun BlazeWebViewScreen(
         viewModel: BlazePromoteWebViewViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     ) {
         val uiState by viewModel.uiState.collectAsState()
         val headerState by viewModel.headerUiState.collectAsState()
         Scaffold(
-            topBar = { TopAppBar(headerState) },
+            topBar = { BlazeTopAppBar(headerState) },
             content = { BlazePromoteContent(uiState) }
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun TopAppBar(
+    private fun BlazeTopAppBar(
         state: BlazeWebViewHeaderUiState
     ) {
-        MainTopAppBar(
-            title = stringResource(id = state.headerTitle),
-            onNavigationIconClick = {},
+        TopAppBar(
+            title = {
+                Text(text = stringResource(id = state.headerTitle))
+            },
             actions = { TopAppBarActions(state = state) }
         )
     }
@@ -179,9 +181,9 @@ class BlazePromoteWebViewFragment: Fragment(), OnBlazeWebViewClientListener,
                     Text(
                         stringResource(id = state.headerActionText),
                         color = if (state.headerActionEnabled) {
-                            MaterialTheme.colors.onSurface
+                            MaterialTheme.colorScheme.onSurface
                         } else {
-                            MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                         }
                     )
               }
@@ -255,12 +257,12 @@ class BlazePromoteWebViewFragment: Fragment(), OnBlazeWebViewClientListener,
         ) {
             Text(
                 text = uiStringText(uiString = error.title),
-                style = MaterialTheme.typography.h5,
+                style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = uiStringText(uiString = error.description),
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp)
             )

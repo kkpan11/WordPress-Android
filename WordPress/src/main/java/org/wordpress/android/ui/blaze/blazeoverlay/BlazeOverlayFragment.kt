@@ -23,11 +23,15 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -61,8 +65,6 @@ import org.wordpress.android.ui.blaze.PostUIModel
 import org.wordpress.android.ui.compose.components.buttons.Button
 import org.wordpress.android.ui.compose.components.buttons.Drawable
 import org.wordpress.android.ui.compose.components.buttons.ImageButton
-import org.wordpress.android.ui.compose.components.MainTopAppBar
-import org.wordpress.android.ui.compose.components.NavigationIcons
 import org.wordpress.android.ui.compose.theme.AppColor
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.FontSize
@@ -104,7 +106,7 @@ class BlazeOverlayFragment : Fragment() {
     }
 
     @Composable
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     fun BlazeOverlayScreen(
         content: BlazeUiState.PromoteScreen,
         isDarkTheme: Boolean = isSystemInDarkTheme()
@@ -119,13 +121,13 @@ class BlazeOverlayFragment : Fragment() {
         ) { BlazeOverlayContent(blazeUIModel, isDarkTheme) }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun OverlayTopBar(uiModel: BlazeUIModel?, modifier: Modifier = Modifier) {
         uiModel?.also {
-            MainTopAppBar(
-                title = null,
-                navigationIcon = {},
-                onNavigationIconClick = {},
+            TopAppBar(
+                title = { },
+                navigationIcon = { },
                 actions = {
                     IconButton(onClick = { viewModel.dismissOverlay() }) {
                         Icon(
@@ -140,10 +142,18 @@ class BlazeOverlayFragment : Fragment() {
                     }
                 }
             )
-        } ?: MainTopAppBar(
-            title = stringResource(R.string.blaze_activity_title),
-            navigationIcon = NavigationIcons.BackIcon,
-            onNavigationIconClick = { viewModel.dismissOverlay() }
+        } ?: TopAppBar(
+            title = {
+                Text( stringResource(R.string.blaze_activity_title) )
+            },
+            navigationIcon = {
+                IconButton(onClick = { viewModel.dismissOverlay() }) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        stringResource(R.string.back)
+                    )
+                }
+            },
         )
     }
 
@@ -306,7 +316,7 @@ class BlazeOverlayFragment : Fragment() {
     private fun Title(title: String, modifier: Modifier = Modifier) {
         Text(
             text = title,
-            style = MaterialTheme.typography.body1,
+            style = MaterialTheme.typography.bodyLarge,
             fontSize = FontSize.Large.value,
             fontWeight = FontWeight.Bold,
             maxLines = 2,
@@ -319,7 +329,7 @@ class BlazeOverlayFragment : Fragment() {
     private fun Url(url: String, modifier: Modifier = Modifier) {
         Text(
             text = url,
-            style = MaterialTheme.typography.body2,
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = modifier
