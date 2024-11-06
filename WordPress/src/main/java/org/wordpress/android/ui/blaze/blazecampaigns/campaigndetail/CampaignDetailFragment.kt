@@ -198,7 +198,6 @@ class CampaignDetailFragment : Fragment(), CampaignDetailWebViewClient.CampaignD
         }
     }
 
-
     @SuppressLint("SetJavaScriptEnabled")
     @Composable
     private fun CampaignDetailWebView(uiState: CampaignDetailUiState) {

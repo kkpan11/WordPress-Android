@@ -1,6 +1,5 @@
 package org.wordpress.android.ui.compose.components.buttons
 
-import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,7 +13,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -22,10 +28,6 @@ import org.wordpress.android.R
 import org.wordpress.android.ui.compose.utils.uiStringText
 import org.wordpress.android.ui.utils.UiString
 
-/**
- * Material3 version of [ImageButton] which re-uses some of that
- * composable's functionality.
- */
 @Composable
 fun ImageButtonM3(
     modifier: Modifier = Modifier,
@@ -111,10 +113,42 @@ fun ImageButtonM3(
     }
 }
 
+/**
+ * @param resId The drawable resource id to be displayed.
+ * @param iconSize The icon size for the drawable, and if no value is provided the default size is 24 dp.
+ * @param padding The padding between the drawable and the button text.
+ */
+data class Drawable(val resId: Int, val iconSize: Dp = 24.dp, val padding: Dp = 12.dp)
+
+/**
+ * @param text The text to be displayed.
+ * @param modifier [Modifier] to apply to this layout.
+ * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,
+ * this will be [LocalContentColor].
+ * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
+ * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
+ * See [TextStyle.fontStyle].
+ * @param fontWeight The typeface thickness to use when painting the text (e.g., [FontWeight.Bold]).
+ * @param fontFamily The font family to be used when rendering the text. See [TextStyle.fontFamily].
+ * @param textAlign The alignment of the text within the lines of the paragraph.
+ * See [TextStyle.textAlign].
+ * @param style Style configuration for the text such as color, font, line height etc.
+ */
+data class Button(
+    val text: UiString,
+    val modifier: Modifier = Modifier,
+    val color: Color = Color.Unspecified,
+    val fontSize: TextUnit = TextUnit.Unspecified,
+    val fontStyle: FontStyle? = null,
+    val fontWeight: FontWeight? = null,
+    val fontFamily: FontFamily? = null,
+    val textAlign: TextAlign? = null,
+    val style: TextStyle? = null,
+)
+
 @Preview
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewImageButtonM3() {
+fun PreviewImageButton() {
     ImageButtonM3(
         modifier = Modifier
             .fillMaxWidth()
@@ -131,3 +165,4 @@ fun PreviewImageButtonM3() {
         onClick = {}
     )
 }
+
