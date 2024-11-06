@@ -413,6 +413,8 @@ class ReaderInterestsViewModelTest : BaseUnitTest() {
             val interests = getInterests()
             whenever(readerTagRepository.getInterests()).thenReturn(SuccessWithData(interests))
             val selectInterestAtIndex = 2
+            whenever(readerTagRepository.saveInterests(eq(listOf(interests[selectInterestAtIndex]))))
+                .thenReturn(Success)
 
             // When
             initViewModel()
