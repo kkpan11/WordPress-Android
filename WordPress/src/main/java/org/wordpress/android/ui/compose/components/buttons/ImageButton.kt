@@ -28,26 +28,6 @@ import org.wordpress.android.R
 import org.wordpress.android.ui.compose.utils.uiStringText
 import org.wordpress.android.ui.utils.UiString
 
-@Preview
-@Composable
-fun PreviewDrawButton() {
-    ImageButton(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .background(
-                Color.Gray,
-                shape = RoundedCornerShape(6.dp)
-            ),
-        drawableLeft = Drawable(R.drawable.ic_pages_white_24dp),
-        drawableRight = Drawable(R.drawable.ic_pages_white_24dp),
-        drawableTop = Drawable(R.drawable.ic_pages_white_24dp),
-        drawableBottom = Drawable(R.drawable.ic_pages_white_24dp),
-        button = Button(text = UiString.UiStringText("Button Text")),
-        onClick = {}
-    )
-}
-
 @Composable
 fun ImageButton(
     modifier: Modifier = Modifier,
@@ -165,4 +145,24 @@ data class Button(
     val textAlign: TextAlign? = null,
     val style: TextStyle? = null,
 )
+
+@Preview
+@Composable
+fun PreviewImageButton() {
+    ImageButton(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(
+                Color.Gray,
+                shape = RoundedCornerShape(6.dp)
+            ),
+        drawableLeft = Drawable(R.drawable.ic_pages_white_24dp),
+        drawableRight = Drawable(R.drawable.ic_pages_white_24dp),
+        drawableTop = Drawable(R.drawable.ic_pages_white_24dp),
+        drawableBottom = Drawable(R.drawable.ic_pages_white_24dp),
+        button = Button(text = UiString.UiStringText("Button Text")),
+        onClick = {}
+    )
+}
 

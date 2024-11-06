@@ -1,5 +1,6 @@
 package org.wordpress.android.ui.compose.components.buttons
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -111,8 +112,9 @@ fun ImageButtonM3(
 }
 
 @Preview
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewDrawButtonM3() {
+fun PreviewImageButtonM3() {
     ImageButtonM3(
         modifier = Modifier
             .fillMaxWidth()
