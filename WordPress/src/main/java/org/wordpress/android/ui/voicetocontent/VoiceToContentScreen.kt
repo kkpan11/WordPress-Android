@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -339,7 +338,7 @@ private val headerStyle: TextStyle
     get() = MaterialTheme.typography.bodyLarge.copy(
         fontWeight = FontWeight.SemiBold,
         fontSize = 20.sp,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high)
+        color = MaterialTheme.colorScheme.onSurface
     )
 
 private val secondaryHeaderStyle: TextStyle
@@ -347,19 +346,19 @@ private val secondaryHeaderStyle: TextStyle
     get() = MaterialTheme.typography.bodySmall.copy(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.medium)
+        color = MaterialTheme.colorScheme.onSurface
     )
 
 private val actionLabelStyle: TextStyle
     @Composable
     get() = MaterialTheme.typography.bodyMedium.copy(
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high)
+        color = MaterialTheme.colorScheme.onSurface
     )
 
 private val actionLabelStyleDisabled: TextStyle
     @Composable
     get() = MaterialTheme.typography.bodyMedium.copy(
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.disabled)
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     )
 
 private val errorMessageStyle: TextStyle
@@ -367,7 +366,7 @@ private val errorMessageStyle: TextStyle
     get() = MaterialTheme.typography.titleMedium.copy(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high)
+        color = MaterialTheme.colorScheme.onSurface
     )
 
 private val errorUrlLinkCTA: TextStyle

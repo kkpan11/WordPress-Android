@@ -15,7 +15,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,7 +47,7 @@ fun MicToStopIcon(model: RecordingPanelUIModel, isRecording: Boolean) {
     )
 
     val iconColor by animateColorAsState(
-        targetValue = if (!isEnabled) MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.disabled)
+        targetValue = if (!isEnabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
         else if (isMic) Color.White
         else if (isLight) Color.White
         else Color.Black, label = ""
