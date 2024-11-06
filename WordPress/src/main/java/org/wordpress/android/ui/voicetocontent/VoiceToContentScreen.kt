@@ -336,7 +336,7 @@ fun ClickableTextViewWithLinkImage(
 
 private val headerStyle: TextStyle
     @Composable
-    get() = androidx.compose.material3.MaterialTheme.typography.bodyLarge.copy(
+    get() = MaterialTheme.typography.bodyLarge.copy(
         fontWeight = FontWeight.SemiBold,
         fontSize = 20.sp,
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high)
@@ -344,7 +344,7 @@ private val headerStyle: TextStyle
 
 private val secondaryHeaderStyle: TextStyle
     @Composable
-    get() = androidx.compose.material3.MaterialTheme.typography.bodySmall.copy(
+    get() = MaterialTheme.typography.bodySmall.copy(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.medium)
@@ -352,19 +352,19 @@ private val secondaryHeaderStyle: TextStyle
 
 private val actionLabelStyle: TextStyle
     @Composable
-    get() = androidx.compose.material3.MaterialTheme.typography.bodyMedium.copy(
+    get() = MaterialTheme.typography.bodyMedium.copy(
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high)
     )
 
 private val actionLabelStyleDisabled: TextStyle
     @Composable
-    get() = androidx.compose.material3.MaterialTheme.typography.bodyMedium.copy(
+    get() = MaterialTheme.typography.bodyMedium.copy(
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.disabled)
     )
 
 private val errorMessageStyle: TextStyle
     @Composable
-    get() = androidx.compose.material3.MaterialTheme.typography.titleMedium.copy(
+    get() = MaterialTheme.typography.titleMedium.copy(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high)
@@ -372,7 +372,7 @@ private val errorMessageStyle: TextStyle
 
 private val errorUrlLinkCTA: TextStyle
     @Composable
-    get() = androidx.compose.material3.MaterialTheme.typography.titleMedium.copy(
+    get() = MaterialTheme.typography.titleMedium.copy(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         color = MaterialTheme.colorScheme.primary
