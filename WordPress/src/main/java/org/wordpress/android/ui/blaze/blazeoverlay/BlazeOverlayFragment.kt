@@ -107,7 +107,6 @@ class BlazeOverlayFragment : Fragment() {
     }
 
     @Composable
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     fun BlazeOverlayScreen(
         content: BlazeUiState.PromoteScreen,
         isDarkTheme: Boolean = isSystemInDarkTheme()
@@ -119,7 +118,15 @@ class BlazeOverlayFragment : Fragment() {
         }
         Scaffold(
             topBar = { OverlayTopBar(blazeUIModel) },
-        ) { BlazeOverlayContent(blazeUIModel, isDarkTheme) }
+        ) { contentPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+            ) {
+                BlazeOverlayContent(blazeUIModel, isDarkTheme)
+            }
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
