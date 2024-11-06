@@ -568,7 +568,7 @@ class ReaderInterestsViewModelTest : BaseUnitTest() {
         }
 
     @Test
-    fun `discover close reader screen on back button click`() {
+    fun `discover close reader screen on back button click`() = testWithEmptyUserTags {
         // When
         initViewModel(EntryPoint.DISCOVER)
 
@@ -579,7 +579,7 @@ class ReaderInterestsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `settings close reader screen on back button click`() {
+    fun `settings close reader screen on back button click`() = testWithEmptyUserTags {
         // When
         initViewModel(EntryPoint.SETTINGS)
 
