@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.sentry)
@@ -331,10 +332,6 @@ android {
         buildConfig true
         viewBinding true
         compose true
-
-        composeOptions {
-            kotlinCompilerExtensionVersion = libs.versions.androidx.compose.compiler.get()
-        }
     }
 }
 
