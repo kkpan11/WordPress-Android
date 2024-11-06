@@ -1,6 +1,7 @@
 package org.wordpress.android.ui.blaze.blazeoverlay
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -388,7 +389,8 @@ class BlazeOverlayFragment : Fragment() {
         }
     }
 
-    @Preview
+    @Preview(showBackground = true)
+    @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
     @Composable
     private fun PreviewBlazeOverlayScreenSiteFlow() {
         AppThemeM3 {
