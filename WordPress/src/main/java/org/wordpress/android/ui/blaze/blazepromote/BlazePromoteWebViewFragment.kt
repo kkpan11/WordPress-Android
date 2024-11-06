@@ -57,7 +57,7 @@ import org.wordpress.android.ui.main.jetpack.migration.compose.state.LoadingStat
 import org.wordpress.android.editor.R as EditorR
 
 @AndroidEntryPoint
-class BlazePromoteWebViewFragment: Fragment(), OnBlazeWebViewClientListener,
+class BlazePromoteWebViewFragment : Fragment(), OnBlazeWebViewClientListener,
     WPWebChromeClientWithFileChooser.OnShowFileChooserListener {
     private var chromeClient: WPWebChromeClientWithFileChooser? = null
     private val blazePromoteWebViewViewModel: BlazePromoteWebViewViewModel by viewModels()
@@ -147,7 +147,6 @@ class BlazePromoteWebViewFragment: Fragment(), OnBlazeWebViewClientListener,
     // The next 2 Composable(s) live in the fragment because they need access to the chromeClient outside of the fun
     // Also the clients needs access to activity and we are not holding on to that elsewhere
     @Composable
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     private fun BlazeWebViewScreen(
         viewModel: BlazePromoteWebViewViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     ) {
@@ -155,8 +154,13 @@ class BlazePromoteWebViewFragment: Fragment(), OnBlazeWebViewClientListener,
         val headerState by viewModel.headerUiState.collectAsState()
         Scaffold(
             topBar = { BlazeTopAppBar(headerState) },
-            content = { BlazePromoteContent(uiState) }
-        )
+        ) { contentPadding ->
+            Box(
+                modifier = Modifier.padding(contentPadding)
+            ) {
+                BlazePromoteContent(uiState)
+            }
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -168,32 +172,34 @@ class BlazePromoteWebViewFragment: Fragment(), OnBlazeWebViewClientListener,
             title = {
                 Text(text = stringResource(id = state.headerTitle))
             },
-            actions = { TopAppBarActions(state = state) }
+            actions = {
+                TopAppBarActions(state = state)
+            }
         )
     }
 
     @Composable
     private fun TopAppBarActions(state: BlazeWebViewHeaderUiState) {
-            TextButton(
-                onClick = { blazePromoteWebViewViewModel.onHeaderActionClick(state) },
-                enabled = state.headerActionEnabled,
-            ) {
-                    Text(
-                        stringResource(id = state.headerActionText),
-                        color = if (state.headerActionEnabled) {
-                            MaterialTheme.colorScheme.onSurface
-                        } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                        }
-                    )
-              }
+        TextButton(
+            onClick = { blazePromoteWebViewViewModel.onHeaderActionClick(state) },
+            enabled = state.headerActionEnabled,
+        ) {
+            Text(
+                stringResource(id = state.headerActionText),
+                color = if (state.headerActionEnabled) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                }
+            )
+        }
     }
 
     @Composable
     private fun BlazePromoteContent(uiState: BlazePromoteUiState) {
         when (uiState) {
             is BlazePromoteUiState.Preparing -> LoadingState()
-            is BlazePromoteUiState.Loading, is BlazePromoteUiState.Loaded-> BlazeWebViewContent(uiState)
+            is BlazePromoteUiState.Loading, is BlazePromoteUiState.Loaded -> BlazeWebViewContent(uiState)
             is BlazePromoteUiState.Error -> BlazePromoteError(uiState)
         }
     }

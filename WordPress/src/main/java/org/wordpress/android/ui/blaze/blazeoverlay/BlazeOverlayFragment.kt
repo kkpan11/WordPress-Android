@@ -396,7 +396,7 @@ class BlazeOverlayFragment : Fragment() {
         }
     }
 
-    @Preview(showBackground = true)
+    @Preview
     @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
     @Composable
     private fun PreviewBlazeOverlayScreenSiteFlow() {

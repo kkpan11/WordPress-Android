@@ -1,12 +1,13 @@
 package org.wordpress.android.ui.blaze.blazecampaigns.campaignlisting
 
-import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -131,7 +132,6 @@ class CampaignListingFragment : Fragment() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     fun CampaignListingPage(uiState: CampaignListingUiState) {
         val snackbarHostState = remember { SnackbarHostState() }
 
@@ -161,7 +161,15 @@ class CampaignListingFragment : Fragment() {
                     )
                 }
             },
-        ) { CampaignListingContent(uiState) }
+        ) { contentPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+            ) {
+                CampaignListingContent(uiState)
+            }
+        }
 
         LaunchedEffect(viewModel.snackBar) {
             viewModel.snackBar.collect { message ->
@@ -265,21 +273,6 @@ fun CampaignListingError(error: CampaignListingUiState.Error) {
     }
 }
 
-@Preview
-@Composable
-fun CampaignListingErrorPreview() {
-    AppThemeM3 {
-        CampaignListingError(CampaignListingUiState.Error(
-            title = UiString.UiStringRes(R.string.campaign_listing_page_no_campaigns_message_title),
-            description = UiString.UiStringRes(R.string.campaign_listing_page_no_campaigns_message_description),
-            button = CampaignListingUiState.Error.ErrorButton(
-                text = UiString.UiStringRes(R.string.campaign_listing_page_no_campaigns_button_text),
-                click = { }
-            )
-        ))
-    }
-}
-
 @Composable
 private fun CreateCampaignFloatingActionButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     val isInDarkMode = !isLightTheme()
@@ -296,6 +289,22 @@ private fun CreateCampaignFloatingActionButton(modifier: Modifier = Modifier, on
             tint = if (isInDarkMode) MaterialTheme.colorScheme.onSurface
             else MaterialTheme.colorScheme.surface
         )
+    }
+}
+
+@Preview
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun CampaignListingErrorPreview() {
+    AppThemeM3 {
+        CampaignListingError(CampaignListingUiState.Error(
+            title = UiString.UiStringRes(R.string.campaign_listing_page_no_campaigns_message_title),
+            description = UiString.UiStringRes(R.string.campaign_listing_page_no_campaigns_message_description),
+            button = CampaignListingUiState.Error.ErrorButton(
+                text = UiString.UiStringRes(R.string.campaign_listing_page_no_campaigns_button_text),
+                click = { }
+            )
+        ))
     }
 }
 
