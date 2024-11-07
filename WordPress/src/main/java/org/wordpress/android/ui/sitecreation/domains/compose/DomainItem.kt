@@ -75,7 +75,7 @@ fun DomainItem(uiState: DomainUiState): Unit = with(uiState) {
                 if (isSelected) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = stringResource(R.string.selected),
+                        contentDescription = stringResource(R.string.item_selected),
                         tint = colorScheme.primary,
                         modifier = Modifier.size(16.dp),
                     )
