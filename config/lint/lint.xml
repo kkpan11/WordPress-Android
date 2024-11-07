@@ -86,5 +86,6 @@
     <issue id="UsingMaterialAndMaterial3Libraries" severity="warning" />
     <!--  We rely on more granural checks from WordPress-Lint-Android  -->
     <issue id="UnknownNullness" severity="ignore" />
-
+    <!-- TODO: https://github.com/wordpress-mobile/WordPress-Android/pull/21430 -->
+    <issue id="ObsoleteLintCustomCheck" severity="warning" />
 </lint>
