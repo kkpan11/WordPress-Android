@@ -30,7 +30,7 @@ android {
     }
 
     lint {
-        disable 'UseTomlInstead', 'IgnoreWithoutReason'
+        disable 'IgnoreWithoutReason'
     }
 
     testOptions {
