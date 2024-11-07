@@ -29,10 +29,6 @@ android {
         consumerProguardFiles 'consumer-rules.pro'
     }
 
-    lint {
-        disable 'IgnoreWithoutReason'
-    }
-
     testOptions {
         unitTests.includeAndroidResources = true
     }
