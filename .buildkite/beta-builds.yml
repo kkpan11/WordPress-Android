@@ -13,12 +13,36 @@ steps:
   #################
   - label: "Gradle Wrapper Validation"
     command: |
-      echo "RELEASE_VERSION: $RELEASE_VERSION"
+      .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
       validate_gradle_wrapper
     plugins: [$CI_TOOLKIT]
 
   # Wait for Gradle Wrapper to be validated before running any other jobs
   - wait
+
+  #################
+  # Lint
+  #################
+  - group: "🕵️ Lint"
+    steps:
+
+      - label: "🕵️ Lint WordPress"
+        key: wplint
+        command: |
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/lint.sh wordpress
+        plugins: [$CI_TOOLKIT]
+        artifact_paths:
+          - "**/build/reports/lint-results*.*"
+
+      - label: "🕵️ Lint Jetpack"
+        key: jplint
+        command: |
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/lint.sh jetpack
+        plugins: [$CI_TOOLKIT]
+        artifact_paths:
+          - "**/build/reports/lint-results*.*"
 
   #################
   # Beta Builds
@@ -29,7 +53,9 @@ steps:
       - label: ":wordpress: :android: Beta Build"
         key: wpbuild
         command: |
-          echo "RELEASE_VERSION: $RELEASE_VERSION"
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/beta-build.sh wordpress
+        depends_on: wplint
         plugins: [$CI_TOOLKIT]
         notify:
           - slack: "#build-and-ship"
@@ -41,7 +67,9 @@ steps:
       - label: ":jetpack: :android: Beta Build"
         key: jpbuild
         command: |
-          echo "RELEASE_VERSION: $RELEASE_VERSION"
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/beta-build.sh jetpack
+        depends_on: jplint
         plugins: [$CI_TOOLKIT]
         notify:
           - slack: "#build-and-ship"
@@ -58,5 +86,6 @@ steps:
       - wpbuild
       - jpbuild
     command: |
-      echo "RELEASE_VERSION: $RELEASE_VERSION"
+      .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+      .buildkite/commands/create-github-release.sh
     plugins: [$CI_TOOLKIT]
