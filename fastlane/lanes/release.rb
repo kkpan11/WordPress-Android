@@ -122,24 +122,24 @@ platform :android do
   #####################################################################################
   desc 'Trigger a release build for a given app after code freeze'
   lane :complete_code_freeze do |options|
-    ensure_git_branch(branch: '^release/')
+    # ensure_git_branch(branch: '^release/')
     ensure_git_status_clean
 
     new_version = current_release_version
 
-    UI.important("Completing code freeze for: #{new_version}")
+    # UI.important("Completing code freeze for: #{new_version}")
 
-    UI.user_error!('Aborted by user request') unless options[:skip_confirm] || UI.confirm('Do you want to continue?')
+    # UI.user_error!('Aborted by user request') unless options[:skip_confirm] || UI.confirm('Do you want to continue?')
 
-    localize_libraries
-    update_frozen_strings_for_translation
+    # localize_libraries
+    # update_frozen_strings_for_translation
 
-    ensure_git_status_clean
-    push_to_git_remote(tags: false)
+    # ensure_git_status_clean
+    # push_to_git_remote(tags: false)
 
     trigger_beta_build(branch_to_build: "release/#{new_version}")
 
-    create_backmerge_pr
+    # create_backmerge_pr
   end
 
   # Updates a release branch for a new beta release, triggering a beta build using the `.buildkite/beta-builds.yml` pipeline.

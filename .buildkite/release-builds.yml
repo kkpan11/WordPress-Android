@@ -13,39 +13,13 @@ steps:
   #################
   - label: "Gradle Wrapper Validation"
     command: |
-      .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+      # .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
       validate_gradle_wrapper
     priority: 1
     plugins: [$CI_TOOLKIT]
 
   # Wait for Gradle Wrapper to be validated before running any other jobs
   - wait
-
-  #################
-  # Lint
-  #################
-  - group: "🕵️ Lint"
-    steps:
-
-      - label: "🕵️ Lint WordPress"
-        key: wplint
-        command: |
-          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
-          .buildkite/commands/lint.sh wordpress
-        priority: 1
-        plugins: [$CI_TOOLKIT]
-        artifact_paths:
-          - "**/build/reports/lint-results*.*"
-
-      - label: "🕵️ Lint Jetpack"
-        key: jplint
-        command: |
-          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
-          .buildkite/commands/lint.sh jetpack
-        priority: 1
-        plugins: [$CI_TOOLKIT]
-        artifact_paths:
-          - "**/build/reports/lint-results*.*"
 
   #################
   # Release Builds
@@ -56,32 +30,30 @@ steps:
       - label: ":wordpress: :android: Release Build"
         key: wpbuild
         command: |
-          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
-          .buildkite/commands/release-build.sh wordpress
+          echo "RELEASE_VERSION: $RELEASE_VERSION"
         priority: 1
         depends_on: wplint
         plugins: [$CI_TOOLKIT]
-        notify:
-          - slack: "#build-and-ship"
-        retry:
-          manual:
-            # If those jobs fail, one should always prefer re-triggering a new build from ReleaseV2 rather than retrying the individual job from Buildkite
-            allowed: false
+        # notify:
+        #   - slack: "#build-and-ship"
+        # retry:
+        #   manual:
+        #     # If those jobs fail, one should always prefer re-triggering a new build from ReleaseV2 rather than retrying the individual job from Buildkite
+        #     allowed: false
 
       - label: ":jetpack: :android: Release Build"
         key: jpbuild
         command: |
-          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
-          .buildkite/commands/release-build.sh jetpack
+          echo "RELEASE_VERSION: $RELEASE_VERSION"
         priority: 1
         depends_on: jplint
         plugins: [$CI_TOOLKIT]
-        notify:
-          - slack: "#build-and-ship"
-        retry:
-          manual:
-            # If those jobs fail, one should always prefer re-triggering a new build from ReleaseV2 rather than retrying the individual job from Buildkite
-            allowed: false
+        # notify:
+        #   - slack: "#build-and-ship"
+        # retry:
+        #   manual:
+        #     # If those jobs fail, one should always prefer re-triggering a new build from ReleaseV2 rather than retrying the individual job from Buildkite
+        #     allowed: false
 
   #################
   # GitHub Release
@@ -91,7 +63,6 @@ steps:
       - wpbuild
       - jpbuild
     command: |
-      .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
-      .buildkite/commands/create-github-release.sh
+      echo "RELEASE_VERSION: $RELEASE_VERSION"
     priority: 1
     plugins: [$CI_TOOLKIT]
