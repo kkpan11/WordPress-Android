@@ -13,14 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -111,14 +110,14 @@ private fun CardDropDownMenu(
             Icon(
                 imageVector = Icons.Rounded.MoreVert,
                 contentDescription = stringResource(id = R.string.more),
-                tint = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium),
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
 
         DropdownMenu(
             expanded = isExpanded,
             onDismissRequest = { isExpanded = false },
-            modifier = Modifier.background(MaterialTheme.colors.surface.copy(alpha = ContentAlpha.high))
+            modifier = Modifier.background(MaterialTheme.colorScheme.surface)
         ) {
             contextMenuItems.map { item ->
                 when (item) {
@@ -132,7 +131,7 @@ private fun CardDropDownMenu(
                         )
                     }
 
-                    MySiteCardToolbarContextMenuItem.Divider -> Divider()
+                    MySiteCardToolbarContextMenuItem.Divider -> HorizontalDivider()
                 }
             }
         }
