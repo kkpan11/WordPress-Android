@@ -2,10 +2,8 @@ package org.wordpress.android.ui.compose.styles
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -20,7 +18,7 @@ object DashboardCardTypography {
         @Composable
         get() = MaterialTheme.typography.bodyLarge.copy(
             fontWeight = FontWeight.SemiBold,
-            color = colors.onSurface.copy(alpha = ContentAlpha.high)
+            color = MaterialTheme.colorScheme.onSurface
         )
 
     val smallTitle: TextStyle
@@ -28,7 +26,7 @@ object DashboardCardTypography {
         get() = MaterialTheme.typography.bodyLarge.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
-            color = colors.onSurface.copy(alpha = ContentAlpha.high)
+            color = MaterialTheme.colorScheme.onSurface
         )
 
     val subTitle: TextStyle
@@ -36,33 +34,33 @@ object DashboardCardTypography {
         get() = MaterialTheme.typography.titleMedium.copy(
             fontWeight = FontWeight.Medium,
             fontStyle = FontStyle.Normal,
-            color = colors.onSurface.copy(alpha = ContentAlpha.high)
+            color = MaterialTheme.colorScheme.onSurface
         )
 
     val detailText: TextStyle
         @Composable
         get() = MaterialTheme.typography.bodyMedium.copy(
-            color = colors.onSurface.copy(alpha = ContentAlpha.medium)
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.74f)
         )
 
     val largeText: TextStyle
         @Composable
         get() = MaterialTheme.typography.headlineMedium.copy(
-            color = colors.onSurface.copy(alpha = ContentAlpha.high)
+            color = MaterialTheme.colorScheme.onSurface
         )
 
     val footerCTA: TextStyle
         @Composable
         get() = MaterialTheme.typography.titleMedium.copy(
             fontWeight = FontWeight.Medium,
-            color = colors.primary
+            color = MaterialTheme.colorScheme.primary
         )
 
     val standaloneText: TextStyle
         @Composable
         get() = MaterialTheme.typography.titleMedium.copy(
             fontWeight = FontWeight.Medium,
-            color = colors.onSurface.copy(alpha = ContentAlpha.high)
+            color = MaterialTheme.colorScheme.onSurface
         )
 }
 
