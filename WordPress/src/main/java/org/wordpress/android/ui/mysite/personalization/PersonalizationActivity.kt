@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -50,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dagger.hilt.android.AndroidEntryPoint
 import org.wordpress.android.R
-import org.wordpress.android.ui.compose.components.buttons.WPSwitch
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.utils.LocaleAwareComposable
 import org.wordpress.android.ui.compose.utils.uiStringText
@@ -273,13 +273,13 @@ fun DashboardCardStateRow(
                 )
             }
             Spacer(Modifier.width(8.dp))
-            WPSwitch(
+            Switch(
                 checked = cardState.enabled,
                 onCheckedChange = {
                     onCardToggled(cardState.cardType, it)
                 },
                 modifier = Modifier
-                    .weight(.1f)
+                    .weight(.1f),
             )
         }
         HorizontalDivider(
