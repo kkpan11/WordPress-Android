@@ -110,8 +110,6 @@ android {
         testInstrumentationRunner 'org.wordpress.android.WordPressTestRunner'
 
         buildConfigField "boolean", "OFFER_GUTENBERG", "true"
-        buildConfigField "long", "REMOTE_CONFIG_FETCH_INTERVAL", "10"
-        buildConfigField "boolean", "FEATURE_ANNOUNCEMENT_AVAILABLE", "false"
         buildConfigField "boolean", "ENABLE_DEBUG_SETTINGS", "true"
         buildConfigField "boolean", "SEEN_UNSEEN_WITH_COUNTER", "false"
         buildConfigField "boolean", "LIKES_ENHANCEMENTS", "false"
@@ -120,7 +118,6 @@ android {
         buildConfigField "String", "PUSH_NOTIFICATIONS_APP_KEY", '"org.wordpress.android"'
         buildConfigField "boolean", "MP4_COMPOSER_VIDEO_OPTIMIZATION", "false"
         buildConfigField "boolean", "MANAGE_CATEGORIES", "false"
-        buildConfigField "boolean", "QUICK_START_DYNAMIC_CARDS", "false"
         buildConfigField "boolean", "RECOMMEND_THE_APP", "false"
         buildConfigField "boolean", "UNIFIED_COMMENTS_DETAILS", "false"
         buildConfigField "boolean", "COMMENTS_SNIPPET", "false"
