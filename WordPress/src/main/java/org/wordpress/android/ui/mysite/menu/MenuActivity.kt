@@ -320,7 +320,7 @@ fun MySiteListItem(item: MenuItemState.MenuListItem, modifier: Modifier = Modifi
                 Text(
                     text = uiStringText(item.primaryText),
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.Normal,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .padding(start = 8.dp, end = 8.dp),
