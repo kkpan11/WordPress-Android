@@ -1,12 +1,18 @@
 package org.wordpress.android.ui.compose.styles
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme.colors
+import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 object DashboardCardTypography {
@@ -58,4 +64,43 @@ object DashboardCardTypography {
             fontWeight = FontWeight.Medium,
             color = colors.onSurface.copy(alpha = ContentAlpha.high)
         )
+}
+
+@Preview
+@Composable
+fun DashboardCardTypographyPreview() {
+    val padding = Modifier.padding(8.dp)
+
+    Column {
+        Text(
+            text = "Title",
+            style = DashboardCardTypography.title,
+            modifier = padding
+        )
+        Text(
+            text = "subTitle",
+            style = DashboardCardTypography.subTitle,
+            modifier = padding
+        )
+        Text(
+            text = "detailText",
+            style = DashboardCardTypography.detailText,
+            modifier = padding
+        )
+        Text(
+            text = "largeText",
+            style = DashboardCardTypography.largeText,
+            modifier = padding
+        )
+        Text(
+            text = "footerCTA",
+            style = DashboardCardTypography.footerCTA,
+            modifier = padding
+        )
+        Text(
+            text = "standaloneText",
+            style = DashboardCardTypography.standaloneText,
+            modifier = padding
+        )
+    }
 }
