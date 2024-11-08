@@ -107,3 +107,6 @@ local-builds.gradle
 # gitignore for retrocompatibility, so that it won't appear as a new file and
 # be accidentally checked in the repository.
 google-upload-credentials.json
+
+# Kotlin
+.kotlin/
