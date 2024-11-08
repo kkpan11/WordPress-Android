@@ -280,7 +280,7 @@ fun MySiteListItemHeader(headerItem: MenuItemState.MenuHeaderItem) {
         fontWeight = FontWeight.Medium,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
-            .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp)
+            .padding(start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp)
     )
 }
 
@@ -302,7 +302,7 @@ fun MySiteListItem(item: MenuItemState.MenuListItem, modifier: Modifier = Modifi
                 .fillMaxWidth()
                 .wrapContentSize()
                 .clickable { item.onClick.click() }
-                .padding(start = 12.dp, top = 6.dp, end = 16.dp, bottom = 6.dp),
+                .padding(start = 12.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
             content = {
