@@ -262,7 +262,7 @@ android {
         }
 
         // Also dynamically add additional `buildConfigFields` to our app flavors from any `wp.`/`jp.`-prefixed property in `gradle.properties`
-        def properties = loadPropertiesFromFile(checkGradlePropertiesFile())
+        def properties = loadSecrets(project.logger, file("${rootDir}/defaults.properties"), file("${rootDir}/secrets.properties"))
         addBuildConfigFieldsFromPrefixedProperties(wordpress, properties, ['wp'])
         addBuildConfigFieldsFromPrefixedProperties(jetpack, properties, ['wp', 'jp']) // Inherit same properties used from WP first then overwrite with JP-specific ones
     }
@@ -610,20 +610,23 @@ tasks.register("printResourceConfigurations") {
     }
 }
 
-def checkGradlePropertiesFile() {
-    def inputFile = file("${rootDir}/gradle.properties")
-    if (!inputFile.exists()) {
-        throw new StopActionException("Build configuration file gradle.properties doesn't exist, follow README instructions")
-    }
-    return inputFile
-}
-
 static def loadPropertiesFromFile(inputFile) {
     def properties = new Properties()
     inputFile.withInputStream { stream ->
         properties.load(stream)
     }
     return properties
+}
+
+static def loadSecrets(Logger logger, File defaultsFile, File secretsFile) {
+    def defaults = loadPropertiesFromFile(defaultsFile)
+    if (secretsFile.exists()) {
+        def secrets = loadPropertiesFromFile(secretsFile)
+        return defaults + secrets
+    } else {
+        logger.warn("Secrets file not found. Using defaults.")
+        return defaults
+    }
 }
 
 // For app signing
