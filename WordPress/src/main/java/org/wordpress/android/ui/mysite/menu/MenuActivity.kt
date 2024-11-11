@@ -103,7 +103,9 @@ class MenuActivity : AppCompatActivity() {
                     onLocaleChange = viewModel::setAppLanguage
                 ) {
                     viewModel.start(intent.getParcelableExtraCompat(KEY_QUICK_START_EVENT))
-                    MenuScreen()
+                    MenuScreen(
+                        onBackPressed = onBackPressedDispatcher::onBackPressed
+                    )
                 }
             }
         }
@@ -214,7 +216,10 @@ class MenuActivity : AppCompatActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun MenuScreen(modifier: Modifier = Modifier) {
+    fun MenuScreen(
+        modifier: Modifier = Modifier,
+        onBackPressed: () -> Unit
+    ) {
         val snackbarHostState = remember { SnackbarHostState() }
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -225,8 +230,8 @@ class MenuActivity : AppCompatActivity() {
                     },
                     navigationIcon = {
                         IconButton(onClick = {
-                            onBackPressedDispatcher::onBackPressed }
-                        ) {
+                            onBackPressed()
+                        }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 stringResource(R.string.back)
