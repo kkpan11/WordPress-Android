@@ -14,8 +14,6 @@ steps:
       echo '--- :ruby: Setup Ruby Tools'
       install_gems
 
-      cp gradle.properties-example gradle.properties
-
       echo '--- :shipit: Finalize Release'
       bundle exec fastlane finalize_release skip_confirm:true
     agents:
