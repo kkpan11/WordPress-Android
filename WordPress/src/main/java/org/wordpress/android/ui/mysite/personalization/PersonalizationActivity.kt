@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -249,18 +250,24 @@ fun DashboardCardStateRow(
     onCardToggled: (cardType: CardType, enabled: Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                onCardToggled(cardState.cardType, !cardState.enabled)
+            }
+            .clearAndSetSemantics { }
+            .semantics(
+                mergeDescendants = true,
+            ) { },
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
                     start = 16.dp,
                     end = 16.dp
-                )
-                .clickable {
-                    onCardToggled(cardState.cardType, !cardState.enabled)
-                }
-                .semantics(mergeDescendants = true) { },
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(
