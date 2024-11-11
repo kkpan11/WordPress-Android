@@ -293,7 +293,9 @@ fun DashboardCardStateRow(
                     onCardToggled(cardState.cardType, it)
                 },
                 modifier = Modifier
-                    .clickable(onClickLabel = label) { }
+                    .clickable(onClickLabel = label) {
+                        onCardToggled(cardState.cardType, !cardState.enabled)
+                    }
                     .weight(.1f)
             )
         }
@@ -313,10 +315,17 @@ fun ShortcutStateRow(
     actionButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val label = stringResource(id = R.string.personalization_card_accessibility_label, state.label)
     Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 6.dp)
+            .clickable(onClickLabel = label) {
+                actionButtonClick()
+            }
+            .semantics(
+                mergeDescendants = true,
+            ) { },
     )
     {
         Row(
