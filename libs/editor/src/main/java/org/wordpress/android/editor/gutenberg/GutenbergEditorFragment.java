@@ -1415,6 +1415,7 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
             return;
         }
 
+        // TODO: Refactor to share logic? Remove unused logic?
         // TODO: Verify sharing media to the app does not fail
         if (mIsNewGutenbergEnabled) {
             ArrayList<org.wordpress.gutenberg.Media> gbkitMediaList = new ArrayList<>();
