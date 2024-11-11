@@ -194,6 +194,8 @@ android {
 
     flavorDimensions "app", "buildType"
 
+    Map<String, Object> secretProperties = loadSecrets(project.logger, file("${rootDir}/defaults.properties"), file("${rootDir}/secrets.properties"))
+
     productFlavors {
         wordpress {
             isDefault true
@@ -262,9 +264,8 @@ android {
         }
 
         // Also dynamically add additional `buildConfigFields` to our app flavors from any `wp.`/`jp.`-prefixed property in `gradle.properties`
-        def properties = loadSecrets(project.logger, file("${rootDir}/defaults.properties"), file("${rootDir}/secrets.properties"))
-        addBuildConfigFieldsFromPrefixedProperties(wordpress, properties, ['wp'])
-        addBuildConfigFieldsFromPrefixedProperties(jetpack, properties, ['wp', 'jp']) // Inherit same properties used from WP first then overwrite with JP-specific ones
+        addBuildConfigFieldsFromPrefixedProperties(wordpress, secretProperties, ['wp'])
+        addBuildConfigFieldsFromPrefixedProperties(jetpack, secretProperties, ['wp', 'jp']) // Inherit same properties used from WP first then overwrite with JP-specific ones
     }
 
     buildTypes {
@@ -279,6 +280,29 @@ android {
             minifyEnabled false
             buildConfigField "String", "APP_PN_KEY", "\"org.wordpress.android.debug.build\""
             pseudoLocalesEnabled true
+        }
+    }
+
+    signingConfigs {
+        if (["uploadStoreFile", "uploadStorePassword", "uploadKeyAlias", "uploadKeyPassword"].count { !secretProperties.containsKey(it) } == 0) {
+            logger.info("App signing properties found in secrets.properties, configuring signing for release builds.")
+            release {
+                storeFile = rootProject.file(project.uploadStoreFile)
+                storePassword = project.uploadStorePassword
+                keyAlias = project.uploadKeyAlias
+                keyPassword = project.uploadKeyPassword
+            }
+            android.buildTypes.release.signingConfig = android.signingConfigs.release
+        }
+
+        if (secretProperties.containsKey("debugStoreFile")) {
+            logger.info("Debug signing properties found in secrets.properties, configuring signing for debug builds.")
+            def sharedDebugStore = file(project.debugStoreFile.replaceFirst("^~", System.getProperty("user.home")))
+            if (sharedDebugStore.exists()) {
+                debug {
+                    storeFile sharedDebugStore
+                }
+            }
         }
     }
 
@@ -626,34 +650,6 @@ static def loadSecrets(Logger logger, File defaultsFile, File secretsFile) {
     } else {
         logger.warn("Secrets file not found. Using defaults.")
         return defaults
-    }
-}
-
-// For app signing
-if (["uploadStoreFile", "uploadStorePassword", "uploadKeyAlias", "uploadKeyPassword"].count { !project.hasProperty(it) } == 0) {
-    android {
-        signingConfigs {
-            release {
-                storeFile = rootProject.file(project.uploadStoreFile)
-                storePassword = project.uploadStorePassword
-                keyAlias = project.uploadKeyAlias
-                keyPassword = project.uploadKeyPassword
-            }
-        }
-    }
-    android.buildTypes.release.signingConfig = android.signingConfigs.release
-}
-
-if (project.hasProperty("debugStoreFile")) {
-    def sharedDebugStore = file(project.debugStoreFile.replaceFirst("^~", System.getProperty("user.home")))
-    if (sharedDebugStore.exists()) {
-        android {
-            signingConfigs {
-                debug {
-                    storeFile sharedDebugStore
-                }
-            }
-        }
     }
 }
 
