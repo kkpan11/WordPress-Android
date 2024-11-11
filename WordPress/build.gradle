@@ -590,25 +590,32 @@ if ((file('google-services.json').text) == (file('google-services.json-example')
 }
 
 tasks.register("printVersionName") {
+    def versionName = android.defaultConfig.versionName
     doLast {
-        println android.defaultConfig.versionName
+        println versionName
     }
 }
 
 tasks.register("printAllVersions") {
+    def versions = android.applicationVariants.collect {
+        [it.name, it.versionName, it.versionCode]
+    }
+
     doLast {
-        android.applicationVariants.all { variant ->
-            println "${variant.name}: ${variant.versionName} (${variant.versionCode})"
+        versions.each { name, versionName, versionCode ->
+            println "$name: $versionName ($versionCode)"
         }
     }
 }
 
 tasks.register("printResourceConfigurations") {
+    def flavorInfo = android.productFlavors
+            .findAll { it.dimension == "app" }
+            .collect { [it.name, it.resourceConfigurations] }
+
     doLast {
-        android.productFlavors.each { flavor ->
-            if (flavor.dimension == "app") {
-                println "${flavor.name}: ${flavor.resourceConfigurations}"
-            }
+        flavorInfo.each { name, resourceConfigurations ->
+            println "$name: $resourceConfigurations"
         }
     }
 }
