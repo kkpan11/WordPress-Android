@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +46,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -254,8 +256,12 @@ fun DashboardCardStateRow(
                 .padding(
                     start = 16.dp,
                     end = 16.dp
-                ),
-            verticalAlignment = Alignment.CenterVertically
+                )
+                .clickable {
+                    onCardToggled(cardState.cardType, !cardState.enabled)
+                }
+                .semantics(mergeDescendants = true) { },
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(
                 modifier = Modifier
@@ -276,7 +282,7 @@ fun DashboardCardStateRow(
             Switch(
                 checked = cardState.enabled,
                 onCheckedChange = {
-                    onCardToggled(cardState.cardType, it)
+                    // TODO onCardToggled(cardState.cardType, it)
                 },
                 modifier = Modifier
                     .weight(.1f),
