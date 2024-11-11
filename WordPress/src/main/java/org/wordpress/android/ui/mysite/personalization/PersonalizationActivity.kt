@@ -250,7 +250,7 @@ fun DashboardCardStateRow(
     modifier: Modifier = Modifier
 ) {
     val title = stringResource(id = cardState.title)
-    val label = stringResource(id = R.string.personalization_card_accessibility_label, title)
+    val label = stringResource(id = R.string.personalization_screen_card_accessibility_label, title)
 
     Column(
         modifier = modifier
@@ -364,7 +364,8 @@ fun ShortcutStateRow(
                     painter = painterResource(id = actionIcon),
                     tint = actionIconTint,
                     contentDescription = stringResource(
-                        R.string.personalization_screen_shortcuts_add_or_remove_shortcut_button
+                        R.string.personalization_screen_shortcuts_accessibility_label,
+                        uiStringText(state.label)
                     ),
                 )
             }
