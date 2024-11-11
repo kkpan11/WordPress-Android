@@ -46,7 +46,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -250,13 +249,15 @@ fun DashboardCardStateRow(
     onCardToggled: (cardType: CardType, enabled: Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val title = stringResource(id = cardState.title)
+    val label = stringResource(id = R.string.personalization_card_accessibility_label, title)
+
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable {
+            .clickable( onClickLabel = label) {
                 onCardToggled(cardState.cardType, !cardState.enabled)
             }
-            .clearAndSetSemantics { }
             .semantics(
                 mergeDescendants = true,
             ) { },
@@ -292,7 +293,7 @@ fun DashboardCardStateRow(
                     // TODO onCardToggled(cardState.cardType, it)
                 },
                 modifier = Modifier
-                    .weight(.1f),
+                    .weight(.1f)
             )
         }
         HorizontalDivider(
