@@ -652,13 +652,11 @@ static def loadPropertiesFromFile(inputFile) {
 }
 
 static def loadSecrets(Logger logger, File defaultsFile, File secretsFile) {
-    def defaults = loadPropertiesFromFile(defaultsFile)
     if (secretsFile.exists()) {
-        def secrets = loadPropertiesFromFile(secretsFile)
-        return defaults + secrets
+        return loadPropertiesFromFile(secretsFile)
     } else {
         logger.warn("Secrets file not found. Using defaults.")
-        return defaults
+        return loadPropertiesFromFile(defaultsFile)
     }
 }
 
