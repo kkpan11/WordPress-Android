@@ -255,7 +255,7 @@ fun DashboardCardStateRow(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable( onClickLabel = label) {
+            .clickable(onClickLabel = label) {
                 onCardToggled(cardState.cardType, !cardState.enabled)
             }
             .semantics(
@@ -290,9 +290,10 @@ fun DashboardCardStateRow(
             Switch(
                 checked = cardState.enabled,
                 onCheckedChange = {
-                    // TODO onCardToggled(cardState.cardType, it)
+                    onCardToggled(cardState.cardType, it)
                 },
                 modifier = Modifier
+                    .clickable(onClickLabel = label) { }
                     .weight(.1f)
             )
         }
