@@ -224,7 +224,9 @@ class MenuActivity : AppCompatActivity() {
                         Text(text = stringResource(id = R.string.my_site_section_screen_title))
                     },
                     navigationIcon = {
-                        IconButton(onClick = { onBackPressedDispatcher::onBackPressed }) {
+                        IconButton(onClick = {
+                            onBackPressedDispatcher::onBackPressed }
+                        ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 stringResource(R.string.back)
