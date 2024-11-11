@@ -294,6 +294,7 @@ android {
                 keyAlias = secretProperties.get("uploadKeyAlias")
                 keyPassword = secretProperties.get("uploadKeyPassword")
             }
+            android.buildTypes.release.signingConfig = android.signingConfigs.release
         }
 
         if (secretProperties.containsKey("debugStoreFile")) {
