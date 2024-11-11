@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,28 +28,8 @@ import org.wordpress.android.R
 import org.wordpress.android.ui.compose.utils.uiStringText
 import org.wordpress.android.ui.utils.UiString
 
-@Preview
 @Composable
-fun PreviewDrawButton() {
-    ImageButton(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .background(
-                Color.Gray,
-                shape = RoundedCornerShape(6.dp)
-            ),
-        drawableLeft = Drawable(R.drawable.ic_pages_white_24dp),
-        drawableRight = Drawable(R.drawable.ic_pages_white_24dp),
-        drawableTop = Drawable(R.drawable.ic_pages_white_24dp),
-        drawableBottom = Drawable(R.drawable.ic_pages_white_24dp),
-        button = Button(text = UiString.UiStringText("Button Text")),
-        onClick = {}
-    )
-}
-
-@Composable
-fun ImageButton(
+fun ImageButtonM3(
     modifier: Modifier = Modifier,
     drawableLeft: Drawable? = null,
     drawableRight: Drawable? = null,
@@ -95,11 +75,13 @@ fun ImageButton(
         drawableRight?.let { drawable ->
             val (imageRight) = createRefs()
             Image(
-                modifier = Modifier.constrainAs(imageRight) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(buttonTextRef.end, margin = drawable.padding)
-                }.size(drawable.iconSize),
+                modifier = Modifier
+                    .constrainAs(imageRight) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(buttonTextRef.end, margin = drawable.padding)
+                    }
+                    .size(drawable.iconSize),
                 painter = painterResource(id = drawable.resId),
                 contentDescription = null
             )
@@ -165,4 +147,24 @@ data class Button(
     val textAlign: TextAlign? = null,
     val style: TextStyle? = null,
 )
+
+@Preview
+@Composable
+fun PreviewImageButton() {
+    ImageButtonM3(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(
+                Color.Gray,
+                shape = RoundedCornerShape(6.dp)
+            ),
+        drawableLeft = Drawable(R.drawable.ic_pages_white_24dp),
+        drawableRight = Drawable(R.drawable.ic_pages_white_24dp),
+        drawableTop = Drawable(R.drawable.ic_pages_white_24dp),
+        drawableBottom = Drawable(R.drawable.ic_pages_white_24dp),
+        button = Button(text = UiString.UiStringText("Button Text")),
+        onClick = {}
+    )
+}
 
