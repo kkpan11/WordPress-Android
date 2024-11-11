@@ -1,8 +1,10 @@
 import io.sentry.android.gradle.extensions.InstrumentationFeature
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.sentry)
@@ -191,8 +193,8 @@ android {
     compileOptions {
         // Enables Java 8+ API desugaring support
         coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JvmTarget.fromTarget(libs.versions.java.get()).target
+        targetCompatibility JvmTarget.fromTarget(libs.versions.java.get()).target
     }
 
     flavorDimensions "app", "buildType"
@@ -330,10 +332,6 @@ android {
         buildConfig true
         viewBinding true
         compose true
-
-        composeOptions {
-            kotlinCompilerExtensionVersion = libs.versions.androidx.compose.compiler.get()
-        }
     }
 }
 
