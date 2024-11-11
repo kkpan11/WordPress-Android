@@ -5,7 +5,7 @@
   "files_to_copy": [
     {
       "file": "android/WPAndroid/secrets.properties",
-      "destination": "secrets.properties",
+      "destination": "~/.configure/wordpress-android/secrets/secrets.properties",
       "encrypt": true
     },
     {

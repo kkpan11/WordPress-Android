@@ -196,7 +196,11 @@ android {
 
     flavorDimensions "app", "buildType"
 
-    Map<String, Object> secretProperties = loadSecrets(project.logger, file("${rootDir}/defaults.properties"), file("${rootDir}/secrets.properties"))
+    Map<String, Object> secretProperties = loadSecrets(
+            project.logger,
+            file("${rootDir}/defaults.properties"),
+            file("${System.getProperty("user.home")}/.configure/wordpress-android/secrets/secrets.properties")
+    )
 
     productFlavors {
         wordpress {
