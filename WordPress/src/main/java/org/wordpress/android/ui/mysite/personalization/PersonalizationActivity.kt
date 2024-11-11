@@ -315,17 +315,10 @@ fun ShortcutStateRow(
     actionButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val label = stringResource(id = R.string.personalization_card_accessibility_label, state.label)
     Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 6.dp)
-            .clickable(onClickLabel = label) {
-                actionButtonClick()
-            }
-            .semantics(
-                mergeDescendants = true,
-            ) { },
     )
     {
         Row(
@@ -342,7 +335,7 @@ fun ShortcutStateRow(
         ) {
             Image(
                 painter = painterResource(id = state.icon),
-                contentDescription = null, // Add appropriate content description
+                contentDescription = uiStringText(state.label),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .size(24.dp)
