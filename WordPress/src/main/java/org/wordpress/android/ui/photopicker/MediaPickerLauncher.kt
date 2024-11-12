@@ -298,7 +298,10 @@ class MediaPickerLauncher @Inject constructor() {
         )
     }
 
-    private fun buildWPMediaLibraryPickerSetup(browserType: MediaBrowserType, initalSelection: List<Int>): MediaPickerSetup {
+    private fun buildWPMediaLibraryPickerSetup(
+        browserType: MediaBrowserType,
+        initalSelection: List<Int>
+    ): MediaPickerSetup {
         val allowedTypes = mutableSetOf<MediaType>()
         if (browserType.isImagePicker) {
             allowedTypes.add(IMAGE)
