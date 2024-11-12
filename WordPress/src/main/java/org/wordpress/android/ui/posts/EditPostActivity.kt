@@ -2476,7 +2476,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                                 editorPhotoPicker?.allowMultipleSelection = config.multiple
                                 val mediaType = mapAllowedTypesToMediaBrowserType(config.allowedTypes, config.multiple)
                                 val initialSelection = when (val value = config.value) {
-                                    is GutenbergView.Value.Single -> listOf(value as Int)
+                                    is GutenbergView.Value.Single -> listOf(value.value)
                                     is GutenbergView.Value.Multiple -> value.toList()
                                     else -> emptyList()
                                 }
