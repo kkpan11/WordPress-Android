@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -23,28 +25,19 @@ android {
         androidTest.java.srcDirs += 'src/androidTest/kotlin'
     }
 
+    compileOptions {
+        sourceCompatibility JvmTarget.fromTarget(libs.versions.java.get()).target
+        targetCompatibility JvmTarget.fromTarget(libs.versions.java.get()).target
+    }
+
     testOptions {
         unitTests {
             returnDefaultValues = true
         }
     }
 
-    lint {
-        enable += 'UnknownNullness'
-    }
-
     buildFeatures {
         viewBinding true
-    }
-}
-
-repositories {
-    maven {
-        url 'https://a8c-libs.s3.amazonaws.com/android'
-        content {
-            includeGroup "com.automattic"
-            includeGroup "com.automattic.ucrop"
-        }
     }
 }
 

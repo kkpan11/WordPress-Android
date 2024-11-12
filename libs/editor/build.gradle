@@ -1,32 +1,10 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlinx.kover)
-}
-
-repositories {
-    maven {
-        url "https://a8c-libs.s3.amazonaws.com/android"
-        content {
-            includeGroup "org.wordpress"
-            includeGroup "org.wordpress.aztec"
-            includeGroup "org.wordpress.gutenberg-mobile"
-            includeGroup "org.wordpress.gutenbergkit"
-            includeGroupByRegex "org.wordpress.react-native-libraries.*"
-            includeGroup "com.automattic"
-            includeGroup "com.automattic.tracks"
-        }
-    }
-    maven {
-        url "https://a8c-libs.s3.amazonaws.com/android/react-native-mirror"
-        content {
-            includeGroup "com.facebook.react"
-        }
-    }
-    google()
-    mavenCentral()
-    maven { url "https://www.jitpack.io" }
 }
 
 android {
@@ -38,8 +16,9 @@ android {
         compileSdk rootProject.compileSdkVersion
     }
 
-    lint {
-        enable += 'UnknownNullness'
+    compileOptions {
+        sourceCompatibility JvmTarget.fromTarget(libs.versions.java.get()).target
+        targetCompatibility JvmTarget.fromTarget(libs.versions.java.get()).target
     }
 
     // Avoid 'duplicate files during packaging of APK' errors
