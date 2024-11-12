@@ -199,7 +199,7 @@ android {
         targetCompatibility JvmTarget.fromTarget(libs.versions.java.get()).target
     }
 
-    flavorDimensions "app", "buildType"
+    flavorDimensions = ['app', 'buildType']
 
     productFlavors {
         wordpress {
