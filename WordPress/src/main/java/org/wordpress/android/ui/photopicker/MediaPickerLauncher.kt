@@ -300,7 +300,7 @@ class MediaPickerLauncher @Inject constructor() {
 
     private fun buildWPMediaLibraryPickerSetup(
         browserType: MediaBrowserType,
-        initalSelection: List<Int>
+        initialSelection: List<Int>
     ): MediaPickerSetup {
         val allowedTypes = mutableSetOf<MediaType>()
         if (browserType.isImagePicker) {
@@ -331,7 +331,7 @@ class MediaPickerLauncher @Inject constructor() {
             queueResults = false,
             defaultSearchView = false,
             title = R.string.wp_media_title,
-            initialSelection = initalSelection
+            initialSelection = initialSelection
         )
     }
 }
