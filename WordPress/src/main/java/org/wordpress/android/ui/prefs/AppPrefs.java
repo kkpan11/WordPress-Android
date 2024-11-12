@@ -896,10 +896,10 @@ public class AppPrefs {
     public static String getSupportEmail() {
         String email = getString(DeletablePrefKey.SUPPORT_EMAIL);
         // Zendesk can't create support tickets for Automattic email addresses from
-        // those with a staff member role (admin, agent, etc.), so insert "-testing"
+        // those with a staff member role (admin, agent, etc.), so insert "+testing"
         // into the email to make it work
         if ((email.contains("@automattic.com") || email.contains("@a8c.com")) && !email.contains("-testing@")) {
-            return email.replace("@", "-testing@");
+            return email.replace("@", "+testing@");
         } else {
             return email;
         }
