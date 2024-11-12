@@ -1416,7 +1416,6 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
         }
 
         // TODO: Refactor to share logic? Remove unused logic?
-        // TODO: Verify sharing media to the app does not fail
         if (mIsNewGutenbergEnabled) {
             ArrayList<org.wordpress.gutenberg.Media> gbkitMediaList = new ArrayList<>();
 
@@ -1428,10 +1427,10 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
             }
 
             boolean isNetworkUrl = URLUtil.isNetworkUrl(mediaUrl);
+
+            // Disable upload handling until supported--e.g., media shared to the app
             if (!isNetworkUrl) {
-                for (org.wordpress.gutenberg.Media media : gbkitMediaList) {
-                    mUploadingMediaProgressMax.put(String.valueOf(media.getId()), 0f);
-                }
+                return;
             }
 
             for (Map.Entry<String, MediaFile> mediaEntry : mediaList.entrySet()) {
