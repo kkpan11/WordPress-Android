@@ -196,11 +196,6 @@ android {
 
     flavorDimensions "app", "buildType"
 
-    Map<String, Object> secretProperties = loadSecrets(
-            project.logger,
-            file("${rootDir}/defaults.properties"),
-            file("${System.getProperty("user.home")}/.configure/wordpress-android/secrets/secrets.properties")
-    )
 
     productFlavors {
         wordpress {
@@ -268,8 +263,8 @@ android {
         }
 
         // Also dynamically add additional `buildConfigFields` to our app flavors from any `wp.`/`jp.`-prefixed property in `secrets.properties`
-        addBuildConfigFieldsFromPrefixedProperties(wordpress, secretProperties, ['wp'])
-        addBuildConfigFieldsFromPrefixedProperties(jetpack, secretProperties, ['wp', 'jp']) // Inherit same properties used from WP first then overwrite with JP-specific ones
+        addBuildConfigFieldsFromPrefixedProperties(wordpress, rootProject.secretProperties, ['wp'])
+        addBuildConfigFieldsFromPrefixedProperties(jetpack, rootProject.secretProperties, ['wp', 'jp']) // Inherit same properties used from WP first then overwrite with JP-specific ones
     }
 
     buildTypes {
@@ -638,23 +633,6 @@ tasks.register("printResourceConfigurations") {
         flavorInfo.each { name, resourceConfigurations ->
             println "$name: $resourceConfigurations"
         }
-    }
-}
-
-static def loadPropertiesFromFile(inputFile) {
-    def properties = new Properties()
-    inputFile.withInputStream { stream ->
-        properties.load(stream)
-    }
-    return properties
-}
-
-static def loadSecrets(Logger logger, File defaultsFile, File secretsFile) {
-    if (secretsFile.exists()) {
-        return loadPropertiesFromFile(secretsFile)
-    } else {
-        logger.warn("Secrets file not found. Using defaults.")
-        return loadPropertiesFromFile(defaultsFile)
     }
 }
 
