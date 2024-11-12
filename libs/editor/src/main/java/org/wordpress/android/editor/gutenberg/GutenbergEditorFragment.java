@@ -1415,35 +1415,33 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
             return;
         }
 
-        // TODO: Refactor to share logic? Remove unused logic?
+        // Get media URL of first of media first to check if it is network or local one.
+        String mediaUrl = "";
+        Object[] mediaUrls = mediaList.keySet().toArray();
+        if (mediaUrls != null && mediaUrls.length > 0) {
+            mediaUrl = (String) mediaUrls[0];
+        }
+
+        boolean isNetworkUrl = URLUtil.isNetworkUrl(mediaUrl);
+
         if (mIsNewGutenbergEnabled) {
-            ArrayList<org.wordpress.gutenberg.Media> gbkitMediaList = new ArrayList<>();
-
-            // Get media URL of first of media first to check if it is network or local one.
-            String mediaUrl = "";
-            Object[] mediaUrls = mediaList.keySet().toArray();
-            if (mediaUrls != null && mediaUrls.length > 0) {
-                mediaUrl = (String) mediaUrls[0];
-            }
-
-            boolean isNetworkUrl = URLUtil.isNetworkUrl(mediaUrl);
-
             // Disable upload handling until supported--e.g., media shared to the app
-            if (!isNetworkUrl) {
+            if (mGutenbergView == null || !isNetworkUrl) {
                 return;
             }
 
+            ArrayList<org.wordpress.gutenberg.Media> processedMediaList = new ArrayList<>();
+
             for (Map.Entry<String, MediaFile> mediaEntry : mediaList.entrySet()) {
-                int mediaId = isNetworkUrl ? Integer.valueOf(mediaEntry.getValue().getMediaId())
-                        : mediaEntry.getValue().getId();
-                String url = isNetworkUrl ? mediaEntry.getKey() : "file://" + mediaEntry.getKey();
+                int mediaId = Integer.parseInt(mediaEntry.getValue().getMediaId());
+                String url = mediaEntry.getKey();
                 MediaFile mediaFile = mediaEntry.getValue();
                 Bundle metadata = new Bundle();
                 String videoPressGuid = mediaFile.getVideoPressGuid();
                 if (videoPressGuid != null) {
                     metadata.putString("videopressGUID", videoPressGuid);
                 }
-                gbkitMediaList.add(createMediaUsingMimeType(mediaId,
+                processedMediaList.add(createMediaUsingMimeType(mediaId,
                         url,
                         mediaFile.getMimeType(),
                         mediaFile.getCaption(),
@@ -1451,25 +1449,13 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
                         mediaFile.getAlt()));
             }
 
-            if (mGutenbergView == null) {
-                return;
-            }
-
-            String mediaString = new Gson().toJson(gbkitMediaList);
+            String mediaString = new Gson().toJson(processedMediaList);
             mGutenbergView.setMediaUploadAttachment(mediaString);
         } else {
-            ArrayList<Media> rnMediaList = new ArrayList<>();
+            ArrayList<Media> processedMediaList = new ArrayList<>();
 
-            // Get media URL of first of media first to check if it is network or local one.
-            String mediaUrl = "";
-            Object[] mediaUrls = mediaList.keySet().toArray();
-            if (mediaUrls != null && mediaUrls.length > 0) {
-                mediaUrl = (String) mediaUrls[0];
-            }
-
-            boolean isNetworkUrl = URLUtil.isNetworkUrl(mediaUrl);
             if (!isNetworkUrl) {
-                for (Media media : rnMediaList) {
+                for (Media media : processedMediaList) {
                     mUploadingMediaProgressMax.put(String.valueOf(media.getId()), 0f);
                 }
             }
@@ -1484,7 +1470,7 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
                 if (videoPressGuid != null) {
                     metadata.putString("videopressGUID", videoPressGuid);
                 }
-                rnMediaList.add(createRNMediaUsingMimeType(mediaId,
+                processedMediaList.add(createRNMediaUsingMimeType(mediaId,
                         url,
                         mediaFile.getMimeType(),
                         mediaFile.getCaption(),
@@ -1493,7 +1479,7 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
                         metadata));
             }
 
-            getGutenbergContainerFragment().appendMediaFiles(rnMediaList);
+            getGutenbergContainerFragment().appendMediaFiles(processedMediaList);
         }
     }
 
