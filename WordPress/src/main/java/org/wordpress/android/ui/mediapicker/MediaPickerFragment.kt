@@ -232,8 +232,8 @@ class MediaPickerFragment : Fragment(), MenuProvider {
             }
         }
 
-        if (!mediaPickerSetup.initialSelection.isNullOrEmpty()) {
-            selectedIds = mediaPickerSetup.initialSelection?.map { Identifier.fromId(it.toLong()) }
+        if (mediaPickerSetup.initialSelection.isNotEmpty()) {
+            selectedIds = mediaPickerSetup.initialSelection.map { Identifier.fromId(it.toLong()) }
         }
 
         val layoutManager = GridLayoutManager(
