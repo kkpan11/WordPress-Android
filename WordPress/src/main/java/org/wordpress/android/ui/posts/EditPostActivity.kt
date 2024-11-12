@@ -95,6 +95,7 @@ import org.wordpress.android.fluxc.model.SiteModel
 import org.wordpress.android.fluxc.model.post.PostStatus
 import org.wordpress.android.fluxc.network.UserAgent
 import org.wordpress.android.fluxc.network.rest.wpcom.site.PrivateAtomicCookie
+import org.wordpress.android.fluxc.network.utils.toMap
 import org.wordpress.android.fluxc.store.AccountStore
 import org.wordpress.android.fluxc.store.AccountStore.OnAccountChanged
 import org.wordpress.android.fluxc.store.EditorThemeStore
@@ -2476,7 +2477,12 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                                 editorPhotoPicker?.allowMultipleSelection = config.multiple
                                 // TODO: Set initial media selection
                                 val mediaType = mapAllowedTypesToMediaBrowserType(config.allowedTypes, config.multiple)
-                                openMediaLibrary(mediaType)
+                                val initialSelection = when (val value = config.value) {
+                                    is GutenbergView.Value.Single -> listOf(value as Int)
+                                    is GutenbergView.Value.Multiple -> value.toList()
+                                    else -> emptyList()
+                                }
+                                openMediaLibrary(mediaType, initialSelection)
                             }
                         })
                     } else {
@@ -2504,11 +2510,12 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
         private val numPagesInEditor: Int = 4
     }
 
-    private fun openMediaLibrary(mediaType: MediaBrowserType) {
+    private fun openMediaLibrary(mediaType: MediaBrowserType, initialSelection: List<Int>) {
         mediaPickerLauncher.viewWPMediaLibraryPickerForResult(
             activity = this,
             site = siteModel,
-            browserType = mediaType
+            browserType = mediaType,
+            initialSelection = initialSelection
         )
     }
 

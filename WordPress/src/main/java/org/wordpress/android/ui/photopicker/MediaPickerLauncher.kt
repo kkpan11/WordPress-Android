@@ -188,10 +188,15 @@ class MediaPickerLauncher @Inject constructor() {
         )
     }
 
-    fun viewWPMediaLibraryPickerForResult(activity: Activity, site: SiteModel, browserType: MediaBrowserType) {
+    fun viewWPMediaLibraryPickerForResult(
+        activity: Activity,
+        site: SiteModel,
+        browserType: MediaBrowserType,
+        initialSelection: List<Int> = emptyList()
+    ) {
         val intent = MediaPickerActivity.buildIntent(
             activity,
-            buildWPMediaLibraryPickerSetup(browserType),
+            buildWPMediaLibraryPickerSetup(browserType, initialSelection),
             site
         )
         val requestCode: Int = if (browserType.canMultiselect()) {
@@ -293,7 +298,7 @@ class MediaPickerLauncher @Inject constructor() {
         )
     }
 
-    private fun buildWPMediaLibraryPickerSetup(browserType: MediaBrowserType): MediaPickerSetup {
+    private fun buildWPMediaLibraryPickerSetup(browserType: MediaBrowserType, initalSelection: List<Int>): MediaPickerSetup {
         val allowedTypes = mutableSetOf<MediaType>()
         if (browserType.isImagePicker) {
             allowedTypes.add(IMAGE)
@@ -322,7 +327,8 @@ class MediaPickerLauncher @Inject constructor() {
             editingEnabled = false,
             queueResults = false,
             defaultSearchView = false,
-            title = R.string.wp_media_title
+            title = R.string.wp_media_title,
+            initialSelection = initalSelection
         )
     }
 }
