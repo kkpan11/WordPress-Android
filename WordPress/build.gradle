@@ -267,7 +267,7 @@ android {
             dimension "buildType"
         }
 
-        // Also dynamically add additional `buildConfigFields` to our app flavors from any `wp.`/`jp.`-prefixed property in `gradle.properties`
+        // Also dynamically add additional `buildConfigFields` to our app flavors from any `wp.`/`jp.`-prefixed property in `secrets.properties`
         addBuildConfigFieldsFromPrefixedProperties(wordpress, secretProperties, ['wp'])
         addBuildConfigFieldsFromPrefixedProperties(jetpack, secretProperties, ['wp', 'jp']) // Inherit same properties used from WP first then overwrite with JP-specific ones
     }
@@ -359,7 +359,7 @@ android {
 }
 
 /// Dynamically add `buildConfigFields` on a given variant/flavor from prefixed properties
-/// (This is used to e.g. add every property prefixed `wp.` in `gradle.properties` as a BuildConfigField in the `wordpress` flavor)
+/// (This is used to e.g. add every property prefixed `wp.` in `secrets.properties` as a BuildConfigField in the `wordpress` flavor)
 ///
 /// `prefixes` is an array of prefixes to search for, without their `.` dot (e.g. `["wp", "jp"]`).
 /// Properties found with prefixes first in that array will be overridden by the ones found with prefixes later in the array.
