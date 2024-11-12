@@ -53,13 +53,13 @@ static def loadPropertiesFromFile(inputFile) {
 }
 
 measureBuilds {
-    enable = findProperty('measureBuildsEnabled')?.toBoolean() ?: false
+    enable = secretProperties.get('measureBuildsEnabled')?.toBoolean() ?: false
     onBuildMetricsReadyListener { report ->
         SlowSlowTasksMetricsReporter.report(report)
         InternalA8cCiReporter.reportBlocking(
                 report,
                 "wordpress",
-                findProperty('appsMetricsToken')
+                secretProperties.get('appsMetricsToken')
         )
     }
     attachGradleScanId = System.getenv('CI')?.toBoolean() ?: false
