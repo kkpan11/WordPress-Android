@@ -2475,7 +2475,6 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                         editorFragment?.onOpenMediaLibrary(object: GutenbergView.OpenMediaLibraryListener {
                             override fun onOpenMediaLibrary(config: GutenbergView.OpenMediaLibraryConfig) {
                                 editorPhotoPicker?.allowMultipleSelection = config.multiple
-                                // TODO: Set initial media selection
                                 val mediaType = mapAllowedTypesToMediaBrowserType(config.allowedTypes, config.multiple)
                                 val initialSelection = when (val value = config.value) {
                                     is GutenbergView.Value.Single -> listOf(value as Int)
