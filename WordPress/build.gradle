@@ -72,9 +72,11 @@ sentry {
         logcat.enabled = false
     }
     autoInstallation.enabled = false
-    includeSourceContext = true
-    autoUploadSourceContext = true
     includeDependenciesReport = false
+
+    Boolean isCi = System.getenv('CI')?.toBoolean() ?: false
+    includeSourceContext = isCi
+    includeProguardMapping = isCi
     /* Sentry won't send source context or add performance instrumentations for debug builds
     so we can save build times. Sending events will still work in debug builds
     (if enabled in WPCrashLoggingDataProvider).
