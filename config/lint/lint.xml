@@ -4,6 +4,7 @@
     <issue id="MissingTranslation" severity="ignore" />
     <issue id="ExtraTranslation" severity="ignore" />
     <issue id="PluralsCandidate" severity="ignore" /> <!-- GlotPress doesn't support plurals -->
+    <issue id="CredentialDependency" severity="ignore" /> <!-- False positive, fixed in AGP 8.6.0: https://issuetracker.google.com/issues/339841694 -->
     <!-- TODO: https://github.com/wordpress-mobile/WordPress-Android/issues/18226 -->
     <issue id="LocaleFolder">
         <!-- MAIN -->
@@ -61,7 +62,6 @@
         <ignore regexp=".*\/values\-([a-z]|[A-Z]|\-){2,6}\/strings\.xml$"/>
         <ignore regexp=".*\/values\/strings\.xml$"/>
     </issue>
-    <issue id="KaptUsageInsteadOfKsp" severity="warning" /> <!--    fluxc-->
     <!-- USABILITY -->
     <issue id="IconDipSize">
         <!-- EDITOR -->
@@ -78,13 +78,8 @@
     </issue>
     <issue id="IconDensities" severity="warning" /> <!--    fluxc-->
     <!-- INTEROPERABILITY -->
-    <issue id="UnknownNullness" severity="informational">
-        <ignore path="**/generated/**" />
-    </issue>
-
     <!-- TODO: https://github.com/wordpress-mobile/WordPress-Android/issues/21065 -->
     <issue id="UsingMaterialAndMaterial3Libraries" severity="warning" />
-    <!--  We rely on more granural checks from WordPress-Lint-Android  -->
-    <issue id="UnknownNullness" severity="ignore" />
-
+    <!-- TODO: https://github.com/wordpress-mobile/WordPress-Android/pull/21430 -->
+    <issue id="ObsoleteLintCustomCheck" severity="warning" />
 </lint>

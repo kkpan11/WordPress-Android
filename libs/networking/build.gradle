@@ -10,19 +10,6 @@ android {
         targetSdkVersion rootProject.targetSdkVersion
         compileSdk rootProject.compileSdkVersion
     }
-
-    lint {
-        enable += 'UnknownNullness'
-    }
-}
-
-repositories {
-    maven {
-        url "https://a8c-libs.s3.amazonaws.com/android"
-        content {
-            includeGroup "org.wordpress"
-        }
-    }
 }
 
 dependencies {

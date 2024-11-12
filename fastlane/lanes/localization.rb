@@ -134,7 +134,7 @@ platform :android do
 
     push_to_git_remote(tags: false)
 
-    create_backmerge_pr
+    create_backmerge_pr(source_branch: git_branch, target_branch: "release/#{version}")
   end
 
   # Updates the metadata in the Play Store (Main store listing) from the content of `fastlane/{metadata|jetpack_metadata}/android/*/*.txt` files
@@ -181,7 +181,12 @@ platform :android do
     skip_git_push = options.fetch(:skip_git_push, false)
 
     # If no `app:` is specified, call this for both WordPress and Jetpack
-    apps = options[:app].nil? ? %i[wordpress jetpack] : Array(options[:app]&.to_s&.downcase&.to_sym)
+    app_param = options[:app]
+    apps = if app_param.nil?
+             %i[wordpress jetpack]
+           else
+             Array(app_param.to_s.downcase.to_sym)
+           end
 
     apps.each do |app|
       app_values = APP_SPECIFIC_VALUES[app]
@@ -364,7 +369,14 @@ platform :android do
     validate_app_name!(app)
 
     output = gradle(task: 'printResourceConfigurations', flags: '--quiet')
-    resource_configs = output.match(/^#{app}: \[(.*)\]$/)&.captures&.first&.gsub(' ', '')&.split(',')&.sort
+
+    configs_match = output.match(/^#{app}: \[(.*)\]$/)
+    if configs_match.nil?
+      UI.message("No `resourceConfigurations` field set in `build.gradle` for the `#{app}` flavor. Nothing to check.")
+      next
+    end
+
+    resource_configs = configs_match.captures.first.gsub(' ', '').split(',').sort
     if resource_configs.nil? || resource_configs.empty?
       UI.message("No `resourceConfigurations` field set in `build.gradle` for the `#{app}` flavor. Nothing to check.")
       next
