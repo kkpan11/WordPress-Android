@@ -31,12 +31,10 @@ import org.wordpress.android.ui.stats.refresh.lists.sections.BaseStatsUseCase.Us
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.ExpandableItem
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Header
-import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Link
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.ListItemWithIcon
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Title
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Type.EXPANDABLE_ITEM
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Type.HEADER
-import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Type.LINK
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Type.LIST_ITEM_WITH_ICON
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Type.TITLE
 import org.wordpress.android.ui.stats.refresh.utils.StatsPostProvider
@@ -206,7 +204,13 @@ class PostAverageViewsPerDayUseCaseTest : BaseUnitTest() {
             assertYear(this[2], year.year.toString(), year.value)
             assertLink(this[3])
         }
-    }*/
+    }
+
+    private fun assertLink(item: BlockListItem) {
+        assertThat(item.type).isEqualTo(LINK)
+        assertThat((item as Link).text).isEqualTo(R.string.stats_insights_view_more)
+    }
+    */
 
     @Test
     fun `maps error item to UI model`() = test {
@@ -277,11 +281,6 @@ class PostAverageViewsPerDayUseCaseTest : BaseUnitTest() {
         assertThat((item as ExpandableItem).header.text).isEqualTo(label)
         assertThat(item.header.value).isEqualTo(views.toString())
         return item
-    }
-
-    private fun assertLink(item: BlockListItem) {
-        assertThat(item.type).isEqualTo(LINK)
-        assertThat((item as Link).text).isEqualTo(R.string.stats_insights_view_more)
     }
 
     private suspend fun loadData(refresh: Boolean, forced: Boolean): UseCaseModel {
