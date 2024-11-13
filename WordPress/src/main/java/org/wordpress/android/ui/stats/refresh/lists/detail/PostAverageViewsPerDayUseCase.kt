@@ -86,14 +86,16 @@ class PostAverageViewsPerDayUseCase(
         )
 
         items.addAll(yearList)
-        if (useCaseMode == BLOCK && domainModel.yearsAverage.size > itemsToLoad) {
+
+        // TODO we don't currently have a detail view for this
+        /*if (useCaseMode == BLOCK && domainModel.yearsAverage.size > itemsToLoad) {
             items.add(
                 Link(
                     text = R.string.stats_insights_view_more,
                     navigateAction = ListItemInteraction.create(this::onLinkClick)
                 )
             )
-        }
+        }*/
         return items
     }
 
