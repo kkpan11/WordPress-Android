@@ -16,10 +16,13 @@ android {
         targetSdkVersion rootProject.targetSdkVersion
 
         // Optional: used to autofill username and password fields at login on debug build only
-        buildConfigField "String", "DEBUG_WPCOM_LOGIN_EMAIL", "\"\""
-        buildConfigField "String", "DEBUG_WPCOM_LOGIN_USERNAME", "\"\""
-        buildConfigField "String", "DEBUG_WPCOM_LOGIN_PASSWORD", "\"\""
-        buildConfigField "String", "DEBUG_WPCOM_WEBSITE_URL", "\"\""
+        // Copy `developer.properties-example` to `developer.properties` and fill in the values
+        loadDeveloperProperties(
+                project.file("developer.properties-example"),
+                project.file("developer.properties")
+        ).each { fieldName, propertyKey ->
+            buildConfigField "String", fieldName, "\"$propertyKey\""
+        }
     }
 
     compileOptions {
@@ -30,6 +33,22 @@ android {
     buildFeatures {
         buildConfig true
     }
+}
+
+static def loadDeveloperProperties(File defaultsFile, File developerFile) {
+    if (developerFile.exists()) {
+        return loadPropertiesFromFile(developerFile)
+    } else {
+        return loadPropertiesFromFile(defaultsFile)
+    }
+}
+
+static def loadPropertiesFromFile(File inputFile) {
+    def properties = new Properties()
+    inputFile.withInputStream { stream ->
+        properties.load(stream)
+    }
+    return properties
 }
 
 dependencies {
