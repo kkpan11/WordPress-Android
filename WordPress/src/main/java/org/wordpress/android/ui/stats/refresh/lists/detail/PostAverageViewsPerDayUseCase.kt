@@ -16,12 +16,10 @@ import org.wordpress.android.ui.stats.refresh.lists.sections.BaseStatsUseCase.Us
 import org.wordpress.android.ui.stats.refresh.lists.sections.BaseStatsUseCase.UseCaseMode.VIEW_ALL
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Header
-import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Link
 import org.wordpress.android.ui.stats.refresh.lists.sections.BlockListItem.Title
 import org.wordpress.android.ui.stats.refresh.lists.sections.insights.InsightUseCaseFactory
 import org.wordpress.android.ui.stats.refresh.utils.StatsPostProvider
 import org.wordpress.android.ui.stats.refresh.utils.StatsSiteProvider
-import org.wordpress.android.ui.utils.ListItemInteraction
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -103,6 +101,7 @@ class PostAverageViewsPerDayUseCase(
         return this != null && this.yearsAverage.isNotEmpty() && this.yearsAverage.any { it.value > 0 }
     }
 
+    @Suppress("unused")
     private fun onLinkClick() {
         navigateTo(ViewDayAverageStats)
     }
