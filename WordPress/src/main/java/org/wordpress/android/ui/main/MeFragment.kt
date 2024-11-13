@@ -495,9 +495,10 @@ class MeFragment : Fragment(R.layout.me_fragment), OnScrollToTopListener {
 
     private fun MeFragmentBinding.loadAvatar(injectFilePath: String?, forceRefresh: Boolean = false) {
         val newAvatarUploaded = !injectFilePath.isNullOrEmpty()
-        val avatarUrl = meGravatarLoader.constructGravatarUrl(accountStore.account.avatarUrl, forceRefresh)
+        val avatarUrl = meGravatarLoader.constructGravatarUrl(accountStore.account.avatarUrl)
+        val newAvatarSelected = newAvatarUploaded || forceRefresh
         meGravatarLoader.load(
-            newAvatarUploaded,
+            newAvatarSelected,
             avatarUrl,
             injectFilePath,
             meAvatar,
@@ -531,7 +532,7 @@ class MeFragment : Fragment(R.layout.me_fragment), OnScrollToTopListener {
                     resource: Drawable,
                     model: Any?
                 ) {
-                    if (newAvatarUploaded && resource is BitmapDrawable) {
+                    if (newAvatarSelected && resource is BitmapDrawable) {
                         var bitmap = resource.bitmap
                         // create a copy since the original bitmap may by automatically recycled
                         bitmap = bitmap.copy(bitmap.config, true)
