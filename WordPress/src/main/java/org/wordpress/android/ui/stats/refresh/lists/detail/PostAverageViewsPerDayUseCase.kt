@@ -77,7 +77,7 @@ class PostAverageViewsPerDayUseCase(
         items.add(
             header
         )
-        val shownYears = domainModel.yearsAverage.sortedByDescending { it.year }.takeLast(itemsToLoad)
+        val shownYears = domainModel.yearsAverage.sortedByDescending { it.year }.take(itemsToLoad)
         val yearList = postDetailMapper.mapYears(
             shownYears,
             uiState,
