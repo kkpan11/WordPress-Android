@@ -97,9 +97,9 @@ public class AppSettingsFragment extends PreferenceFragment
     private WPSwitchPreference mStripImageLocation;
     private WPSwitchPreference mReportCrashPref;
     private WPSwitchPreference mOpenWebLinksWithJetpack;
-    private PreferenceScreen mExperimentalFeaturesSettings;
-    private WPSwitchPreference mExperimentalBlockEditorPref;
-    private WPSwitchPreference mExperimentalBlockEditorStylesPref;
+    @Nullable private PreferenceScreen mExperimentalFeaturesSettings;
+    @Nullable private WPSwitchPreference mExperimentalBlockEditorPref;
+    @Nullable private WPSwitchPreference mExperimentalBlockEditorStylesPref;
 
     private Preference mWhatsNew;
 
