@@ -44,7 +44,7 @@ static def loadSecrets(Logger logger, File defaultsFile, File secretsFile) {
     }
 }
 
-static def loadPropertiesFromFile(inputFile) {
+static def loadPropertiesFromFile(File inputFile) {
     def properties = new Properties()
     inputFile.withInputStream { stream ->
         properties.load(stream)
