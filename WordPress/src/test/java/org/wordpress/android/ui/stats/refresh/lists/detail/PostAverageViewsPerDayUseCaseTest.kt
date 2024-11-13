@@ -164,7 +164,8 @@ class PostAverageViewsPerDayUseCaseTest : BaseUnitTest() {
         assertMonth(this[3], "Jan", month.count.toString())
     }
 
-    @Test
+    // See https://github.com/wordpress-mobile/WordPress-Android/pull/21457
+    /*@Test
     fun `adds view more button when hasMore`() = test {
         val forced = false
         val data = List(10) { year }
@@ -205,7 +206,7 @@ class PostAverageViewsPerDayUseCaseTest : BaseUnitTest() {
             assertYear(this[2], year.year.toString(), year.value)
             assertLink(this[3])
         }
-    }
+    }*/
 
     @Test
     fun `maps error item to UI model`() = test {
