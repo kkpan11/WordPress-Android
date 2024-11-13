@@ -94,12 +94,12 @@ public class AppSettingsFragment extends PreferenceFragment
     private DetailListPreference mVideoWidthPref;
     private DetailListPreference mVideoEncorderBitratePref;
     private PreferenceScreen mPrivacySettings;
-    private PreferenceScreen mExperimentalFeaturesSettings;
     private WPSwitchPreference mStripImageLocation;
     private WPSwitchPreference mReportCrashPref;
-    private WPSwitchPreference mExperimentalEditorPref;
-    private WPSwitchPreference mExperimentalEditorStylesPref;
     private WPSwitchPreference mOpenWebLinksWithJetpack;
+    private PreferenceScreen mExperimentalFeaturesSettings;
+    private WPSwitchPreference mExperimentalBlockEditorPref;
+    private WPSwitchPreference mExperimentalBlockEditorStylesPref;
 
     private Preference mWhatsNew;
 
@@ -188,10 +188,10 @@ public class AppSettingsFragment extends PreferenceFragment
                         .getPrefAndSetChangeListener(this, R.string.pref_key_strip_image_location, this);
         mReportCrashPref = (WPSwitchPreference) WPPrefUtils
                 .getPrefAndSetChangeListener(this, R.string.pref_key_send_crash, this);
-        mExperimentalEditorPref = (WPSwitchPreference) WPPrefUtils
-                .getPrefAndSetChangeListener(this, R.string.pref_key_experimental_editor, this);
-        mExperimentalEditorStylesPref = (WPSwitchPreference) WPPrefUtils
-                .getPrefAndSetChangeListener(this, R.string.pref_key_experimental_editor_styles, this);
+        mExperimentalBlockEditorPref = (WPSwitchPreference) WPPrefUtils
+                .getPrefAndSetChangeListener(this, R.string.pref_key_experimental_block_editor, this);
+        mExperimentalBlockEditorStylesPref = (WPSwitchPreference) WPPrefUtils
+                .getPrefAndSetChangeListener(this, R.string.pref_key_experimental_block_editor_theme_styles, this);
 
         mOpenWebLinksWithJetpack =
                 (WPSwitchPreference) WPPrefUtils
@@ -485,11 +485,11 @@ public class AppSettingsFragment extends PreferenceFragment
         } else if (preference == mReportCrashPref) {
             AnalyticsTracker.track(Stat.PRIVACY_SETTINGS_REPORT_CRASHES_TOGGLED, Collections
                     .singletonMap(TRACK_ENABLED, newValue));
-        } else if (preference == mExperimentalEditorPref) {
-            AnalyticsTracker.track(Stat.EXPERIMENTAL_EDITOR_TOGGLED, Collections
+        } else if (preference == mExperimentalBlockEditorPref) {
+            AnalyticsTracker.track(Stat.EXPERIMENTAL_BLOCK_EDITOR_TOGGLED, Collections
                     .singletonMap(TRACK_ENABLED, newValue));
-        } else if (preference == mExperimentalEditorStylesPref) {
-            AnalyticsTracker.track(Stat.EXPERIMENTAL_EDITOR_STYLES_TOGGLED, Collections
+        } else if (preference == mExperimentalBlockEditorStylesPref) {
+            AnalyticsTracker.track(Stat.EXPERIMENTAL_BLOCK_EDITOR_THEME_STYLES_TOGGLED, Collections
                     .singletonMap(TRACK_ENABLED, newValue));
         } else if (preference == mOpenWebLinksWithJetpack) {
             handleOpenLinksInJetpack((Boolean) newValue);

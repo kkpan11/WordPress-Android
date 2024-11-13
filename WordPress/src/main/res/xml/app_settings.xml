@@ -70,13 +70,13 @@
 
         <org.wordpress.android.ui.prefs.WPSwitchPreference
             android:defaultValue="false"
-            android:key="@string/pref_key_experimental_editor"
-            android:title="@string/preference_experimental_editor" />
+            android:key="@string/pref_key_experimental_block_editor"
+            android:title="@string/preference_experimental_block_editor" />
 
         <org.wordpress.android.ui.prefs.WPSwitchPreference
             android:defaultValue="false"
-            android:key="@string/pref_key_experimental_editor_styles"
-            android:title="@string/preference_experimental_editor_styles" />
+            android:key="@string/pref_key_experimental_block_editor_theme_styles"
+            android:title="@string/preference_experimental_block_editor_theme_styles" />
 
     </PreferenceScreen>
 

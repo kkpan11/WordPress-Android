@@ -941,8 +941,8 @@
     <string name="ccpa_privacy_notice_caption">The California Consumer Privacy Act ("CCPA") requires us to provide California residents with some additional information about the categories of personal information we collect and share, where we get that personal information, and how and why we use it.</string>
     <string name="ccpa_privacy_notice_read">Read CCPA privacy notice</string>
     <string name="preference_experimental_features_settings">Experimental features</string>
-    <string name="preference_experimental_editor">Experimental editor</string>
-    <string name="preference_experimental_editor_styles">Experimental editor styles</string>
+    <string name="preference_experimental_block_editor">Experimental block editor</string>
+    <string name="preference_experimental_block_editor_theme_styles">Experimental block editor styles</string>
     <string name="preference_strip_image_location">Remove location from media</string>
     <string name="app_theme">Appearance</string>
     <string name="app_theme_light">Light</string>
