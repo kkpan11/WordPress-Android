@@ -66,7 +66,6 @@ import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPActivityUtils;
 import org.wordpress.android.util.WPPrefUtils;
 import org.wordpress.android.util.analytics.AnalyticsUtils;
-import org.wordpress.android.util.config.ManualFeatureConfig;
 import org.wordpress.android.viewmodel.ContextProvider;
 
 import java.util.Collections;
@@ -115,7 +114,6 @@ public class AppSettingsFragment extends PreferenceFragment
     @Inject DeepLinkOpenWebLinksWithJetpackHelper mOpenWebLinksWithJetpackHelper;
     @Inject UiHelpers mUiHelpers;
     @Inject JetpackFeatureRemovalPhaseHelper mJetpackFeatureRemovalPhaseHelper;
-    @Inject ManualFeatureConfig mManualFeatureConfig;
 
     private static final String TRACK_STYLE = "style";
     private static final String TRACK_ENABLED = "enabled";
@@ -488,11 +486,9 @@ public class AppSettingsFragment extends PreferenceFragment
             AnalyticsTracker.track(Stat.PRIVACY_SETTINGS_REPORT_CRASHES_TOGGLED, Collections
                     .singletonMap(TRACK_ENABLED, newValue));
         } else if (preference == mExperimentalEditorPref) {
-            mManualFeatureConfig.setManuallyEnabled("experimental_block_editor", (Boolean) newValue);
             AnalyticsTracker.track(Stat.EXPERIMENTAL_EDITOR_TOGGLED, Collections
                     .singletonMap(TRACK_ENABLED, newValue));
         } else if (preference == mExperimentalEditorStylesPref) {
-            mManualFeatureConfig.setManuallyEnabled("experimental_block_editor_theme_styles", (Boolean) newValue);
             AnalyticsTracker.track(Stat.EXPERIMENTAL_EDITOR_STYLES_TOGGLED, Collections
                     .singletonMap(TRACK_ENABLED, newValue));
         } else if (preference == mOpenWebLinksWithJetpack) {
