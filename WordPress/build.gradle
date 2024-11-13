@@ -263,8 +263,8 @@ android {
         }
 
         // Also dynamically add additional `buildConfigFields` to our app flavors from any `wp.`/`jp.`-prefixed property in `secrets.properties`
-        addBuildConfigFieldsFromPrefixedProperties(wordpress, rootProject.secretProperties, ['wp'])
-        addBuildConfigFieldsFromPrefixedProperties(jetpack, rootProject.secretProperties, ['wp', 'jp']) // Inherit same properties used from WP first then overwrite with JP-specific ones
+        addBuildConfigFieldsFromPrefixedProperties(wordpress, secretProperties, ['wp'])
+        addBuildConfigFieldsFromPrefixedProperties(jetpack, secretProperties, ['wp', 'jp']) // Inherit same properties used from WP first then overwrite with JP-specific ones
     }
 
     buildTypes {
