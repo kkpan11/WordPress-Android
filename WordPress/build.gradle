@@ -253,6 +253,7 @@ android {
         // Used for local development - preferred variant for developers.
         // AppName: WordPress Beta/Jetpack Beta
         wasabi {
+            isDefault true
             applicationIdSuffix ".beta"
             dimension "buildType"
         }
@@ -260,7 +261,6 @@ android {
         // Used for CI builds on PRs (aka "Prototype Builds"). Can be used locally when a developer needs to install multiple versions of the app on the same device.
         // AppName: WordPress Pre-Alpha/Jetpack Pre-Alpha
         jalapeno {
-            isDefault true
             applicationIdSuffix ".prealpha"
             dimension "buildType"
         }
