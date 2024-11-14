@@ -36,11 +36,8 @@ android {
 }
 
 static def loadDeveloperProperties(File defaultsFile, File developerFile) {
-    if (developerFile.exists()) {
-        return loadPropertiesFromFile(developerFile)
-    } else {
-        return loadPropertiesFromFile(defaultsFile)
-    }
+    File fileToLoad = developerFile.exists() ? developerFile : defaultsFile
+    return loadPropertiesFromFile(fileToLoad)
 }
 
 static def loadPropertiesFromFile(File inputFile) {

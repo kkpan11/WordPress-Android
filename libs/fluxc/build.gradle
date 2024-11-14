@@ -25,8 +25,13 @@ android {
         }
         consumerProguardFiles 'consumer-rules.pro'
 
-        buildConfigField "boolean", "ENABLE_WPAPI", "false"
-        buildConfigField "boolean", "WP_ENABLE_DATABASE_DOWNGRADE", "true"
+        // Copy `developer.properties-example` to `developer.properties` and fill in the values
+        loadDeveloperProperties(
+                project.file("developer.properties-example"),
+                project.file("developer.properties")
+        ).each { fieldName, propertyKey ->
+            buildConfigField "Boolean", fieldName, "$propertyKey"
+        }
     }
 
     compileOptions {
@@ -41,6 +46,19 @@ android {
     buildFeatures {
         buildConfig true
     }
+}
+
+static def loadDeveloperProperties(File defaultsFile, File developerFile) {
+    File fileToLoad = developerFile.exists() ? developerFile : defaultsFile
+    return loadPropertiesFromFile(fileToLoad)
+}
+
+static def loadPropertiesFromFile(File inputFile) {
+    def properties = new Properties()
+    inputFile.withInputStream { stream ->
+        properties.load(stream)
+    }
+    return properties
 }
 
 tasks.withType(KotlinCompile).configureEach {
