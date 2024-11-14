@@ -98,6 +98,7 @@ import org.wordpress.android.ui.prefs.AccountSettingsActivity;
 import org.wordpress.android.ui.prefs.AppPrefs;
 import org.wordpress.android.ui.prefs.AppSettingsActivity;
 import org.wordpress.android.ui.prefs.BlogPreferencesActivity;
+import org.wordpress.android.ui.prefs.ExperimentalFeaturesActivity;
 import org.wordpress.android.ui.prefs.MyProfileActivity;
 import org.wordpress.android.ui.prefs.categories.detail.CategoryDetailActivity;
 import org.wordpress.android.ui.prefs.categories.list.CategoriesListActivity;
@@ -1271,6 +1272,12 @@ public class ActivityLauncher {
         Intent intent = new Intent(activity, AppSettingsActivity.class);
         AnalyticsTracker.track(AnalyticsTracker.Stat.OPENED_APP_SETTINGS);
         activity.startActivityForResult(intent, RequestCodes.APP_SETTINGS);
+    }
+
+    public static void viewExperimentalFeatures(Context context) {
+        Intent intent = new Intent(context, ExperimentalFeaturesActivity.class);
+        AnalyticsTracker.track(AnalyticsTracker.Stat.OPENED_EXPERIMENTAL_FEATURES);
+        context.startActivity(intent);
     }
 
     public static void viewNotificationsSettings(Activity activity) {

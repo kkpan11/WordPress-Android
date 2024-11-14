@@ -962,6 +962,9 @@
     </string-array>
     <string name="locale_picker_current_language">Current language:</string>
 
+    <!-- Experimental Features -->
+    <string name="experimental_features_screen_title">Experimental Features</string>
+
     <!-- Debug settings -->
     <string name="preference_open_debug_settings" translatable="false">Debug settings</string>
     <string name="debug_settings_remote_features" translatable="false">Remote features</string>
@@ -2581,6 +2584,7 @@
     <!--Me-->
     <string name="me_profile_photo">Profile Photo</string>
     <string name="me_btn_app_settings">App Settings</string>
+    <string name="me_btn_experimental_features">Experimental Features</string>
     <string name="me_btn_help_and_support">Help &amp; Support</string>
     <string name="me_btn_share">Share WordPress with a friend</string>
     <string name="me_btn_about">About WordPress</string>

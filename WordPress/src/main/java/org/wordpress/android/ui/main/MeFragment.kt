@@ -66,6 +66,7 @@ import org.wordpress.android.ui.photopicker.MediaPickerConstants
 import org.wordpress.android.ui.photopicker.MediaPickerLauncher
 import org.wordpress.android.ui.photopicker.PhotoPickerActivity
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
+import org.wordpress.android.ui.prefs.ExperimentalFeaturesActivity
 import org.wordpress.android.ui.utils.UiHelpers
 import org.wordpress.android.ui.utils.UiString.UiStringText
 import org.wordpress.android.util.AppLog
@@ -215,6 +216,10 @@ class MeFragment : Fragment(R.layout.me_fragment), OnScrollToTopListener {
         }
 
         if (BuildConfig.IS_JETPACK_APP) meAboutIcon.setImageResource(R.drawable.ic_jetpack_logo_white_24dp)
+
+        rowExperimentalFeaturesSettings.setOnClickListener {
+            ActivityLauncher.viewExperimentalFeatures(activity)
+        }
 
         if (BuildConfig.DEBUG && BuildConfig.ENABLE_DEBUG_SETTINGS) {
             rowDebugSettings.isVisible = true

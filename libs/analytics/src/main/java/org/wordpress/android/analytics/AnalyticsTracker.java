@@ -348,6 +348,7 @@ public final class AnalyticsTracker {
         ACCOUNT_SETTINGS_CHANGE_USERNAME_FAILED,
         ACCOUNT_SETTINGS_CHANGE_USERNAME_SUGGESTIONS_FAILED,
         OPENED_APP_SETTINGS("app_settings_opened"),
+        OPENED_EXPERIMENTAL_FEATURES("experimental_features_opened"),
         OPENED_MY_PROFILE("my_profile_opened"),
         OPENED_PEOPLE_MANAGEMENT("people_management_list_opened"),
         OPENED_PERSON("people_management_details_opened"),
