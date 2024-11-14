@@ -13,6 +13,7 @@ steps:
   #################
   - label: "Gradle Wrapper Validation"
     command: |
+      .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
       validate_gradle_wrapper
     priority: 1
     plugins: [$CI_TOOLKIT]
@@ -28,7 +29,9 @@ steps:
 
       - label: "🕵️ Lint WordPress"
         key: wplint
-        command: ".buildkite/commands/lint.sh wordpress"
+        command: |
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/lint.sh wordpress
         priority: 1
         plugins: [$CI_TOOLKIT]
         artifact_paths:
@@ -36,7 +39,9 @@ steps:
 
       - label: "🕵️ Lint Jetpack"
         key: jplint
-        command: ".buildkite/commands/lint.sh jetpack"
+        command: |
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/lint.sh jetpack
         priority: 1
         plugins: [$CI_TOOLKIT]
         artifact_paths:
@@ -50,7 +55,9 @@ steps:
 
       - label: ":wordpress: :android: Release Build"
         key: wpbuild
-        command: ".buildkite/commands/release-build.sh wordpress"
+        command: |
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/release-build.sh wordpress
         priority: 1
         depends_on: wplint
         plugins: [$CI_TOOLKIT]
@@ -63,7 +70,9 @@ steps:
 
       - label: ":jetpack: :android: Release Build"
         key: jpbuild
-        command: ".buildkite/commands/release-build.sh jetpack"
+        command: |
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/release-build.sh jetpack
         priority: 1
         depends_on: jplint
         plugins: [$CI_TOOLKIT]
@@ -81,6 +90,8 @@ steps:
     depends_on:
       - wpbuild
       - jpbuild
-    command: ".buildkite/commands/create-github-release.sh"
+    command: |
+      .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+      .buildkite/commands/create-github-release.sh
     priority: 1
     plugins: [$CI_TOOLKIT]

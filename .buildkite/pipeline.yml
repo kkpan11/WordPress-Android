@@ -39,7 +39,6 @@ steps:
 
       - label: "🕵️ checkstyle"
         command: |
-          cp gradle.properties-example gradle.properties
           ./gradlew checkstyle
         plugins: [$CI_TOOLKIT]
         artifact_paths:
@@ -47,7 +46,6 @@ steps:
 
       - label: "🕵️ detekt"
         command: |
-          cp gradle.properties-example gradle.properties
           ./gradlew detekt
         plugins: [$CI_TOOLKIT]
         artifact_paths:
@@ -67,7 +65,6 @@ steps:
 
   - label: "Dependency Tree Diff"
     command: |
-      cp gradle.properties-example gradle.properties
       comment_with_dependency_diff 'WordPress' 'wordpressVanillaReleaseRuntimeClasspath'
     if: build.pull_request.id != null
     plugins: [$CI_TOOLKIT]

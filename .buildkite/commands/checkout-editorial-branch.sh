@@ -1,5 +1,7 @@
 #!/bin/bash -eu
 
+echo '--- :git: Checkout Editorial Branch'
+
 # EDITORIAL_BRANCH is passed as an environment variable from fastlane to Buildkite
 #
 if [[ -z "${EDITORIAL_BRANCH}" ]]; then

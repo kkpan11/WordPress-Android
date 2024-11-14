@@ -27,19 +27,42 @@ ext {
     minSdkVersion = 26
     compileSdkVersion = 34
     targetSdkVersion = 34
+
+    secretProperties = loadSecrets(
+            logger,
+            file("${rootDir}/defaults.properties"),
+            file("${System.getProperty("user.home")}/.configure/wordpress-android/secrets/secrets.properties")
+    )
+}
+
+static def loadSecrets(Logger logger, File defaultsFile, File secretsFile) {
+    if (secretsFile.exists()) {
+        return loadPropertiesFromFile(secretsFile)
+    } else {
+        logger.warn("Secrets file not found. Using defaults.")
+        return loadPropertiesFromFile(defaultsFile)
+    }
+}
+
+static def loadPropertiesFromFile(File inputFile) {
+    def properties = new Properties()
+    inputFile.withInputStream { stream ->
+        properties.load(stream)
+    }
+    return properties
 }
 
 measureBuilds {
-    enable = findProperty('measureBuildsEnabled')?.toBoolean() ?: false
+    enable = secretProperties.get('measureBuildsEnabled')?.toBoolean() ?: false
     onBuildMetricsReadyListener { report ->
         SlowSlowTasksMetricsReporter.report(report)
         InternalA8cCiReporter.reportBlocking(
                 report,
                 "wordpress",
-                findProperty('appsMetricsToken')
+                secretProperties.get('appsMetricsToken')
         )
     }
-    attachGradleScanId = System.getenv('CI')?.toBoolean() ?: false
+    attachGradleScanId = gradle.ext.isCi
 }
 
 allprojects {
@@ -78,72 +101,6 @@ allprojects {
                     "-Xjvm-default=all"
             ]
         }
-    }
-}
-
-// Onboarding and dev env setup tasks
-tasks.register("checkBundler", Exec) {
-    doFirst {
-        println "Check Bundler"
-    }
-
-    workingDir = './'
-    executable "sh"
-    args "-c", "if ! type 'bundle' > /dev/null; then gem install bundler; fi"
-
-    //store the output instead of printing to the console:
-    standardOutput = new ByteArrayOutputStream()
-
-    //extension method checkBundler.output() can be used to obtain the output:
-    ext.output = {
-        return standardOutput.toString()
-    }
-}
-
-tasks.register("checkBundle", Exec) {
-    dependsOn tasks.named("checkBundler")
-    doFirst {
-        println "Check Bundle"
-    }
-
-    workingDir = './'
-    executable "sh"
-    args "-c", "bundle check --path=\${BUNDLE_PATH:-vendor/bundle} > /dev/null || bundle install --jobs=3 --retry=3 --path=\${BUNDLE_PATH:-vendor/bundle}"
-
-    //store the output instead of printing to the console:
-    standardOutput = new ByteArrayOutputStream()
-
-    //extension method checkBundle.output() can be used to obtain the output:
-    ext.output = {
-        return standardOutput.toString()
-    }
-}
-
-tasks.register("applyCredentials", Exec) {
-    dependsOn tasks.named("checkBundle")
-    doFirst {
-        println "Apply credentials for this branch"
-    }
-
-    workingDir = './'
-    executable "sh"
-    args "-c", "FASTLANE_SKIP_UPDATE_CHECK=1 FASTLANE_ENV_PRINTER=1 bundle exec fastlane run configure_apply force:true"
-
-    //store the output instead of printing to the console:
-    standardOutput = new ByteArrayOutputStream()
-
-    //extension method checkBundle.output() can be used to obtain the output:
-    ext.output = {
-        return standardOutput.toString()
-    }
-}
-
-tasks.register("configureApply") {
-    group = 'Onboarding'
-    description = 'Install dependencies for debug and production builds'
-    dependsOn applyCredentials
-    doLast {
-        println("Done")
     }
 }
 
