@@ -966,7 +966,7 @@
     <string name="experimental_features_screen_title">Experimental Features</string>
 
     <!-- Debug settings -->
-    <string name="preference_open_debug_settings" translatable="false">Debug settings</string>
+    <string name="preference_open_debug_settings" translatable="false">Debug Settings</string>
     <string name="debug_settings_remote_features" translatable="false">Remote features</string>
     <string name="debug_settings_features_in_development" translatable="false">Features in development</string>
     <string name="debug_settings_remote_field_configs" translatable="false">Remote Field configs</string>
