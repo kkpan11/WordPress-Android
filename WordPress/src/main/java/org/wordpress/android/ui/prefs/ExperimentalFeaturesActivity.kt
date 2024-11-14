@@ -171,14 +171,14 @@ fun FeatureToggle(
 @Composable
 fun ExperimentalFeaturesScreenPreview() {
     AppThemeM3 {
-        val featuresWithEvensEnabled = remember {
+        val featuresStatusAlternated = remember {
             experimentalFeatures.mapIndexed { index, feature ->
                 feature.key to feature.copy(enabled = index % 2 == 0)
             }.toMap()
         }
 
         CompositionLocalProvider(LocalContext provides LocalContext.current) {
-            ExperimentalFeaturesScreen(features = featuresWithEvensEnabled, onFeatureToggled = { _, _, _ -> }, onNavigateBack = {})
+            ExperimentalFeaturesScreen(features = featuresStatusAlternated, onFeatureToggled = { _, _, _ -> }, onNavigateBack = {})
         }
     }
 }
