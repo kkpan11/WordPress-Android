@@ -32,7 +32,6 @@ else
     exit 1
 fi
 
-cp gradle.properties-example gradle.properties
 ./gradlew $test_suite
 TESTS_EXIT_STATUS=$?
 set -e

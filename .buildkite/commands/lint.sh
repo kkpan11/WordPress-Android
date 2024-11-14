@@ -3,9 +3,6 @@
 echo "--- :rubygems: Setting up Gems"
 install_gems
 
-echo "--- :clipboard: Copying gradle.properties"
-cp gradle.properties-example gradle.properties
-
 echo "--- :globe_with_meridians: Check Locales Declaration Consistency"
 bundle exec fastlane check_declared_locales_consistency app:"$1"
 
