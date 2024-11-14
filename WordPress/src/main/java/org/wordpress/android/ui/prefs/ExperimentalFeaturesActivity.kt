@@ -107,7 +107,7 @@ fun ExperimentalFeaturesScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = stringResource(id = R.string.experimental_features_screen_title))
+                    Text(text = stringResource(R.string.experimental_features_screen_title))
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
