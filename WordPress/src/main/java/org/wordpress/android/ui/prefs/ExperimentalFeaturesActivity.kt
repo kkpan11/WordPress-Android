@@ -178,7 +178,11 @@ fun ExperimentalFeaturesScreenPreview() {
         }
 
         CompositionLocalProvider(LocalContext provides LocalContext.current) {
-            ExperimentalFeaturesScreen(features = featuresStatusAlternated, onFeatureToggled = { _, _, _ -> }, onNavigateBack = {})
+            ExperimentalFeaturesScreen(
+                features = featuresStatusAlternated,
+                onFeatureToggled = { _, _, _ -> },
+                onNavigateBack = {}
+            )
         }
     }
 }

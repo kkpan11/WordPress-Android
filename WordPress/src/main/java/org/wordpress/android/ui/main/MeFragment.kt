@@ -66,7 +66,6 @@ import org.wordpress.android.ui.photopicker.MediaPickerConstants
 import org.wordpress.android.ui.photopicker.MediaPickerLauncher
 import org.wordpress.android.ui.photopicker.PhotoPickerActivity
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
-import org.wordpress.android.ui.prefs.ExperimentalFeaturesActivity
 import org.wordpress.android.ui.utils.UiHelpers
 import org.wordpress.android.ui.utils.UiString.UiStringText
 import org.wordpress.android.util.AppLog
