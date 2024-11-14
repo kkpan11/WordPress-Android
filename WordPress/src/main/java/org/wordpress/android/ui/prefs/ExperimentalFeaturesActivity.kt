@@ -122,30 +122,17 @@ fun ExperimentalFeaturesScreen(
     ) { innerPadding ->
         Box(modifier = modifier.then(Modifier.padding(innerPadding))) {
             Column {
-                FeaturesToggleList(
-                    features = features,
-                    onFeatureToggled = onFeatureToggled,
-                    modifier = modifier
-                )
+                features.forEach { (key, feature) ->
+                    FeatureToggle(
+                        key = key,
+                        label = feature.label,
+                        enabled = feature.enabled,
+                        onChange = onFeatureToggled,
+                        modifier = modifier
+                    )
+                }
             }
         }
-    }
-}
-
-@Composable
-fun FeaturesToggleList(
-    features: Map<String, Feature>,
-    onFeatureToggled: (key: String, label: String, enabled: Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    features.forEach { (key, feature) ->
-        FeatureToggle(
-            key = key,
-            label = feature.label,
-            enabled = feature.enabled,
-            onChange = onFeatureToggled,
-            modifier = modifier
-        )
     }
 }
 
