@@ -43,8 +43,8 @@ import org.wordpress.android.ui.compose.unit.Margin
 import org.wordpress.android.util.extensions.setContent
 
 val experimentalFeatures = listOf(
-    Feature(key = "MANUAL_FEATURE_CONFIGexperimental_block_editor", label = "Experimental block editor"),
-    Feature(key = "MANUAL_FEATURE_CONFIGexperimental_block_editor_theme_styles", label = "Experimental block editor styles")
+    Feature(key = "experimental_block_editor", label = "Experimental block editor"),
+    Feature(key = "experimental_block_editor_theme_styles", label = "Experimental block editor styles")
 )
 
 data class Feature(
