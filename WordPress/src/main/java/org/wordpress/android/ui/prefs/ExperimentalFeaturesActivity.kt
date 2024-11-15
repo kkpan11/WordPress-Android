@@ -153,7 +153,7 @@ fun FeatureToggle(
         Spacer(modifier = Modifier.width(Margin.ExtraLarge.value))
         Text(
             text = label,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.weight(1f))
