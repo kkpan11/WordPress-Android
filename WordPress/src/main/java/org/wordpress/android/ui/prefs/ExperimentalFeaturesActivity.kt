@@ -145,7 +145,7 @@ fun FeatureToggle(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clickable() { onChange(key, label, !enabled) }
+            .clickable { onChange(key, label, !enabled) }
             .padding(horizontal = Margin.ExtraLarge.value, vertical = Margin.MediumLarge.value)
     ) {
         Spacer(modifier = Modifier.width(Margin.ExtraLarge.value))
