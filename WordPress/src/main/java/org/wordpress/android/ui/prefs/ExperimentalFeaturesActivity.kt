@@ -1,5 +1,7 @@
 package org.wordpress.android.ui.prefs
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -26,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
@@ -41,14 +44,13 @@ import org.wordpress.android.ui.compose.unit.Margin
 import org.wordpress.android.util.extensions.setContent
 
 val experimentalFeatures = listOf(
-    Feature(key = "experimental_block_editor", label = "Experimental block editor"),
-    Feature(key = "experimental_block_editor_theme_styles", label = "Experimental block editor styles")
+    Feature(key = "experimental_block_editor"),
+    Feature(key = "experimental_block_editor_theme_styles")
 )
 
 data class Feature(
     val enabled: Boolean = false,
     val key: String,
-    val label: String
 )
 
 class FeatureViewModel : ViewModel() {
@@ -57,15 +59,15 @@ class FeatureViewModel : ViewModel() {
 
     init {
         val initialStates = experimentalFeatures.associate { item ->
-            item.key to Feature(AppPrefs.getManualFeatureConfig(item.key), item.key, item.label)
+            item.key to Feature(AppPrefs.getManualFeatureConfig(item.key), item.key)
         }
         _switchStates.value = initialStates
     }
 
-    fun toggleFeature(key: String, label: String, enabled: Boolean) {
+    fun toggleFeature(key: String, enabled: Boolean) {
         _switchStates.update { currentStates ->
             currentStates.toMutableMap().apply {
-                this[key] = Feature(enabled, key, label)
+                this[key] = Feature(enabled, key)
                 AppPrefs.setManualFeatureConfig(enabled, key)
             }
         }
@@ -97,7 +99,7 @@ class ExperimentalFeaturesActivity : AppCompatActivity() {
 @Composable
 fun ExperimentalFeaturesScreen(
     features: Map<String, Feature>,
-    onFeatureToggled: (key: String, label: String, enabled: Boolean) -> Unit,
+    onFeatureToggled: (key: String, enabled: Boolean) -> Unit,
     onNavigateBack: () -> Unit
 ) {
     Scaffold(
@@ -120,9 +122,14 @@ fun ExperimentalFeaturesScreen(
         Box(modifier = Modifier.padding(innerPadding)) {
             Column {
                 features.forEach { (key, feature) ->
+                    val context = LocalContext.current
+                    val label = remember(key) {
+                        context.getStringResourceByName(key)
+                    }
+
                     FeatureToggle(
                         key = key,
-                        label = feature.label,
+                        label = label,
                         enabled = feature.enabled,
                         onChange = onFeatureToggled,
                     )
@@ -132,17 +139,23 @@ fun ExperimentalFeaturesScreen(
     }
 }
 
+@SuppressLint("DiscouragedApi")
+fun Context.getStringResourceByName(name: String): String {
+    val resourceId = resources.getIdentifier(name, "string", packageName)
+    return if (resourceId != 0) getString(resourceId) else name
+}
+
 @Composable
 fun FeatureToggle(
     key: String,
     label: String,
     enabled: Boolean,
-    onChange: (String, String, Boolean) -> Unit,
+    onChange: (String, Boolean) -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .clickable { onChange(key, label, !enabled) }
+            .clickable { onChange(key, !enabled) }
             .padding(horizontal = Margin.ExtraLarge.value, vertical = Margin.MediumLarge.value)
     ) {
         Spacer(modifier = Modifier.width(Margin.ExtraLarge.value))
@@ -155,7 +168,7 @@ fun FeatureToggle(
         Switch(
             checked = enabled,
             onCheckedChange = { newValue ->
-                onChange(key, label, newValue)
+                onChange(key, newValue)
             },
         )
     }
@@ -174,7 +187,7 @@ fun ExperimentalFeaturesScreenPreview() {
 
         ExperimentalFeaturesScreen(
             features = featuresStatusAlternated,
-            onFeatureToggled = { _, _, _ -> },
+            onFeatureToggled = { _, _ -> },
             onNavigateBack = {}
         )
     }
