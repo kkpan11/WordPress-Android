@@ -239,6 +239,10 @@ class MeFragment : Fragment(R.layout.me_fragment), OnScrollToTopListener {
 
         if (BuildConfig.IS_JETPACK_APP) meAboutIcon.setImageResource(R.drawable.ic_jetpack_logo_white_24dp)
 
+        rowExperimentalFeaturesSettings.setOnClickListener {
+            context?.let { context -> ActivityLauncher.viewExperimentalFeatures(context) }
+        }
+
         if (BuildConfig.DEBUG && BuildConfig.ENABLE_DEBUG_SETTINGS) {
             rowDebugSettings.isVisible = true
             debugSettingsDivider.isVisible = true
