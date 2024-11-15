@@ -61,7 +61,6 @@ fun ReadingPreferencesScreen(
     onFontFamilyClick: (ReaderReadingPreferences.FontFamily) -> Unit,
     onFontSizeClick: (ReaderReadingPreferences.FontSize) -> Unit,
     onBackgroundColorUpdate: (Int) -> Unit,
-    isHapticsFeedbackEnabled: Boolean = true,
 ) {
     val themeValues = ReaderReadingPreferences.ThemeValues.from(LocalContext.current, currentReadingPreferences.theme)
     val backgroundColor by animateColorAsState(Color(themeValues.intBackgroundColor), label = "backgroundColor")
@@ -78,7 +77,7 @@ fun ReadingPreferencesScreen(
     val fontSize = currentReadingPreferences.fontSize.toSp()
     val fontSizeMultiplier = currentReadingPreferences.fontSize.multiplier
 
-    val haptics = LocalHapticFeedback.current.takeIf { isHapticsFeedbackEnabled }
+    val haptics = LocalHapticFeedback.current
 
     Column(
         modifier = Modifier
@@ -178,7 +177,7 @@ fun ReadingPreferencesScreen(
                         theme = theme,
                         isSelected = theme == currentReadingPreferences.theme,
                         onClick = {
-                            haptics?.performHapticFeedback(HapticFeedbackType.LongPress)
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             onThemeClick(theme)
                         },
                     )
@@ -201,7 +200,7 @@ fun ReadingPreferencesScreen(
                         fontFamily = fontFamily,
                         isSelected = fontFamily == currentReadingPreferences.fontFamily,
                         onClick = {
-                            haptics?.performHapticFeedback(HapticFeedbackType.LongPress)
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             onFontFamilyClick(fontFamily)
                         },
                     )
@@ -218,7 +217,7 @@ fun ReadingPreferencesScreen(
                 previewFontFamily = fontFamily,
                 selectedFontSize = currentReadingPreferences.fontSize,
                 onFontSizeSelected = {
-                    haptics?.performHapticFeedback(HapticFeedbackType.LongPress)
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                     onFontSizeClick(it)
                 },
             )
