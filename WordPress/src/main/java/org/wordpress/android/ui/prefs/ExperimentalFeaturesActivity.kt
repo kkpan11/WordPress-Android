@@ -97,7 +97,6 @@ class ExperimentalFeaturesActivity : AppCompatActivity() {
 @Composable
 fun ExperimentalFeaturesScreen(
     features: Map<String, Feature>,
-    modifier: Modifier = Modifier,
     onFeatureToggled: (key: String, label: String, enabled: Boolean) -> Unit,
     onNavigateBack: () -> Unit
 ) {
@@ -118,7 +117,7 @@ fun ExperimentalFeaturesScreen(
             )
         },
     ) { innerPadding ->
-        Box(modifier = modifier.then(Modifier.padding(innerPadding))) {
+        Box(modifier = Modifier.padding(innerPadding)) {
             Column {
                 features.forEach { (key, feature) ->
                     FeatureToggle(
@@ -126,7 +125,6 @@ fun ExperimentalFeaturesScreen(
                         label = feature.label,
                         enabled = feature.enabled,
                         onChange = onFeatureToggled,
-                        modifier = modifier
                     )
                 }
             }
@@ -136,7 +134,6 @@ fun ExperimentalFeaturesScreen(
 
 @Composable
 fun FeatureToggle(
-    modifier: Modifier = Modifier,
     key: String,
     label: String,
     enabled: Boolean,
@@ -144,7 +141,7 @@ fun FeatureToggle(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = Modifier
             .clickable { onChange(key, label, !enabled) }
             .padding(horizontal = Margin.ExtraLarge.value, vertical = Margin.MediumLarge.value)
     ) {
