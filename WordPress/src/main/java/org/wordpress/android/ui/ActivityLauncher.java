@@ -1276,7 +1276,7 @@ public class ActivityLauncher {
 
     public static void viewExperimentalFeatures(@NonNull Context context) {
         Intent intent = new Intent(context, ExperimentalFeaturesActivity.class);
-        AnalyticsTracker.track(AnalyticsTracker.Stat.OPENED_EXPERIMENTAL_FEATURES);
+        AnalyticsTracker.track(AnalyticsTracker.Stat.EXPERIMENTAL_FEATURES_OPENED);
         context.startActivity(intent);
     }
 
