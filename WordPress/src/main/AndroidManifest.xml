@@ -609,9 +609,7 @@
             android:theme="@style/ReaderMediaViewerTheme" />
         <activity
             android:name=".ui.reader.ReaderVideoViewerActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/ReaderMediaViewerTheme"
-            tools:ignore="DiscouragedApi" />
+            android:theme="@style/ReaderMediaViewerTheme" />
         <activity
             android:name=".ui.reader.discover.interests.ReaderInterestsActivity"
             android:theme="@style/WordPress.NoActionBar" />
