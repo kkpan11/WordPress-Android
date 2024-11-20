@@ -772,9 +772,7 @@
 
         <activity
             android:name=".support.SupportWebViewActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/WordPress.NoActionBar"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity"/>
+            android:theme="@style/WordPress.NoActionBar" />
 
         <!-- Lib activities-->
         <activity
