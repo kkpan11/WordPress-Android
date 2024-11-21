@@ -44,6 +44,13 @@ class BlazePromoteParentActivity : LocaleAwareActivity() {
         observe()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable(ARG_BLAZE_FLOW_SOURCE, source)
+        outState.putParcelable(ARG_EXTRA_BLAZE_UI_MODEL, uiModel)
+        outState.putBoolean(ARG_BLAZE_SHOULD_SHOW_OVERLAY, shouldShowOverlay)
+    }
+
     private fun observe() {
         viewModel.uiState.observe(this) { uiState ->
             when (uiState) {
@@ -69,12 +76,5 @@ class BlazePromoteParentActivity : LocaleAwareActivity() {
         viewModel.onSelectedSiteMissing.observe(this) {
             finish()
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putSerializable(ARG_BLAZE_FLOW_SOURCE, source)
-        outState.putParcelable(ARG_EXTRA_BLAZE_UI_MODEL, uiModel)
-        outState.putBoolean(ARG_BLAZE_SHOULD_SHOW_OVERLAY, shouldShowOverlay)
     }
 }
