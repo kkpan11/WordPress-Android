@@ -80,8 +80,23 @@ class CampaignListingFragment : Fragment() {
     }
 
     private val viewModel: CampaignListingViewModel by viewModels()
-
     private val campaignViewModel: CampaignViewModel by activityViewModels()
+
+    private var pageSource: CampaignListingPageSource? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pageSource = savedInstanceState?.getSerializableCompat(CAMPAIGN_LISTING_PAGE_SOURCE)
+            ?: arguments?.getSerializableCompat(CAMPAIGN_LISTING_PAGE_SOURCE)
+        if (pageSource == null) {
+            pageSource = CampaignListingPageSource.UNKNOWN
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable(CAMPAIGN_LISTING_PAGE_SOURCE, pageSource)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -97,7 +112,7 @@ class CampaignListingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.start(getPageSource())
+        viewModel.start(pageSource!!)
         initObservers()
     }
 
@@ -123,11 +138,6 @@ class CampaignListingFragment : Fragment() {
         viewModel.onSelectedSiteMissing.observe(viewLifecycleOwner) {
             requireActivity().finish()
         }
-    }
-
-    private fun getPageSource(): CampaignListingPageSource {
-        return arguments?.getSerializableCompat<CampaignListingPageSource>(CAMPAIGN_LISTING_PAGE_SOURCE)
-            ?: CampaignListingPageSource.UNKNOWN
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
