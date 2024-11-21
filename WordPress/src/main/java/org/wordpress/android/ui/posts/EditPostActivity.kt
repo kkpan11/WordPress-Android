@@ -72,6 +72,7 @@ import org.wordpress.android.editor.EditorThemeUpdateListener
 import org.wordpress.android.editor.ExceptionLogger
 import org.wordpress.android.editor.gutenberg.DialogVisibility
 import org.wordpress.android.editor.gutenberg.GutenbergEditorFragment
+import org.wordpress.android.editor.gutenberg.GutenbergKitEditorFragment
 import org.wordpress.android.editor.gutenberg.GutenbergNetworkConnectionListener
 import org.wordpress.android.editor.gutenberg.GutenbergPropsBuilder
 import org.wordpress.android.editor.gutenberg.GutenbergWebViewAuthorizationData
@@ -925,7 +926,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
         val isJetpackSsoEnabled = siteModel.isJetpackConnected && siteSettings?.isJetpackSsoEnabled == true
         if (this.isJetpackSsoEnabled != isJetpackSsoEnabled) {
             this.isJetpackSsoEnabled = isJetpackSsoEnabled
-            if (editorFragment is GutenbergEditorFragment) {
+            if (isGutenbergEditorFragment(editorFragment)) {
                 val gutenbergFragment = editorFragment as GutenbergEditorFragment
                 gutenbergFragment.setJetpackSsoEnabled(this.isJetpackSsoEnabled)
                 gutenbergFragment.updateCapabilities(gutenbergPropsBuilder)
@@ -1425,7 +1426,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
         if (viewHtmlModeMenuItem != null) {
             viewHtmlModeMenuItem.setVisible(
                 (((editorFragment is AztecEditorFragment)
-                        || (editorFragment is GutenbergEditorFragment))) && !isNewGutenbergEditor && showMenuItems
+                        || (isGutenbergEditorFragment(editorFragment)))) && !isNewGutenbergEditor && showMenuItems
             )
             viewHtmlModeMenuItem.setTitle(
                 if (htmlModeMenuStateOn) R.string.menu_visual_mode else R.string.menu_html_mode)
@@ -1487,7 +1488,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
             val showHelpAndSupport = jetpackFeatureRemovalPhaseHelper.shouldShowHelpAndSupportOnEditor()
             val helpMenuTitle = if (showHelpAndSupport) R.string.help_and_support else R.string.help
             helpMenuItem.setTitle(helpMenuTitle)
-            if (editorFragment is GutenbergEditorFragment && showMenuItems && !isNewGutenbergEditor) {
+            if (isGutenbergEditorFragment(editorFragment) && showMenuItems && !isNewGutenbergEditor) {
                 helpMenuItem.setVisible(true)
             } else {
                 helpMenuItem.setVisible(false)
@@ -1618,7 +1619,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                 // toggle HTML mode
                 if (editorFragment is AztecEditorFragment) {
                     (editorFragment as AztecEditorFragment).onToolbarHtmlButtonClicked()
-                } else if (editorFragment is GutenbergEditorFragment) {
+                } else if (isGutenbergEditorFragment(editorFragment)) {
                     (editorFragment as GutenbergEditorFragment).onToggleHtmlMode()
                 }
             } else if (itemId == R.id.menu_switch_to_gutenberg) {
@@ -1636,16 +1637,16 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                 }
             } else if (itemId == R.id.menu_editor_help) {
                 // Display the editor help page -- option should only be available in the GutenbergEditor
-                if (editorFragment is GutenbergEditorFragment) {
+                if (isGutenbergEditorFragment(editorFragment)) {
                     analyticsTrackerWrapper.track(Stat.EDITOR_HELP_SHOWN, siteModel)
                     (editorFragment as GutenbergEditorFragment).showEditorHelp()
                 }
             } else if (itemId == R.id.menu_undo_action) {
-                if (editorFragment is GutenbergEditorFragment) {
+                if (isGutenbergEditorFragment(editorFragment)) {
                     (editorFragment as GutenbergEditorFragment).onUndoPressed()
                 }
             } else if (itemId == R.id.menu_redo_action) {
-                if (editorFragment is GutenbergEditorFragment) {
+                if (isGutenbergEditorFragment(editorFragment)) {
                     (editorFragment as GutenbergEditorFragment).onRedoPressed()
                 }
             }
@@ -1798,7 +1799,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
     }
 
     private fun trackPostSessionEditorModeSwitch() {
-        val isGutenberg: Boolean = editorFragment is GutenbergEditorFragment
+        val isGutenberg: Boolean = isGutenbergEditorFragment(editorFragment)
         postEditorAnalyticsSession?.switchEditor(
             if (htmlModeMenuStateOn) PostEditorAnalyticsSession.Editor.HTML
             else
@@ -1864,7 +1865,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
     }
 
     private fun savePostOnline(isFirstTimePublish: Boolean): ActivityFinishState {
-        if (editorFragment is GutenbergEditorFragment) {
+        if (isGutenbergEditorFragment(editorFragment)) {
             (editorFragment as GutenbergEditorFragment).sendToJSPostSaveEvent()
         }
         return storePostViewModel.savePostOnline(isFirstTimePublish, this, (editPostRepository), siteModel)
@@ -2519,7 +2520,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
 
     private fun onXpostsSettingsCapability(isXpostsCapable: Boolean) {
         isXPostsCapable = isXpostsCapable
-        if (editorFragment is GutenbergEditorFragment) {
+        if (isGutenbergEditorFragment(editorFragment)) {
             (editorFragment as GutenbergEditorFragment).updateCapabilities(gutenbergPropsBuilder)
         }
     }
@@ -2681,7 +2682,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
         if (editPostRepository.hasPost()) {
             // don't avoid calling setContent() for GutenbergEditorFragment so RN gets initialized
             if (((!TextUtils.isEmpty(editPostRepository.content)
-                        || editorFragment is GutenbergEditorFragment)
+                        || isGutenbergEditorFragment(editorFragment))
                         && !hasSetPostContent)
             ) {
                 hasSetPostContent = true
@@ -2693,7 +2694,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
             }
             if (!TextUtils.isEmpty(editPostRepository.title)) {
                 editorFragment?.setTitle(editPostRepository.title)
-            } else if (editorFragment is GutenbergEditorFragment) {
+            } else if (isGutenbergEditorFragment(editorFragment)) {
                 // don't avoid calling setTitle() for GutenbergEditorFragment so RN gets initialized
                 val title: String? = intent.getStringExtra(EditPostActivityConstants.EXTRA_PAGE_TITLE)
                 if (title != null) {
@@ -2829,7 +2830,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
         } else if (editPostSettingsFragment != null) {
             editPostSettingsFragment?.updateFeaturedImage(mediaId, imagePicked)
         }
-        if (editorFragment is GutenbergEditorFragment) {
+        if (isGutenbergEditorFragment(editorFragment)) {
             (editorFragment as GutenbergEditorFragment).sendToJSFeaturedImageId(mediaId.toInt())
         }
     }
@@ -3222,7 +3223,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
      * EditorFragmentListener methods
      */
     override fun clearFeaturedImage() {
-        if (editorFragment is GutenbergEditorFragment) {
+        if (isGutenbergEditorFragment(editorFragment)) {
             (editorFragment as GutenbergEditorFragment).sendToJSFeaturedImageId(0)
         }
     }
@@ -3544,7 +3545,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
     }
     private fun onEditorFinalTouchesBeforeShowingForGutenbergIfNeeded() {
         // probably here is best for Gutenberg to start interacting with
-        if (!(showGutenbergEditor && editorFragment is GutenbergEditorFragment))
+        if (!(showGutenbergEditor && isGutenbergEditorFragment(editorFragment)))
             return
 
         refreshEditorTheme()
@@ -4103,4 +4104,8 @@ fun mapAllowedTypesToMediaBrowserType(allowedTypes: Array<MediaType>, multiple: 
         allowedTypes.contains(MediaType.AUDIO) -> MediaBrowserType.GUTENBERG_SINGLE_AUDIO_FILE_PICKER
         else -> if (multiple) MediaBrowserType.GUTENBERG_MEDIA_PICKER else MediaBrowserType.GUTENBERG_SINGLE_FILE_PICKER
     }
+}
+
+fun isGutenbergEditorFragment(fragment: EditorFragmentAbstract?): Boolean {
+    return fragment is GutenbergEditorFragment || fragment is GutenbergKitEditorFragment
 }
