@@ -2392,7 +2392,9 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
         override fun getItem(position: Int): Fragment {
             return when (position) {
                 PAGE_CONTENT -> {
-                    if (showGutenbergEditor) {
+                    if (isNewGutenbergEditor && showGutenbergEditor) {
+                        createGutenbergKitEditorFragment()
+                    } else if (showGutenbergEditor) {
                         createGutenbergEditorFragment()
                     } else {
                         // If gutenberg editor is not selected, default to Aztec.
@@ -2404,6 +2406,60 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                 PAGE_HISTORY -> newInstance(editPostRepository.id, siteModel)
                 else -> throw IllegalArgumentException("Unexpected page type")
             }
+        }
+
+        private fun createGutenbergKitEditorFragment(): GutenbergKitEditorFragment {
+            // Enable gutenberg on the site & show the informative popup upon opening
+            // the GB editor the first time when the remote setting value is still null
+            setGutenbergEnabledIfNeeded()
+            xPostsCapabilityChecker.retrieveCapability(siteModel) { isXpostsCapable ->
+                onXpostsSettingsCapability(isXpostsCapable)
+            }
+
+            val isWpCom = site.isWPCom || siteModel.isPrivateWPComAtomic || siteModel.isWPComAtomic
+            val gutenbergPropsBuilder = gutenbergPropsBuilder
+            val gutenbergWebViewAuthorizationData = GutenbergWebViewAuthorizationData(
+                siteModel.url,
+                isWpCom,
+                accountStore.account.userId,
+                accountStore.account.userName,
+                accountStore.accessToken,
+                siteModel.selfHostedSiteId,
+                siteModel.username,
+                siteModel.password,
+                siteModel.isUsingWpComRestApi,
+                siteModel.webEditor,
+                userAgent.toString(),
+                isJetpackSsoEnabled
+            )
+
+            val postType = if (editPostRepository.isPage) "page" else "post"
+            val siteApiRoot = if (isWpCom) "https://public-api.wordpress.com/" else ""
+            val siteId = site.siteId
+            val authToken = accountStore.accessToken
+            val authHeader = "Bearer $authToken"
+            val siteApiNamespace = "sites/$siteId"
+
+            val settings = mutableMapOf<String, Any?>(
+                "postId" to editPostRepository.getPost()?.remotePostId?.toInt(),
+                "postType" to postType,
+                "postTitle" to editPostRepository.getPost()?.title,
+                "postContent" to editPostRepository.getPost()?.content,
+                "siteApiRoot" to siteApiRoot,
+                "authHeader" to authHeader,
+                "siteApiNamespace" to siteApiNamespace,
+                "themeStyles" to newGutenbergThemeStylesConfig.isEnabled()
+            )
+
+            return GutenbergKitEditorFragment.newInstance(
+                getContext(),
+                isNewPost,
+                gutenbergWebViewAuthorizationData,
+                gutenbergPropsBuilder,
+                jetpackFeatureRemovalPhaseHelper.shouldShowJetpackPoweredEditorFeatures(),
+                isNewGutenbergEditor,
+                settings
+            )
         }
 
         private fun createGutenbergEditorFragment(): GutenbergEditorFragment {
