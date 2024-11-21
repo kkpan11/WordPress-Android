@@ -38,7 +38,9 @@ public class ReaderVideoViewerActivity extends LocaleAwareActivity {
 
         mWebView.setBackgroundColor(Color.TRANSPARENT);
         mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.getSettings().setUserAgentString(mUserAgent.toString());
+        if (mUserAgent != null) {
+            mWebView.getSettings().setUserAgentString(mUserAgent.toString());
+        }
 
         mWebView.setWebChromeClient(new WebChromeClientWithVideoPoster(
                 mWebView,
