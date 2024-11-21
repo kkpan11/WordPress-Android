@@ -18,7 +18,7 @@ import org.wordpress.android.util.helpers.WebChromeClientWithVideoPoster;
 import javax.inject.Inject;
 
 /**
- * Full screen landscape video player for the reader
+ * Full screen video player for the reader
  */
 public class ReaderVideoViewerActivity extends LocaleAwareActivity {
     private String mVideoUrl;
