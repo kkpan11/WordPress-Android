@@ -1121,14 +1121,12 @@
         <activity android:name=".ui.blaze.blazepromote.BlazePromoteParentActivity"
             android:exported="false"
             android:label="@string/blaze_activity_title"
-            android:screenOrientation="portrait"
             android:theme="@style/WordPress.NoActionBar"
             tools:ignore="DiscouragedApi" />
 
         <activity android:name=".ui.blaze.blazecampaigns.BlazeCampaignParentActivity"
             android:exported="false"
             android:label="@string/blaze_campaigns_page_title"
-            android:screenOrientation="portrait"
             android:theme="@style/WordPress.NoActionBar"
             tools:ignore="DiscouragedApi" />
 

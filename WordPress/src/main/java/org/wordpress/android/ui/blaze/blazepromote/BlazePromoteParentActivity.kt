@@ -53,6 +53,13 @@ class BlazePromoteParentActivity : LocaleAwareActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable(ARG_BLAZE_FLOW_SOURCE, getSource())
+        outState.putParcelable(ARG_EXTRA_BLAZE_UI_MODEL, getBlazeUiModel())
+        outState.putBoolean(ARG_BLAZE_SHOULD_SHOW_OVERLAY, getShouldShowOverlay())
+    }
+
     private fun getSource(): BlazeFlowSource {
         return requireNotNull(intent.getSerializableExtraCompat(ARG_BLAZE_FLOW_SOURCE))
     }
