@@ -390,10 +390,6 @@ class WPMainNavigationView @JvmOverloads constructor(
         return null
     }
 
-    fun showReaderBadge(showBadge: Boolean) {
-        showBadge(getPosition(READER), showBadge)
-    }
-
     fun showNoteBadge(showBadge: Boolean) {
         showBadge(getPosition(NOTIFS), showBadge)
     }
