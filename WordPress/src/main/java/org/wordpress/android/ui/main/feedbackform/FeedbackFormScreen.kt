@@ -1,6 +1,5 @@
 package org.wordpress.android.ui.main.feedbackform
 
-import HtmlTextM3
 import android.content.Context
 import android.content.res.Configuration
 import android.net.Uri
@@ -38,13 +37,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.text.HtmlCompat
-import androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.wordpress.android.R
 import org.wordpress.android.ui.compose.components.MediaUriPager
@@ -105,10 +108,8 @@ private fun MessageSection(
     messageText: String?,
     onMessageChanged: (String) -> Unit,
 ) {
-    val htmlText = HtmlCompat.fromHtml(
-        stringResource(id = R.string.feedback_form_not_support),
-        FROM_HTML_MODE_COMPACT
-    )
+    val linkText = stringResource(id = R.string.feedback_form_note_link)
+
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -121,10 +122,21 @@ private fun MessageSection(
                 horizontal = H_PADDING.dp
             )
     ) {
-        HtmlTextM3(
-            text = stringResource(id = R.string.feedback_form_not_support),
-            modifier = Modifier
-                .padding(top = V_PADDING.dp)
+        Text(
+            text = buildAnnotatedString {
+                append(stringResource(id = R.string.feedback_form_note_text))
+                withLink(
+                    LinkAnnotation.Url(
+                        url = "support",
+                        styles = TextLinkStyles(
+                            style = SpanStyle(color = colorResource(id = R.color.primary))
+                        )
+                    )
+                ) {
+                    append(linkText)
+                }
+                append(".")
+            }
         )
         OutlinedTextField(
             value = messageText ?: "",
@@ -141,15 +153,8 @@ private fun MessageSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 180.dp)
-                .focusRequester(focusRequester),
-        )
-        Text(
-            text = stringResource(id = R.string.feedback_form_note),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
+                .focusRequester(focusRequester)
                 .padding(top = V_PADDING.dp)
-
         )
     }
 }
