@@ -65,7 +65,7 @@ class FeedbackFormActivity : LocaleAwareActivity() {
     }
 
     /**
-     * This will return to the Help screen
+     * This will return to the Help screen, where the user can see the contact support link
      */
     private fun showSupport() {
         finish()

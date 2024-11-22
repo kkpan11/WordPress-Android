@@ -141,8 +141,8 @@ private fun MessageSection(
                 ) {
                     append(linkText)
                 }
-                append(".")
-            }
+            },
+            modifier = Modifier.padding(bottom = V_PADDING.dp)
         )
         OutlinedTextField(
             value = messageText ?: "",
