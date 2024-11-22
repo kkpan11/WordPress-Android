@@ -45,7 +45,8 @@ class FeedbackFormActivity : LocaleAwareActivity() {
                             viewModel.onRemoveMediaClick(it)
                         },
                         onSupportClick = {
-                            showSupport()
+                            // This will return to the Help screen, where the user can see the contact support link
+                            finish()
                         },
                     )
                 }
@@ -62,12 +63,5 @@ class FeedbackFormActivity : LocaleAwareActivity() {
                 viewModel.onPhotoPickerResult(this, it)
             }
         }
-    }
-
-    /**
-     * This will return to the Help screen, where the user can see the contact support link
-     */
-    private fun showSupport() {
-        finish()
     }
 }
