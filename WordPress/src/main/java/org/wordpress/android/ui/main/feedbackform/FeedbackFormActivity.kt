@@ -43,7 +43,10 @@ class FeedbackFormActivity : LocaleAwareActivity() {
                         },
                         onRemoveMediaClick = {
                             viewModel.onRemoveMediaClick(it)
-                        }
+                        },
+                        onSupportClick = {
+                            showSupport()
+                        },
                     )
                 }
             }
@@ -59,5 +62,12 @@ class FeedbackFormActivity : LocaleAwareActivity() {
                 viewModel.onPhotoPickerResult(this, it)
             }
         }
+    }
+
+    /**
+     * This will return to the Help screen
+     */
+    private fun showSupport() {
+        finish()
     }
 }

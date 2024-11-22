@@ -65,6 +65,7 @@ fun FeedbackFormScreen(
     onCloseClick: (context: Context) -> Unit,
     onChooseMediaClick: () -> Unit,
     onRemoveMediaClick: (uri: Uri) -> Unit,
+    onSupportClick: () -> Unit,
 ) {
     val context = LocalContext.current
     val message = messageText?.value ?: ""
@@ -74,6 +75,7 @@ fun FeedbackFormScreen(
             onMessageChanged = {
                 onMessageChanged(it)
             },
+            onSupportClick = onSupportClick
         )
         MediaUriPager(
             mediaUris = attachments.value.map { it.uri },
@@ -107,8 +109,17 @@ fun FeedbackFormScreen(
 private fun MessageSection(
     messageText: String?,
     onMessageChanged: (String) -> Unit,
+    onSupportClick: () -> Unit
 ) {
     val linkText = stringResource(id = R.string.feedback_form_note_link)
+    val linkAnnotation = LinkAnnotation.Url(
+        url = "support",
+        styles = TextLinkStyles(
+            style = SpanStyle(color = colorResource(id = R.color.primary))
+        )
+    ) {
+        onSupportClick()
+    }
 
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -126,12 +137,7 @@ private fun MessageSection(
             text = buildAnnotatedString {
                 append(stringResource(id = R.string.feedback_form_note_text))
                 withLink(
-                    LinkAnnotation.Url(
-                        url = "support",
-                        styles = TextLinkStyles(
-                            style = SpanStyle(color = colorResource(id = R.color.primary))
-                        )
-                    )
+                    linkAnnotation
                 ) {
                     append(linkText)
                 }
@@ -293,7 +299,8 @@ private fun FeedbackFormScreenPreview() {
         onSubmitClick = {},
         onCloseClick = {},
         onChooseMediaClick = {},
-        onRemoveMediaClick = {}
+        onRemoveMediaClick = {},
+        onSupportClick = {},
     )
 }
 
