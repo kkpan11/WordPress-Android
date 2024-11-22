@@ -1,5 +1,6 @@
 package org.wordpress.android.ui.main.feedbackform
 
+import HtmlTextM3
 import android.content.Context
 import android.content.res.Configuration
 import android.net.Uri
@@ -42,6 +43,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.HtmlCompat
+import androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.wordpress.android.R
 import org.wordpress.android.ui.compose.components.MediaUriPager
@@ -102,6 +105,10 @@ private fun MessageSection(
     messageText: String?,
     onMessageChanged: (String) -> Unit,
 ) {
+    val htmlText = HtmlCompat.fromHtml(
+        stringResource(id = R.string.feedback_form_not_support),
+        FROM_HTML_MODE_COMPACT
+    )
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -114,6 +121,11 @@ private fun MessageSection(
                 horizontal = H_PADDING.dp
             )
     ) {
+        HtmlTextM3(
+            text = stringResource(id = R.string.feedback_form_not_support),
+            modifier = Modifier
+                .padding(top = V_PADDING.dp)
+        )
         OutlinedTextField(
             value = messageText ?: "",
             placeholder = {
