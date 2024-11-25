@@ -2426,7 +2426,6 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
             }
 
             val isWpCom = site.isWPCom || siteModel.isPrivateWPComAtomic || siteModel.isWPComAtomic
-            val gutenbergPropsBuilder = gutenbergPropsBuilder
             val gutenbergWebViewAuthorizationData = GutenbergWebViewAuthorizationData(
                 siteModel.url,
                 isWpCom,
@@ -2464,7 +2463,6 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                 getContext(),
                 isNewPost,
                 gutenbergWebViewAuthorizationData,
-                gutenbergPropsBuilder,
                 jetpackFeatureRemovalPhaseHelper.shouldShowJetpackPoweredEditorFeatures(),
                 settings
             )
