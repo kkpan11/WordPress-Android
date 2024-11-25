@@ -106,11 +106,11 @@ public class PublicizeServiceAdapter extends RecyclerView.Adapter<PublicizeServi
         holder.mTxtService.setText(service.getLabel());
         final PublicizeServiceIcon icon = PublicizeServiceIcon.fromServiceId(service.getId());
         if (icon != null) {
-            holder.mImgIcon.setVisibility(View.VISIBLE);
             mImageManager.load(holder.mImgIcon, icon.getIconResId());
         } else {
-            holder.mImgIcon.setVisibility(View.INVISIBLE);
+            holder.mImgIcon.setImageResource(R.drawable.ic_social_generic);
         }
+
         if (connections.size() > 0) {
             holder.mTxtUser.setText(connections.getUserDisplayNames());
             holder.mTxtUser.setVisibility(View.VISIBLE);
