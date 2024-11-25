@@ -112,8 +112,13 @@ public class PublicizeServiceAdapter extends RecyclerView.Adapter<PublicizeServi
         }
 
         if (connections.size() > 0) {
-            holder.mTxtUser.setText(connections.getUserDisplayNames());
-            holder.mTxtUser.setVisibility(View.VISIBLE);
+            String userNames = connections.getUserDisplayNames();
+            if (userNames.isEmpty()) {
+                holder.mTxtUser.setVisibility(View.GONE);
+            } else {
+                holder.mTxtUser.setText(connections.getUserDisplayNames());
+                holder.mTxtUser.setVisibility(View.VISIBLE);
+            }
             holder.mImgIcon.clearColorFilter();
             holder.mImgIcon.setImageAlpha(255);
         } else {
