@@ -72,6 +72,7 @@ import org.wordpress.android.editor.EditorThemeUpdateListener
 import org.wordpress.android.editor.ExceptionLogger
 import org.wordpress.android.editor.gutenberg.DialogVisibility
 import org.wordpress.android.editor.gutenberg.GutenbergEditorFragment
+import org.wordpress.android.editor.gutenberg.GutenbergKitEditorFragment
 import org.wordpress.android.editor.gutenberg.GutenbergNetworkConnectionListener
 import org.wordpress.android.editor.gutenberg.GutenbergPropsBuilder
 import org.wordpress.android.editor.gutenberg.GutenbergWebViewAuthorizationData
@@ -1425,7 +1426,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
         if (viewHtmlModeMenuItem != null) {
             viewHtmlModeMenuItem.setVisible(
                 (((editorFragment is AztecEditorFragment)
-                        || (editorFragment is GutenbergEditorFragment))) && !isNewGutenbergEditor && showMenuItems
+                        || (editorFragment is GutenbergEditorFragment))) && showMenuItems
             )
             viewHtmlModeMenuItem.setTitle(
                 if (htmlModeMenuStateOn) R.string.menu_visual_mode else R.string.menu_html_mode)
@@ -1487,7 +1488,7 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
             val showHelpAndSupport = jetpackFeatureRemovalPhaseHelper.shouldShowHelpAndSupportOnEditor()
             val helpMenuTitle = if (showHelpAndSupport) R.string.help_and_support else R.string.help
             helpMenuItem.setTitle(helpMenuTitle)
-            if (editorFragment is GutenbergEditorFragment && showMenuItems && !isNewGutenbergEditor) {
+            if (editorFragment is GutenbergEditorFragment && showMenuItems) {
                 helpMenuItem.setVisible(true)
             } else {
                 helpMenuItem.setVisible(false)
@@ -1620,6 +1621,8 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                     (editorFragment as AztecEditorFragment).onToolbarHtmlButtonClicked()
                 } else if (editorFragment is GutenbergEditorFragment) {
                     (editorFragment as GutenbergEditorFragment).onToggleHtmlMode()
+                } else if (editorFragment is GutenbergKitEditorFragment) {
+                    (editorFragment as GutenbergKitEditorFragment).onToggleHtmlMode()
                 }
             } else if (itemId == R.id.menu_switch_to_gutenberg) {
                 // The following boolean check should be always redundant but was added to manage
@@ -1644,9 +1647,15 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                 if (editorFragment is GutenbergEditorFragment) {
                     (editorFragment as GutenbergEditorFragment).onUndoPressed()
                 }
+                if (editorFragment is GutenbergKitEditorFragment) {
+                    (editorFragment as GutenbergKitEditorFragment).onUndoPressed()
+                }
             } else if (itemId == R.id.menu_redo_action) {
                 if (editorFragment is GutenbergEditorFragment) {
                     (editorFragment as GutenbergEditorFragment).onRedoPressed()
+                }
+                if (editorFragment is GutenbergKitEditorFragment) {
+                    (editorFragment as GutenbergKitEditorFragment).onRedoPressed()
                 }
             }
         }
@@ -1799,13 +1808,14 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
 
     private fun trackPostSessionEditorModeSwitch() {
         val isGutenberg: Boolean = editorFragment is GutenbergEditorFragment
+        val isGutenbergKit: Boolean = editorFragment is GutenbergKitEditorFragment
         postEditorAnalyticsSession?.switchEditor(
-            if (htmlModeMenuStateOn) PostEditorAnalyticsSession.Editor.HTML
-            else
-            (
-                if (isGutenberg) PostEditorAnalyticsSession.Editor.GUTENBERG
-                else PostEditorAnalyticsSession.Editor.CLASSIC
-            )
+            when {
+                htmlModeMenuStateOn -> PostEditorAnalyticsSession.Editor.HTML
+                isGutenberg -> PostEditorAnalyticsSession.Editor.GUTENBERG
+                isGutenbergKit -> PostEditorAnalyticsSession.Editor.GUTENBERG_KIT
+                else -> PostEditorAnalyticsSession.Editor.CLASSIC
+            }
         )
     }
 
@@ -2456,7 +2466,6 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                 gutenbergWebViewAuthorizationData,
                 gutenbergPropsBuilder,
                 jetpackFeatureRemovalPhaseHelper.shouldShowJetpackPoweredEditorFeatures(),
-                isNewGutenbergEditor,
                 settings
             )
         }
@@ -2486,32 +2495,12 @@ class EditPostActivity : LocaleAwareActivity(), EditorFragmentActivity, EditorIm
                 isJetpackSsoEnabled
             )
 
-            val postType = if (editPostRepository.isPage) "page" else "post"
-            val siteApiRoot = if (isWpCom) "https://public-api.wordpress.com/" else ""
-            val siteId = site.siteId
-            val authToken = accountStore.accessToken
-            val authHeader = "Bearer $authToken"
-            val siteApiNamespace = "sites/$siteId"
-
-            val settings = mutableMapOf<String, Any?>(
-                "postId" to editPostRepository.getPost()?.remotePostId?.toInt(),
-                "postType" to postType,
-                "postTitle" to editPostRepository.getPost()?.title,
-                "postContent" to editPostRepository.getPost()?.content,
-                "siteApiRoot" to siteApiRoot,
-                "authHeader" to authHeader,
-                "siteApiNamespace" to siteApiNamespace,
-                "themeStyles" to newGutenbergThemeStylesConfig.isEnabled()
-            )
-
             return GutenbergEditorFragment.newInstance(
                 getContext(),
                 isNewPost,
                 gutenbergWebViewAuthorizationData,
                 gutenbergPropsBuilder,
-                jetpackFeatureRemovalPhaseHelper.shouldShowJetpackPoweredEditorFeatures(),
-                isNewGutenbergEditor,
-                settings
+                jetpackFeatureRemovalPhaseHelper.shouldShowJetpackPoweredEditorFeatures()
             )
         }
 
