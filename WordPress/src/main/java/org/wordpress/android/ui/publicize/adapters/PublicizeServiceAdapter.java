@@ -200,6 +200,7 @@ public class PublicizeServiceAdapter extends RecyclerView.Adapter<PublicizeServi
             return !(mTmpServices.isSameAs(mServices) && mTmpConnections.isSameAs(mConnections));
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         @Override
         protected void onPostExecute(Boolean result) {
             if (result) {
