@@ -16,6 +16,7 @@ enum class PublicizeServiceIcon(
     val serviceId: String,
     @DrawableRes val iconResId: Int,
 ) {
+    BLUESKY("bluesky", R.drawable.ic_social_bluesky),
     FACEBOOK("facebook", R.drawable.ic_social_facebook),
     INSTAGRAM("instagram-business", R.drawable.ic_social_instagram),
     LINKEDIN("linkedin", R.drawable.ic_social_linkedin),
