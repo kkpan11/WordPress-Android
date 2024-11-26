@@ -70,7 +70,7 @@ public class GutenbergKitEditorFragment extends EditorFragmentAbstract implement
     private static final String ARG_GUTENBERG_WEB_VIEW_AUTH_DATA = "param_gutenberg_web_view_auth_data";
     public static final String ARG_FEATURED_IMAGE_ID = "featured_image_id";
     public static final String ARG_JETPACK_FEATURES_ENABLED = "jetpack_features_enabled";
-    public static final String ARG_NEW_GUTENBERG_SETTINGS = "new_gutenberg_settings";
+    public static final String ARG_GUTENBERG_KIT_SETTINGS = "gutenberg_kit_settings";
 
     private static final int CAPTURE_PHOTO_PERMISSION_REQUEST_CODE = 101;
     private static final int CAPTURE_VIDEO_PERMISSION_REQUEST_CODE = 102;
@@ -94,7 +94,7 @@ public class GutenbergKitEditorFragment extends EditorFragmentAbstract implement
         Bundle args = new Bundle();
         args.putBoolean(ARG_IS_NEW_POST, isNewPost);
         args.putBoolean(ARG_JETPACK_FEATURES_ENABLED, jetpackFeaturesEnabled);
-        args.putSerializable(ARG_NEW_GUTENBERG_SETTINGS, (Serializable) settings);
+        args.putSerializable(ARG_GUTENBERG_KIT_SETTINGS, (Serializable) settings);
         fragment.setArguments(args);
         SavedInstanceDatabase db = SavedInstanceDatabase.Companion.getDatabase(context);
         mSettings = settings;
@@ -122,7 +122,7 @@ public class GutenbergKitEditorFragment extends EditorFragmentAbstract implement
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (getArguments() != null) {
-            mSettings = (Map<String, Object>) getArguments().getSerializable(ARG_NEW_GUTENBERG_SETTINGS);
+            mSettings = (Map<String, Object>) getArguments().getSerializable(ARG_GUTENBERG_KIT_SETTINGS);
         }
 
         mGutenbergView = GutenbergWebViewPool.getPreloadedWebView(requireContext());
