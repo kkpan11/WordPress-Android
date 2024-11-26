@@ -254,10 +254,12 @@ public class GutenbergKitEditorFragment extends EditorFragmentAbstract implement
 
     @Override
     public void onRedoEnabled() {
+        // Currently unsupported
     }
 
     @Override
     public void onUndoEnabled() {
+        // Currently unsupported
     }
 
     @Override
@@ -272,6 +274,7 @@ public class GutenbergKitEditorFragment extends EditorFragmentAbstract implement
 
     @Override
     public void setTitle(CharSequence title) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
@@ -285,6 +288,7 @@ public class GutenbergKitEditorFragment extends EditorFragmentAbstract implement
 
     @Override
     public void updateContent(@Nullable CharSequence text) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     public void onToggleHtmlMode() {
@@ -423,28 +427,34 @@ public class GutenbergKitEditorFragment extends EditorFragmentAbstract implement
 
     @Override
     public void appendGallery(MediaGallery mediaGallery) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void setUrlForVideoPressId(final String videoId, final String videoUrl, final String posterUrl) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public boolean isUploadingMedia() {
+        // Unused, no-op retained for the shared interface with Gutenberg
         return false;
     }
 
     @Override
     public boolean hasFailedMediaUploads() {
+        // Unused, no-op retained for the shared interface with Gutenberg
         return false;
     }
 
     @Override
     public void removeAllFailedMediaUploads() {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void removeMedia(String mediaId) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
@@ -457,63 +467,79 @@ public class GutenbergKitEditorFragment extends EditorFragmentAbstract implement
     }
 
     @Override public void mediaSelectionCancelled() {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void onMediaUploadReattached(String localMediaId, float currentProgress) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void onMediaUploadRetry(String localMediaId, MediaType mediaType) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void onMediaUploadSucceeded(final String localMediaId, final MediaFile mediaFile) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void onMediaUploadProgress(final String localMediaId, final float progress) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void onMediaUploadFailed(final String localMediaId) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void onMediaUploadPaused(final String localMediaId) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void onGalleryMediaUploadSucceeded(final long galleryId, long remoteMediaId, int remaining) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void onEditorThemeUpdated(Bundle editorTheme) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void showNotice(String message) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void showEditorHelp() {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override public void onUndoPressed() {
+        // Currently unsupported
     }
 
     @Override public void onRedoPressed() {
+        // Currently unsupported
     }
 
     @Override
     public void onGutenbergDialogPositiveClicked(@NonNull String instanceTag, int mediaId) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void onGutenbergDialogNegativeClicked(@NonNull String instanceTag) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 
     @Override
     public void onConnectionStatusChange(boolean isConnected) {
+        // Unused, no-op retained for the shared interface with Gutenberg
     }
 }
