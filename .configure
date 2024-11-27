@@ -29,11 +29,6 @@
       "encrypt": true
     },
     {
-      "file": "android/automattic.jks",
-      "destination": "WordPress/release.jks",
-      "encrypt": false
-    },
-    {
       "file": "android/WPAndroid/google-upload-credentials.json",
       "destination": "~/.configure/wordpress-android/secrets/google-upload-credentials.json",
       "encrypt": true
