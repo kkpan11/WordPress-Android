@@ -256,7 +256,6 @@ public class AppSettingsFragment extends PreferenceFragment
         mLanguagePreference.setOnPreferenceChangeListener(this);
         mLanguagePreference.setOnPreferenceClickListener(this);
         mLanguagePreference.setSummary(mLocaleHelper.getCurrentLocaleDisplayName());
-        // TODO remove mLanguagePreference.setSummary(mLocaleProvider.getAppLanguageDisplayString());
 
         return view;
     }

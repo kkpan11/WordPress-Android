@@ -322,7 +322,7 @@ public class AppPrefs {
         return prefs().getAll();
     }
 
-    private static String getString(PrefKey key) {
+    static String getString(PrefKey key) {
         return getString(key, "");
     }
 

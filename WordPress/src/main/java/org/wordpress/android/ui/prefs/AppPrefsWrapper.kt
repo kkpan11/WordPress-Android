@@ -1,6 +1,9 @@
 package org.wordpress.android.ui.prefs
 
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import com.google.gson.Gson
+import org.wordpress.android.WordPress.Companion.getContext
 import org.wordpress.android.fluxc.model.JetpackCapability
 import org.wordpress.android.fluxc.store.QuickStartStore.QuickStartTask
 import org.wordpress.android.models.ReaderTag
@@ -400,7 +403,7 @@ class AppPrefsWrapper @Inject constructor(val buildConfigWrapper: BuildConfigWra
         isHidden: Boolean
     ) = AppPrefs.setShouldHidePostDashboardCard(siteId, postCardType, isHidden)
 
-    fun getShouldHidePostDashboardCard(siteId: Long, postCardType: String,): Boolean =
+    fun getShouldHidePostDashboardCard(siteId: Long, postCardType: String): Boolean =
         AppPrefs.getShouldHidePostDashboardCard(siteId, postCardType)
 
     fun setShouldHideNextStepsDashboardCard(siteId: Long, isHidden: Boolean) =
@@ -442,7 +445,7 @@ class AppPrefsWrapper @Inject constructor(val buildConfigWrapper: BuildConfigWra
     fun setShouldHideDynamicCard(id: String, isHidden: Boolean): Unit =
         AppPrefs.setShouldHideDynamicCard(id, isHidden)
 
-    fun getShouldHideDynamicCard(id: String, ): Boolean =
+    fun getShouldHideDynamicCard(id: String): Boolean =
         AppPrefs.getShouldHideDynamicCard(id)
 
     fun shouldUpdateBookmarkPostsPseudoIds(tag: ReaderTag?): Boolean = AppPrefs.shouldUpdateBookmarkPostsPseudoIds(tag)
@@ -455,6 +458,10 @@ class AppPrefsWrapper @Inject constructor(val buildConfigWrapper: BuildConfigWra
         AppPrefs.setShouldShowReaderAnnouncementCard(shouldShow)
 
     fun getAllPrefs(): Map<String, Any?> = AppPrefs.getAllPrefs()
+
+    fun prefs(): SharedPreferences {
+        return AppPrefs.prefs()
+    }
 
     fun getDebugBooleanPref(key: String, default: Boolean = false) =
         buildConfigWrapper.isDebug() && AppPrefs.getRawBoolean({ key }, default)
