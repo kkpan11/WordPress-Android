@@ -3,10 +3,11 @@ package org.wordpress.android.ui.prefs.language
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import java.util.Locale
+import javax.inject.Inject
 
-class LocaleHelper {
+class LocaleHelper @Inject constructor() {
     private fun getCurrentLocale(): Locale {
-        val locales = AppCompatDelegate.getApplicationLocales()
+        val locales = getApplicationLocaleList()
         return if (locales.isEmpty) {
             Locale.getDefault()
         } else {
@@ -16,8 +17,15 @@ class LocaleHelper {
 
     fun getCurrentLocaleDisplayName(): String = getCurrentLocale().displayName
 
+    /**
+     * Important: this should only be called after Activity.onCreate()
+     * https://developer.android.com/reference/androidx/appcompat/app/AppCompatDelegate#getApplicationLocales()
+     */
+    private fun getApplicationLocaleList() = AppCompatDelegate.getApplicationLocales()
+
     fun setCurrentLocaleByLanguageCode(languageCode: String) {
-        val appLocale = LocaleListCompat.forLanguageTags(languageCode)
+        // We shouldn't have to replace "_" with "-" but this is in order to work with our language picker
+        val appLocale = LocaleListCompat.forLanguageTags(languageCode.replace("_", "-"))
         AppCompatDelegate.setApplicationLocales(appLocale)
     }
 }

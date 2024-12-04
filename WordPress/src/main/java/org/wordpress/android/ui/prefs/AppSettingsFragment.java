@@ -146,12 +146,6 @@ public class AppSettingsFragment extends PreferenceFragment
         );
         updateAnalyticsSyncUI();
 
-        mLanguagePreference = (WPPreference) findPreference(getString(R.string.pref_key_language));
-        mLanguagePreference.setOnPreferenceChangeListener(this);
-        mLanguagePreference.setOnPreferenceClickListener(this);
-        mLanguagePreference.setSummary(mLocaleHelper.getCurrentLocaleDisplayName());
-        // TODO remove mLanguagePreference.setSummary(mLocaleProvider.getAppLanguageDisplayString());
-
         mAppThemePreference = (ListPreference) findPreference(getString(R.string.pref_key_app_theme));
         mAppThemePreference.setOnPreferenceChangeListener(this);
 
@@ -257,6 +251,13 @@ public class AppSettingsFragment extends PreferenceFragment
             ViewCompat.setNestedScrollingEnabled(listOfPreferences, true);
             addJetpackBadgeAsFooterIfEnabled(inflater, listOfPreferences);
         }
+
+        mLanguagePreference = (WPPreference) findPreference(getString(R.string.pref_key_language));
+        mLanguagePreference.setOnPreferenceChangeListener(this);
+        mLanguagePreference.setOnPreferenceClickListener(this);
+        mLanguagePreference.setSummary(mLocaleHelper.getCurrentLocaleDisplayName());
+        // TODO remove mLanguagePreference.setSummary(mLocaleProvider.getAppLanguageDisplayString());
+
         return view;
     }
 
