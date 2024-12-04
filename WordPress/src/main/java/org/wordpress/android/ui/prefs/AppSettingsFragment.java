@@ -48,6 +48,7 @@ import org.wordpress.android.models.JetpackPoweredScreen;
 import org.wordpress.android.ui.deeplinks.DeepLinkOpenWebLinksWithJetpackHelper;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalPhaseHelper;
 import org.wordpress.android.ui.mysite.jetpackbadge.JetpackPoweredBottomSheetFragment;
+import org.wordpress.android.ui.prefs.language.LocaleHelper;
 import org.wordpress.android.ui.prefs.language.LocalePickerBottomSheet;
 import org.wordpress.android.ui.prefs.language.LocalePickerBottomSheet.LocalePickerCallback;
 import org.wordpress.android.ui.reader.services.update.ReaderUpdateLogic;
@@ -111,6 +112,7 @@ public class AppSettingsFragment extends PreferenceFragment
     @Inject DeepLinkOpenWebLinksWithJetpackHelper mOpenWebLinksWithJetpackHelper;
     @Inject UiHelpers mUiHelpers;
     @Inject JetpackFeatureRemovalPhaseHelper mJetpackFeatureRemovalPhaseHelper;
+    @Inject LocaleHelper mLocaleHelper;
 
     private static final String TRACK_STYLE = "style";
     private static final String TRACK_ENABLED = "enabled";
@@ -147,7 +149,8 @@ public class AppSettingsFragment extends PreferenceFragment
         mLanguagePreference = (WPPreference) findPreference(getString(R.string.pref_key_language));
         mLanguagePreference.setOnPreferenceChangeListener(this);
         mLanguagePreference.setOnPreferenceClickListener(this);
-        mLanguagePreference.setSummary(mLocaleProvider.getAppLanguageDisplayString());
+        mLanguagePreference.setSummary(mLocaleHelper.getCurrentLocaleDisplayName());
+        // TODO remove mLanguagePreference.setSummary(mLocaleProvider.getAppLanguageDisplayString());
 
         mAppThemePreference = (ListPreference) findPreference(getString(R.string.pref_key_app_theme));
         mAppThemePreference.setOnPreferenceChangeListener(this);
@@ -657,7 +660,8 @@ public class AppSettingsFragment extends PreferenceFragment
 
     @Override
     public void onLocaleSelected(@NonNull String languageCode) {
-        onPreferenceChange(mLanguagePreference, languageCode);
+        // use per-app language setting
+        mLocaleHelper.setCurrentLocaleByLanguageCode(languageCode);
     }
 
     private void handleOpenLinksInJetpack(Boolean newValue) {
