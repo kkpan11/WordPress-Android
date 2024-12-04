@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import org.wordpress.android.R
+import org.wordpress.android.fluxc.utils.AppLogWrapper
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
+import org.wordpress.android.util.AppLog
 import java.util.Locale
 import javax.inject.Inject
 
@@ -13,7 +15,8 @@ import javax.inject.Inject
  * https://developer.android.com/guide/topics/resources/app-languages
  */
 class LocaleHelper @Inject constructor(
-    private val appPrefsWrapper: AppPrefsWrapper
+    private val appPrefsWrapper: AppPrefsWrapper,
+    private val appLogWrapper: AppLogWrapper,
 ) {
     private fun getCurrentLocale(): Locale {
         return if (isApplicationLocaleEmpty()) {
@@ -58,6 +61,7 @@ class LocaleHelper @Inject constructor(
             val languagePrefKey = context.getString(R.string.pref_key_language)
             val previousLanguage = appPrefsWrapper.prefs().getString(languagePrefKey, "")
             if (previousLanguage?.isNotEmpty() == true) {
+                appLogWrapper.d(AppLog.T.SETTINGS, "LocaleHelper: performing migration to AndroidX per-app language prefs")
                 setCurrentLocaleByLanguageCode(previousLanguage)
                 appPrefsWrapper.prefs().edit().remove(languagePrefKey).apply()
             }
