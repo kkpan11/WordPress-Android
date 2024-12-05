@@ -7,11 +7,10 @@ import android.os.Build
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
-import org.wordpress.android.R
-import org.wordpress.android.WordPress
 import org.wordpress.android.fluxc.utils.AppLogWrapper
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
 import org.wordpress.android.util.AppLog
+import org.wordpress.android.util.LocaleManager
 import java.util.Locale
 import javax.inject.Inject
 
@@ -64,7 +63,7 @@ class LocaleHelper @Inject constructor(
     fun performMigrationIfNecessary() {
         resetApplicationLocale() // TODO remove
         if (isPerAppLanguagePrefsEnabled() && isApplicationLocaleEmpty()) {
-            val languagePrefKey = WordPress.getContext().getString(R.string.pref_key_language)
+            val languagePrefKey = LocaleManager.getLocalePrefKeyString()
             val previousLanguage = appPrefsWrapper.prefs().getString(languagePrefKey, "")
             if (previousLanguage?.isNotEmpty() == true) {
                 appLogWrapper.d(
