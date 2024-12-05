@@ -367,7 +367,7 @@ public class WPMainActivity extends LocaleAwareActivity implements
                 InstallationReferrerServiceStarter.startService(this, null);
             }
 
-            mLocaleHelper.performMigrationIfNecessary(this);
+            mLocaleHelper.performMigrationIfNecessary();
 
             if (FluxCUtils.isSignedInWPComOrHasWPOrgSite(mAccountStore, mSiteStore)
                 && !AppPrefs.getIsJetpackMigrationInProgress()) {

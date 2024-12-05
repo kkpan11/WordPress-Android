@@ -8,6 +8,7 @@ import android.provider.Settings
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import org.wordpress.android.R
+import org.wordpress.android.WordPress
 import org.wordpress.android.fluxc.utils.AppLogWrapper
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
 import org.wordpress.android.util.AppLog
@@ -60,9 +61,10 @@ class LocaleHelper @Inject constructor(
     /**
      * Previously the app locale was stored in SharedPreferences, so here we migrate to AndroidX per-app language prefs
      */
-    fun performMigrationIfNecessary(context: Context) {
+    fun performMigrationIfNecessary() {
+        resetApplicationLocale() // TODO remove
         if (isPerAppLanguagePrefsEnabled() && isApplicationLocaleEmpty()) {
-            val languagePrefKey = context.getString(R.string.pref_key_language)
+            val languagePrefKey = WordPress.getContext().getString(R.string.pref_key_language)
             val previousLanguage = appPrefsWrapper.prefs().getString(languagePrefKey, "")
             if (previousLanguage?.isNotEmpty() == true) {
                 appLogWrapper.d(
