@@ -10,9 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -159,13 +157,14 @@ fun FeatureToggle(
             .clickable { onChange(key, !enabled) }
             .padding(horizontal = Margin.ExtraLarge.value, vertical = Margin.MediumLarge.value)
     ) {
-        Spacer(modifier = Modifier.width(Margin.ExtraLarge.value))
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = Margin.Medium.value)
         )
-        Spacer(modifier = Modifier.weight(1f))
         Switch(
             checked = enabled,
             onCheckedChange = { newValue ->
