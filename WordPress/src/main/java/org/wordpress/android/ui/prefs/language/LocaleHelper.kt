@@ -94,11 +94,7 @@ class LocaleHelper @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Intent().also { intent ->
                 intent.setAction(Settings.ACTION_APP_LOCALE_SETTINGS)
-                intent.addCategory(Intent.CATEGORY_DEFAULT)
                 intent.setData(Uri.parse("package:" + context.packageName))
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
                 context.startActivity(intent)
             }
         } else {
