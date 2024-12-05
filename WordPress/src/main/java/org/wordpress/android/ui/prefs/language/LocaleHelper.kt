@@ -64,6 +64,9 @@ class LocaleHelper @Inject constructor(
                 appLogWrapper.d(AppLog.T.SETTINGS, "LocaleHelper: performing migration to AndroidX per-app language prefs")
                 setCurrentLocaleByLanguageCode(previousLanguage)
                 appPrefsWrapper.prefs().edit().remove(languagePrefKey).apply()
+            } else {
+                appLogWrapper.d(AppLog.T.SETTINGS, "LocaleHelper: setting default locale")
+                setCurrentLocaleByLanguageCode(Locale.getDefault().language)
             }
         }
     }
