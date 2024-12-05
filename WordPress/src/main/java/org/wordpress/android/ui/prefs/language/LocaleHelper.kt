@@ -57,7 +57,7 @@ class LocaleHelper @Inject constructor(
      * Previously the app locale was stored in SharedPreferences, so here we migrate to AndroidX per-app language prefs
      */
     fun performMigrationIfNecessary(context: Context) {
-        if (isApplicationLocaleEmpty()) {
+        if (isPerAppLanguagePrefsEnabled(context) && isApplicationLocaleEmpty()) {
             val languagePrefKey = context.getString(R.string.pref_key_language)
             val previousLanguage = appPrefsWrapper.prefs().getString(languagePrefKey, "")
             if (previousLanguage?.isNotEmpty() == true) {
@@ -69,5 +69,10 @@ class LocaleHelper @Inject constructor(
                 setCurrentLocaleByLanguageCode(Locale.getDefault().language)
             }
         }
+    }
+
+    fun isPerAppLanguagePrefsEnabled(context: Context): Boolean {
+        val prefKey = context.getString(R.string.experimental_per_app_language_prefs)
+        return appPrefsWrapper.getManualFeatureConfig(prefKey)
     }
 }

@@ -45,7 +45,8 @@ import org.wordpress.android.util.extensions.setContent
 
 val experimentalFeatures = listOf(
     Feature(key = "experimental_block_editor"),
-    Feature(key = "experimental_block_editor_theme_styles")
+    Feature(key = "experimental_block_editor_theme_styles"),
+    Feature(key = "experimental_per_app_language_prefs")
 )
 
 data class Feature(

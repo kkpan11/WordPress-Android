@@ -100,6 +100,7 @@ public class AppSettingsFragment extends PreferenceFragment
     private WPSwitchPreference mOpenWebLinksWithJetpack;
 
     private Preference mWhatsNew;
+    private Boolean mIsPerAppLanguagePrefsEnabled;
 
     @Inject SiteStore mSiteStore;
     @Inject AccountStore mAccountStore;
@@ -122,6 +123,8 @@ public class AppSettingsFragment extends PreferenceFragment
         super.onCreate(savedInstanceState);
         ((WordPress) getActivity().getApplication()).component().inject(this);
         mDispatcher.register(this);
+
+        mIsPerAppLanguagePrefsEnabled = mLocaleHelper.isPerAppLanguagePrefsEnabled(getContext());
 
         addPreferencesFromResource(R.xml.app_settings);
 
@@ -255,7 +258,11 @@ public class AppSettingsFragment extends PreferenceFragment
         mLanguagePreference = (WPPreference) findPreference(getString(R.string.pref_key_language));
         mLanguagePreference.setOnPreferenceChangeListener(this);
         mLanguagePreference.setOnPreferenceClickListener(this);
-        mLanguagePreference.setSummary(mLocaleHelper.getCurrentLocaleDisplayName());
+        if (mIsPerAppLanguagePrefsEnabled) {
+            mLanguagePreference.setSummary(mLocaleHelper.getCurrentLocaleDisplayName());
+        } else {
+            mLanguagePreference.setSummary(mLocaleProvider.getAppLanguageDisplayString());
+        }
 
         return view;
     }
@@ -660,8 +667,11 @@ public class AppSettingsFragment extends PreferenceFragment
 
     @Override
     public void onLocaleSelected(@NonNull String languageCode) {
-        // use per-app language setting
-        mLocaleHelper.setCurrentLocaleByLanguageCode(languageCode);
+        if (mIsPerAppLanguagePrefsEnabled) {
+            mLocaleHelper.setCurrentLocaleByLanguageCode(languageCode);
+        } else {
+            onPreferenceChange(mLanguagePreference, languageCode);
+        }
     }
 
     private void handleOpenLinksInJetpack(Boolean newValue) {
