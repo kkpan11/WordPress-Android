@@ -3,6 +3,7 @@ package org.wordpress.android.ui.prefs.language
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
@@ -85,18 +86,25 @@ class LocaleHelper @Inject constructor(
     }
 
     /**
-     * Open the app settings screen so the user can change the app locale - note that
-     * the locale is only available in API 33+
+     * Open the app settings screen so the user can change the app language.
+     * Note that the per-app language setting is only available in API 33+
+     * and it's up to the caller to check the version
      */
-    fun openAppSettings(context: Context) {
-        Intent().also { intent ->
-            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            intent.addCategory(Intent.CATEGORY_DEFAULT)
-            intent.setData(Uri.parse("package:" + context.packageName))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-            context.startActivity(intent)
+    fun openAppLanguageSettings(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Intent().also { intent ->
+                intent.setAction(Settings.ACTION_APP_LOCALE_SETTINGS)
+                intent.addCategory(Intent.CATEGORY_DEFAULT)
+                intent.setData(Uri.parse("package:" + context.packageName))
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                context.startActivity(intent)
+            }
+        } else {
+            throw UnsupportedOperationException(
+                "Per-app language settings are not available in this version of Android"
+            )
         }
     }
 

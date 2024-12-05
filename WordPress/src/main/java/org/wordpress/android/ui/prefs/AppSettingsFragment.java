@@ -652,7 +652,7 @@ public class AppSettingsFragment extends PreferenceFragment
         // if per-app language preferences are enabled and the device is on API 33+, take the user to the
         // system app settings to change the language
         if (mIsPerAppLanguagePrefsEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mLocaleHelper.openAppSettings(getContext());
+            mLocaleHelper.openAppLanguageSettings(getContext());
             return true;
         } else if (getActivity() instanceof AppCompatActivity) {
             LocalePickerBottomSheet bottomSheet = LocalePickerBottomSheet.newInstance();
