@@ -126,7 +126,7 @@ public class AppSettingsFragment extends PreferenceFragment
         ((WordPress) getActivity().getApplication()).component().inject(this);
         mDispatcher.register(this);
 
-        mIsPerAppLanguagePrefsEnabled = mLocaleHelper.isPerAppLanguagePrefsEnabled(getContext());
+        mIsPerAppLanguagePrefsEnabled = mLocaleHelper.isPerAppLanguagePrefsEnabled();
 
         addPreferencesFromResource(R.xml.app_settings);
 
@@ -652,7 +652,7 @@ public class AppSettingsFragment extends PreferenceFragment
         // if per-app language preferences are enabled and the device is on API 33+, take the user to the
         // system app settings to change the language
         if (mIsPerAppLanguagePrefsEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            startActivity(new Intent(Settings.ACTION_SETTINGS));
+            mLocaleHelper.openAppSettings(getContext());
             return true;
         } else if (getActivity() instanceof AppCompatActivity) {
             LocalePickerBottomSheet bottomSheet = LocalePickerBottomSheet.newInstance();

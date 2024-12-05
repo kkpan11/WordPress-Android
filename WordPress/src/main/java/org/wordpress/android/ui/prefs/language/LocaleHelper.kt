@@ -1,6 +1,9 @@
 package org.wordpress.android.ui.prefs.language
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import org.wordpress.android.R
@@ -57,22 +60,47 @@ class LocaleHelper @Inject constructor(
      * Previously the app locale was stored in SharedPreferences, so here we migrate to AndroidX per-app language prefs
      */
     fun performMigrationIfNecessary(context: Context) {
-        if (isPerAppLanguagePrefsEnabled(context) && isApplicationLocaleEmpty()) {
+        if (isPerAppLanguagePrefsEnabled() && isApplicationLocaleEmpty()) {
             val languagePrefKey = context.getString(R.string.pref_key_language)
             val previousLanguage = appPrefsWrapper.prefs().getString(languagePrefKey, "")
             if (previousLanguage?.isNotEmpty() == true) {
-                appLogWrapper.d(AppLog.T.SETTINGS, "LocaleHelper: performing migration to AndroidX per-app language prefs")
+                appLogWrapper.d(
+                    AppLog.T.SETTINGS,
+                    "LocaleHelper: performing migration to AndroidX per-app language prefs"
+                )
                 setCurrentLocaleByLanguageCode(previousLanguage)
                 appPrefsWrapper.prefs().edit().remove(languagePrefKey).apply()
             } else {
-                appLogWrapper.d(AppLog.T.SETTINGS, "LocaleHelper: setting default locale")
+                appLogWrapper.d(
+                    AppLog.T.SETTINGS,
+                    "LocaleHelper: setting default locale"
+                )
                 setCurrentLocaleByLanguageCode(Locale.getDefault().language)
             }
         }
     }
 
-    fun isPerAppLanguagePrefsEnabled(context: Context): Boolean {
-        val prefKey = context.getString(R.string.experimental_per_app_language_prefs)
-        return appPrefsWrapper.getManualFeatureConfig(prefKey)
+    fun isPerAppLanguagePrefsEnabled(): Boolean {
+        return appPrefsWrapper.getManualFeatureConfig(EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY)
+    }
+
+    /**
+     * Open the app settings screen so the user can change the app locale - note that
+     * the locale is only available in API 33+
+     */
+    fun openAppSettings(context: Context) {
+        Intent().also { intent ->
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            intent.addCategory(Intent.CATEGORY_DEFAULT)
+            intent.setData(Uri.parse("package:" + context.packageName))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+            context.startActivity(intent)
+        }
+    }
+
+    companion object {
+        const val EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY = "experimental_per_app_language_prefs"
     }
 }

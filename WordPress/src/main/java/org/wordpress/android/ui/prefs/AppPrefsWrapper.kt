@@ -1,9 +1,7 @@
 package org.wordpress.android.ui.prefs
 
 import android.content.SharedPreferences
-import androidx.preference.PreferenceManager
 import com.google.gson.Gson
-import org.wordpress.android.WordPress.Companion.getContext
 import org.wordpress.android.fluxc.model.JetpackCapability
 import org.wordpress.android.fluxc.store.QuickStartStore.QuickStartTask
 import org.wordpress.android.models.ReaderTag
