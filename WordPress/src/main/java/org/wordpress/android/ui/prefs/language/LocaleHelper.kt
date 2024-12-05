@@ -48,7 +48,7 @@ class LocaleHelper @Inject constructor(
     }
 
     fun setCurrentLocaleByLanguageCode(languageCode: String) {
-        // We shouldn't have to replace "_" with "-" but this is in order to work with our language picker
+        // We shouldn't have to replace "_" with "-" but this is in order to work with our existing language picker
         val appLocale = LocaleListCompat.forLanguageTags(languageCode.replace("_", "-"))
         AppCompatDelegate.setApplicationLocales(appLocale)
     }

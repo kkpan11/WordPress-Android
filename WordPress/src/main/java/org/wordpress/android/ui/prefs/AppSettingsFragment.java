@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -12,6 +13,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -378,6 +380,7 @@ public class AppSettingsFragment extends PreferenceFragment
         if (event.isError()) {
             switch (event.error.type) {
                 case SETTINGS_FETCH_GENERIC_ERROR:
+                case ACCOUNT_FETCH_ERROR:
                     ToastUtils
                             .showToast(getActivity(), R.string.error_fetch_account_settings, ToastUtils.Duration.LONG);
                     break;
@@ -387,6 +390,10 @@ public class AppSettingsFragment extends PreferenceFragment
                     break;
                 case SETTINGS_POST_ERROR:
                     ToastUtils.showToast(getActivity(), R.string.error_post_account_settings, ToastUtils.Duration.LONG);
+                    break;
+                case SEND_VERIFICATION_EMAIL_ERROR:
+                    break;
+                case GENERIC_ERROR:
                     break;
             }
         } else if (event.causeOfChange == AccountAction.FETCH_SETTINGS) {
@@ -642,7 +649,12 @@ public class AppSettingsFragment extends PreferenceFragment
     }
 
     private boolean handleAppLocalePickerClick() {
-        if (getActivity() instanceof AppCompatActivity) {
+        // if per-app language preferences are enabled and the device is on API 33+, take the user to the
+        // system app settings to change the language
+        if (mIsPerAppLanguagePrefsEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            startActivity(new Intent(Settings.ACTION_SETTINGS));
+            return true;
+        } else if (getActivity() instanceof AppCompatActivity) {
             LocalePickerBottomSheet bottomSheet = LocalePickerBottomSheet.newInstance();
             bottomSheet.setLocalePickerCallback(this);
             bottomSheet.show(((AppCompatActivity) getActivity()).getSupportFragmentManager(),
