@@ -15,6 +15,10 @@ import org.wordpress.android.util.LocaleManager
  *
  * Note: please be mindful of the principle of favoring composition over inheritance and refrain from
  * building upon this class unless it's absolutely necessary.
+ *
+ * Update Dec 2024: We've added experimental support for per-app language preferences which
+ * will eventually negate the need for this class. Instead of extending from this class, we
+ * should extend from AppCompatActivity once this is out of the experimental phase.
  */
 abstract class LocaleAwareActivity : AppCompatActivity() {
     /**
