@@ -18,7 +18,7 @@ import javax.inject.Inject
  * Helper class to manage per-app language preferences
  * https://developer.android.com/guide/topics/resources/app-languages
  */
-class LocaleHelper @Inject constructor(
+class PerAppLocaleHelper @Inject constructor(
     private val appPrefsWrapper: AppPrefsWrapper,
     private val appLogWrapper: AppLogWrapper,
 ) {
@@ -31,6 +31,8 @@ class LocaleHelper @Inject constructor(
     }
 
     fun getCurrentLocaleDisplayName(): String = getCurrentLocale().displayName
+
+    fun getCurrentLocaleLanguageCode(): String = getCurrentLocale().language
 
     /**
      * Important: this should only be called after Activity.onCreate()
@@ -52,6 +54,10 @@ class LocaleHelper @Inject constructor(
     }
 
     fun setCurrentLocaleByLanguageCode(languageCode: String) {
+        // Set the locale for the pref key so LocaleManager.getLanguage() returns the same value - this can be removed
+        // once we switch entirely to per-app locale
+        val languagePrefKey = LocaleManager.getLocalePrefKeyString()
+        appPrefsWrapper.prefs().edit().putString(languagePrefKey, languageCode).apply()
         // We shouldn't have to replace "_" with "-" but this is in order to work with our existing language picker
         val appLocale = LocaleListCompat.forLanguageTags(languageCode.replace("_", "-"))
         AppCompatDelegate.setApplicationLocales(appLocale)
