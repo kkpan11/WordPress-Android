@@ -50,11 +50,8 @@ class PerAppLocaleManager @Inject constructor(
     }
 
     fun setCurrentLocaleByLanguageCode(languageCode: String) {
-        // Set the locale for the pref key so LocaleManager.getLanguage() returns the same value - this can be removed
-        // once we switch entirely to per-app locale
-        val languagePrefKey = LocaleManager.getLocalePrefKeyString()
-        appPrefsWrapper.prefs().edit().putString(languagePrefKey, languageCode).apply()
         // We shouldn't have to replace "_" with "-" but this is in order to work with our existing language picker
+        // on pre-Android 13 devices
         val appLocale = LocaleListCompat.forLanguageTags(languageCode.replace("_", "-"))
         AppCompatDelegate.setApplicationLocales(appLocale)
     }
@@ -64,7 +61,8 @@ class PerAppLocaleManager @Inject constructor(
      */
     fun performMigrationIfNecessary() {
         if (isPerAppLanguagePrefsEnabled() && isApplicationLocaleEmpty()) {
-            val previousLanguage = appPrefsWrapper.prefs().getString(LocaleManager.getLocalePrefKeyString(), "")
+            val prefKey = LocaleManager.getLocalePrefKeyString()
+            val previousLanguage = appPrefsWrapper.prefs().getString(prefKey, "")
             if (previousLanguage?.isNotEmpty() == true) {
                 appLogWrapper.d(
                     AppLog.T.SETTINGS,

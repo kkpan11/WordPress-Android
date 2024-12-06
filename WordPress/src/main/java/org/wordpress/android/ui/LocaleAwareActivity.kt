@@ -3,7 +3,9 @@ package org.wordpress.android.ui
 import android.content.Context
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
+import org.wordpress.android.ui.prefs.AppPrefs
 import org.wordpress.android.util.LocaleManager
+import org.wordpress.android.util.PerAppLocaleManager
 
 /**
  * Newer versions of the AppCompat library no longer support locale changes at application level,
@@ -25,13 +27,25 @@ abstract class LocaleAwareActivity : AppCompatActivity() {
      * Used to update locales on API 21 to API 25.
      */
     override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(LocaleManager.setLocale(newBase))
+        if (isPerAppLocaleEnabled()) {
+            super.attachBaseContext(newBase)
+        } else {
+            super.attachBaseContext(LocaleManager.setLocale(newBase))
+        }
     }
 
     /**
      * Used to update locales on API 26 and beyond.
      */
     override fun applyOverrideConfiguration(overrideConfiguration: Configuration?) {
-        super.applyOverrideConfiguration(LocaleManager.updatedConfigLocale(baseContext, overrideConfiguration))
+        if (isPerAppLocaleEnabled()) {
+            super.applyOverrideConfiguration(overrideConfiguration)
+        } else {
+            super.applyOverrideConfiguration(LocaleManager.updatedConfigLocale(baseContext, overrideConfiguration))
+        }
+    }
+
+    private fun isPerAppLocaleEnabled(): Boolean {
+        return AppPrefs.getManualFeatureConfig(PerAppLocaleManager.EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY)
     }
 }
