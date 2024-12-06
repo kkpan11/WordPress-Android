@@ -64,15 +64,13 @@ class PerAppLocaleManager @Inject constructor(
      */
     fun performMigrationIfNecessary() {
         if (isPerAppLanguagePrefsEnabled() && isApplicationLocaleEmpty()) {
-            val languagePrefKey = LocaleManager.getLocalePrefKeyString()
-            val previousLanguage = appPrefsWrapper.prefs().getString(languagePrefKey, "")
+            val previousLanguage = appPrefsWrapper.prefs().getString(LocaleManager.getLocalePrefKeyString(), "")
             if (previousLanguage?.isNotEmpty() == true) {
                 appLogWrapper.d(
                     AppLog.T.SETTINGS,
                     "LocaleHelper: performing migration to AndroidX per-app language prefs"
                 )
                 setCurrentLocaleByLanguageCode(previousLanguage)
-                appPrefsWrapper.prefs().edit().remove(languagePrefKey).apply()
             } else {
                 appLogWrapper.d(
                     AppLog.T.SETTINGS,
@@ -88,9 +86,9 @@ class PerAppLocaleManager @Inject constructor(
     }
 
     /**
-     * Open the app settings screen so the user can change the app language.
+     * Open the app settings dialog so the user can change the app language.
      * Note that the per-app language setting is only available in API 33+
-     * and it's up to the caller to check the version
+     * and it's up to the caller to check the version.
      */
     fun openAppLanguageSettings(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
