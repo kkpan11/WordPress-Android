@@ -13,7 +13,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 /**
- * Helper class to manage per-app language preferences
+ * Helper class to manage AndroidX per-app language preferences
  * https://developer.android.com/guide/topics/resources/app-languages
  */
 class PerAppLocaleManager @Inject constructor(
