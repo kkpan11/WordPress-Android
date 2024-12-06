@@ -55,7 +55,7 @@ class PerAppLocaleManager @Inject constructor(
             appPrefsWrapper.prefs().edit().putString(prefKey, perAppLanguage).apply()
             appLogWrapper.d(
                 AppLog.T.SETTINGS,
-                "LocaleHelper: changed inAppLanguage from $inAppLanguage to $perAppLanguage"
+                "PerAppLocaleManager: changed inAppLanguage from $inAppLanguage to $perAppLanguage"
             )
         }
     }
@@ -87,13 +87,13 @@ class PerAppLocaleManager @Inject constructor(
                 if (previousLanguage?.isNotEmpty() == true) {
                     appLogWrapper.d(
                         AppLog.T.SETTINGS,
-                        "LocaleHelper: performing migration to AndroidX per-app language prefs"
+                        "PerAppLocaleManager: performing migration to AndroidX per-app language prefs"
                     )
                     setCurrentLocaleByLanguageCode(previousLanguage)
                 } else {
                     appLogWrapper.d(
                         AppLog.T.SETTINGS,
-                        "LocaleHelper: setting default locale"
+                        "PerAppLocaleManager: setting default locale"
                     )
                     setCurrentLocaleByLanguageCode(Locale.getDefault().language)
                 }
@@ -121,7 +121,7 @@ class PerAppLocaleManager @Inject constructor(
             }
         } else {
             throw UnsupportedOperationException(
-                "Per-app language settings are not available in this version of Android"
+                "PerAppLocaleManager: Per-app language settings are not available in this version of Android"
             )
         }
     }
