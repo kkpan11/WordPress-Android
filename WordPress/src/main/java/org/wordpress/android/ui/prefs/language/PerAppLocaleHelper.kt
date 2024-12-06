@@ -32,8 +32,6 @@ class PerAppLocaleHelper @Inject constructor(
 
     fun getCurrentLocaleDisplayName(): String = getCurrentLocale().displayName
 
-    fun getCurrentLocaleLanguageCode(): String = getCurrentLocale().language
-
     /**
      * Important: this should only be called after Activity.onCreate()
      * https://developer.android.com/reference/androidx/appcompat/app/AppCompatDelegate#getApplicationLocales()
@@ -67,7 +65,6 @@ class PerAppLocaleHelper @Inject constructor(
      * Previously the app locale was stored in SharedPreferences, so here we migrate to AndroidX per-app language prefs
      */
     fun performMigrationIfNecessary() {
-        resetApplicationLocale() // TODO remove
         if (isPerAppLanguagePrefsEnabled() && isApplicationLocaleEmpty()) {
             val languagePrefKey = LocaleManager.getLocalePrefKeyString()
             val previousLanguage = appPrefsWrapper.prefs().getString(languagePrefKey, "")
