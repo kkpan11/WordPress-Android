@@ -57,7 +57,7 @@ data class Feature(
 
 @HiltViewModel
 class FeatureViewModel @Inject constructor(
-    private val localeHelper: PerAppLocaleManager
+    private val perAppLocaleManager: PerAppLocaleManager
 ) : ViewModel() {
     private val _switchStates = MutableStateFlow<Map<String, Feature>>(emptyMap())
     val switchStates: StateFlow<Map<String, Feature>> = _switchStates.asStateFlow()
@@ -79,9 +79,9 @@ class FeatureViewModel @Inject constructor(
 
         if (key == PerAppLocaleManager.EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY) {
             if (enabled) {
-                localeHelper.performMigrationIfNecessary()
+                perAppLocaleManager.performMigrationIfNecessary()
             } else {
-                localeHelper.resetApplicationLocale()
+                perAppLocaleManager.resetApplicationLocale()
             }
         }
     }

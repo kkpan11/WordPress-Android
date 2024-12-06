@@ -304,7 +304,7 @@ public class WPMainActivity extends LocaleAwareActivity implements
 
     @Inject SnackbarSequencer mSnackbarSequencer;
 
-    @Inject PerAppLocaleManager mLocaleHelper;
+    @Inject PerAppLocaleManager mPerAppLocaleManager;
 
     /*
      * fragments implement this if their contents can be scrolled, called when user
@@ -367,7 +367,7 @@ public class WPMainActivity extends LocaleAwareActivity implements
                 InstallationReferrerServiceStarter.startService(this, null);
             }
 
-            mLocaleHelper.performMigrationIfNecessary();
+            mPerAppLocaleManager.performMigrationIfNecessary();
 
             if (FluxCUtils.isSignedInWPComOrHasWPOrgSite(mAccountStore, mSiteStore)
                 && !AppPrefs.getIsJetpackMigrationInProgress()) {

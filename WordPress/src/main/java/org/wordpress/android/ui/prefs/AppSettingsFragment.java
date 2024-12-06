@@ -114,7 +114,7 @@ public class AppSettingsFragment extends PreferenceFragment
     @Inject DeepLinkOpenWebLinksWithJetpackHelper mOpenWebLinksWithJetpackHelper;
     @Inject UiHelpers mUiHelpers;
     @Inject JetpackFeatureRemovalPhaseHelper mJetpackFeatureRemovalPhaseHelper;
-    @Inject PerAppLocaleManager mLocaleHelper;
+    @Inject PerAppLocaleManager mPerAppLocaleManager;
 
     private static final String TRACK_STYLE = "style";
     private static final String TRACK_ENABLED = "enabled";
@@ -125,7 +125,7 @@ public class AppSettingsFragment extends PreferenceFragment
         ((WordPress) getActivity().getApplication()).component().inject(this);
         mDispatcher.register(this);
 
-        mIsPerAppLanguagePrefsEnabled = mLocaleHelper.isPerAppLanguagePrefsEnabled();
+        mIsPerAppLanguagePrefsEnabled = mPerAppLocaleManager.isPerAppLanguagePrefsEnabled();
 
         addPreferencesFromResource(R.xml.app_settings);
 
@@ -260,7 +260,7 @@ public class AppSettingsFragment extends PreferenceFragment
         mLanguagePreference.setOnPreferenceChangeListener(this);
         mLanguagePreference.setOnPreferenceClickListener(this);
         if (mIsPerAppLanguagePrefsEnabled) {
-            mLanguagePreference.setSummary(mLocaleHelper.getCurrentLocaleDisplayName());
+            mLanguagePreference.setSummary(mPerAppLocaleManager.getCurrentLocaleDisplayName());
         } else {
             mLanguagePreference.setSummary(mLocaleProvider.getAppLanguageDisplayString());
         }
@@ -651,7 +651,7 @@ public class AppSettingsFragment extends PreferenceFragment
         // if per-app language preferences are enabled and the device is on API 33+, take the user to the
         // system app settings to change the language
         if (mIsPerAppLanguagePrefsEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mLocaleHelper.openAppLanguageSettings(getContext());
+            mPerAppLocaleManager.openAppLanguageSettings(getContext());
             return true;
         } else if (getActivity() instanceof AppCompatActivity) {
             LocalePickerBottomSheet bottomSheet = LocalePickerBottomSheet.newInstance();
@@ -679,7 +679,7 @@ public class AppSettingsFragment extends PreferenceFragment
     @Override
     public void onLocaleSelected(@NonNull String languageCode) {
         if (mIsPerAppLanguagePrefsEnabled) {
-            mLocaleHelper.setCurrentLocaleByLanguageCode(languageCode);
+            mPerAppLocaleManager.setCurrentLocaleByLanguageCode(languageCode);
         } else {
             onPreferenceChange(mLanguagePreference, languageCode);
         }
