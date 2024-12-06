@@ -45,6 +45,10 @@ abstract class LocaleAwareActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Ideally we would use [PerAppLocaleManager.isPerAppLanguagePrefsEnabled] here, but we
+     * can't inject [PerAppLocaleManager] into an abstract class
+     */
     private fun isPerAppLocaleEnabled(): Boolean {
         return AppPrefs.getManualFeatureConfig(PerAppLocaleManager.EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY)
     }
