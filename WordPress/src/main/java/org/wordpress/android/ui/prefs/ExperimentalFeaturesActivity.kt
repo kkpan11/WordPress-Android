@@ -40,14 +40,14 @@ import kotlinx.coroutines.flow.update
 import org.wordpress.android.R
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.Margin
-import org.wordpress.android.ui.prefs.language.PerAppLocaleHelper
+import org.wordpress.android.util.PerAppLocaleManager
 import org.wordpress.android.util.extensions.setContent
 import javax.inject.Inject
 
 val experimentalFeatures = listOf(
     Feature(key = "experimental_block_editor"),
     Feature(key = "experimental_block_editor_theme_styles"),
-    Feature(key = PerAppLocaleHelper.EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY)
+    Feature(key = PerAppLocaleManager.EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY)
 )
 
 data class Feature(
@@ -57,7 +57,7 @@ data class Feature(
 
 @HiltViewModel
 class FeatureViewModel @Inject constructor(
-    private val localeHelper: PerAppLocaleHelper
+    private val localeHelper: PerAppLocaleManager
 ) : ViewModel() {
     private val _switchStates = MutableStateFlow<Map<String, Feature>>(emptyMap())
     val switchStates: StateFlow<Map<String, Feature>> = _switchStates.asStateFlow()
@@ -77,7 +77,7 @@ class FeatureViewModel @Inject constructor(
             }
         }
 
-        if (key == PerAppLocaleHelper.EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY) {
+        if (key == PerAppLocaleManager.EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY) {
             if (enabled) {
                 localeHelper.performMigrationIfNecessary()
             } else {

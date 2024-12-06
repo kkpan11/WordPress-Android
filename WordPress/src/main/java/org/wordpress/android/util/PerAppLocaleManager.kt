@@ -1,4 +1,4 @@
-package org.wordpress.android.ui.prefs.language
+package org.wordpress.android.util
 
 import android.content.Context
 import android.content.Intent
@@ -9,8 +9,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import org.wordpress.android.fluxc.utils.AppLogWrapper
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
-import org.wordpress.android.util.AppLog
-import org.wordpress.android.util.LocaleManager
 import java.util.Locale
 import javax.inject.Inject
 
@@ -18,7 +16,7 @@ import javax.inject.Inject
  * Helper class to manage per-app language preferences
  * https://developer.android.com/guide/topics/resources/app-languages
  */
-class PerAppLocaleHelper @Inject constructor(
+class PerAppLocaleManager @Inject constructor(
     private val appPrefsWrapper: AppPrefsWrapper,
     private val appLogWrapper: AppLogWrapper,
 ) {

@@ -126,7 +126,7 @@ import org.wordpress.android.ui.prefs.AppPrefs;
 import org.wordpress.android.ui.prefs.AppSettingsActivity;
 import org.wordpress.android.ui.prefs.AppSettingsFragment;
 import org.wordpress.android.ui.prefs.SiteSettingsFragment;
-import org.wordpress.android.ui.prefs.language.PerAppLocaleHelper;
+import org.wordpress.android.util.PerAppLocaleManager;
 import org.wordpress.android.ui.prefs.privacy.banner.PrivacyBannerFragment;
 import org.wordpress.android.ui.quickstart.QuickStartMySitePrompts;
 import org.wordpress.android.ui.quickstart.QuickStartTracker;
@@ -304,7 +304,7 @@ public class WPMainActivity extends LocaleAwareActivity implements
 
     @Inject SnackbarSequencer mSnackbarSequencer;
 
-    @Inject PerAppLocaleHelper mLocaleHelper;
+    @Inject PerAppLocaleManager mLocaleHelper;
 
     /*
      * fragments implement this if their contents can be scrolled, called when user
