@@ -47,7 +47,7 @@ class PerAppLocaleManager @Inject constructor(
      * which is used throughout the app - returns the correct language code. We can remove
      * this once the per-app language pref is no longer experimental.
      */
-    private fun checkAnUpdatedOldLanguagePrefKey() {
+    private fun checkAndUpdatedOldLanguagePrefKey() {
         val prefKey = LocaleManager.getLocalePrefKeyString()
         val inAppLanguage = appPrefsWrapper.prefs().getString(prefKey, "")
         val perAppLanguage = getCurrentLocale().language
@@ -73,7 +73,7 @@ class PerAppLocaleManager @Inject constructor(
         // on pre-Android 13 devices
         val appLocale = LocaleListCompat.forLanguageTags(languageCode.replace("_", "-"))
         AppCompatDelegate.setApplicationLocales(appLocale)
-        checkAnUpdatedOldLanguagePrefKey()
+        checkAndUpdatedOldLanguagePrefKey()
     }
 
     /**
@@ -98,7 +98,7 @@ class PerAppLocaleManager @Inject constructor(
                     setCurrentLocaleByLanguageCode(Locale.getDefault().language)
                 }
             } else {
-                checkAnUpdatedOldLanguagePrefKey()
+                checkAndUpdatedOldLanguagePrefKey()
             }
         }
     }
