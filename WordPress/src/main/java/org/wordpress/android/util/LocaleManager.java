@@ -141,7 +141,7 @@ public class LocaleManager {
      * @param language The 2-letter language code (example "en")
      */
     @SuppressLint("ApplySharedPref")
-    public static void saveLanguageToPref(Context context, String language) {
+    private static void saveLanguageToPref(Context context, String language) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.edit().putString(LANGUAGE_KEY, language).commit();
     }
