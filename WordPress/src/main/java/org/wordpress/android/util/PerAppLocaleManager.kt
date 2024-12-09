@@ -60,10 +60,6 @@ class PerAppLocaleManager @Inject constructor(
         }
     }
 
-    /*
-     * Useful during testing to clear the system stored app locale
-     */
-    @Suppress("unused")
     fun resetApplicationLocale() {
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
     }
