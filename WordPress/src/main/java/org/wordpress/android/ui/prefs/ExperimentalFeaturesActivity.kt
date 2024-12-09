@@ -69,7 +69,7 @@ class FeatureViewModel @Inject constructor(
         _switchStates.value = initialStates
     }
 
-    fun toggleFeature(key: String, enabled: Boolean) {
+    fun onFeatureToggled(key: String, enabled: Boolean) {
         _switchStates.update { currentStates ->
             currentStates.toMutableMap().apply {
                 this[key] = Feature(enabled, key)
@@ -77,6 +77,10 @@ class FeatureViewModel @Inject constructor(
             }
         }
 
+        featureToggled(key, enabled)
+    }
+
+    private fun featureToggled(key: String, enabled: Boolean) {
         if (key == PerAppLocaleManager.EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY) {
             if (enabled) {
                 perAppLocaleManager.performMigrationIfNecessary()
@@ -100,7 +104,7 @@ class ExperimentalFeaturesActivity : AppCompatActivity() {
 
                 ExperimentalFeaturesScreen(
                     features = features,
-                    onFeatureToggled = viewModel::toggleFeature,
+                    onFeatureToggled = viewModel::onFeatureToggled,
                     onNavigateBack = onBackPressedDispatcher::onBackPressed
                 )
             }
