@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import org.wordpress.android.fluxc.utils.AppLogWrapper
@@ -108,17 +109,12 @@ class PerAppLocaleManager @Inject constructor(
      * Note that the per-app language setting is only available in API 33+
      * and it's up to the caller to check the version.
      */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun openAppLanguageSettings(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Intent().also { intent ->
-                intent.setAction(Settings.ACTION_APP_LOCALE_SETTINGS)
-                intent.setData(Uri.parse("package:" + context.packageName))
-                context.startActivity(intent)
-            }
-        } else {
-            throw UnsupportedOperationException(
-                "PerAppLocaleManager: Per-app language settings are not available in this version of Android"
-            )
+        Intent().also { intent ->
+            intent.setAction(Settings.ACTION_APP_LOCALE_SETTINGS)
+            intent.setData(Uri.parse("package:" + context.packageName))
+            context.startActivity(intent)
         }
     }
 
