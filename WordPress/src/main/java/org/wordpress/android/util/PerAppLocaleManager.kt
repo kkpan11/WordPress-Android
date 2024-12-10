@@ -50,10 +50,10 @@ class PerAppLocaleManager @Inject constructor(
      */
     private fun checkAndUpdatedOldLanguagePrefKey() {
         val prefKey = LocaleManager.getLocalePrefKeyString()
-        val inAppLanguage = appPrefsWrapper.prefs().getString(prefKey, "")
+        val inAppLanguage = appPrefsWrapper.getPrefString(prefKey, "")
         val perAppLanguage = getCurrentLocale().language
         if (perAppLanguage.isNotEmpty() && inAppLanguage.equals(perAppLanguage).not()) {
-            appPrefsWrapper.prefs().edit().putString(prefKey, perAppLanguage).apply()
+            appPrefsWrapper.setPrefString(prefKey, perAppLanguage)
             appLogWrapper.d(
                 AppLog.T.SETTINGS,
                 "PerAppLocaleManager: changed inAppLanguage from $inAppLanguage to $perAppLanguage"
@@ -80,7 +80,7 @@ class PerAppLocaleManager @Inject constructor(
         if (isPerAppLanguagePrefsEnabled()) {
             if (isApplicationLocaleEmpty()) {
                 val prefKey = LocaleManager.getLocalePrefKeyString()
-                val previousLanguage = appPrefsWrapper.prefs().getString(prefKey, "")
+                val previousLanguage = appPrefsWrapper.getPrefString(prefKey, "")
                 if (previousLanguage?.isNotEmpty() == true) {
                     appLogWrapper.d(
                         AppLog.T.SETTINGS,

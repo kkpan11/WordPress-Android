@@ -1,6 +1,5 @@
 package org.wordpress.android.ui.prefs
 
-import android.content.SharedPreferences
 import com.google.gson.Gson
 import org.wordpress.android.fluxc.model.JetpackCapability
 import org.wordpress.android.fluxc.store.QuickStartStore.QuickStartTask
@@ -457,8 +456,12 @@ class AppPrefsWrapper @Inject constructor(val buildConfigWrapper: BuildConfigWra
 
     fun getAllPrefs(): Map<String, Any?> = AppPrefs.getAllPrefs()
 
-    fun prefs(): SharedPreferences {
-        return AppPrefs.prefs()
+    fun getPrefString(key: String, defValue: String): String? {
+        return AppPrefs.prefs().getString(key, defValue)
+    }
+
+    fun setPrefString(key: String, value: String) {
+        AppPrefs.prefs().edit().putString(key, value).apply()
     }
 
     fun getDebugBooleanPref(key: String, default: Boolean = false) =
