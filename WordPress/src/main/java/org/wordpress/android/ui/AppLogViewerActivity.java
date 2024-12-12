@@ -35,7 +35,7 @@ import static java.lang.String.format;
 /**
  * views the activity log (see utils/AppLog.java)
  */
-public class AppLogViewerActivity extends LocaleAwareActivity {
+public class AppLogViewerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

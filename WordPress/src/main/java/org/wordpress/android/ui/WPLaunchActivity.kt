@@ -12,7 +12,7 @@ import org.wordpress.android.util.ProfilingUtils
 import org.wordpress.android.util.ToastUtils
 
 @SuppressLint("CustomSplashScreen")
-class WPLaunchActivity : LocaleAwareActivity() {
+class WPLaunchActivity : AppCompatActivity() {
     /*
      * this the main (default) activity, which does nothing more than launch the
      * previously active activity on startup - note that it's defined in the

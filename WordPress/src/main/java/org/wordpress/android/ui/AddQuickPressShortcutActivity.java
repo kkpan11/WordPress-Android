@@ -44,7 +44,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class AddQuickPressShortcutActivity extends LocaleAwareActivity {
+public class AddQuickPressShortcutActivity extends AppCompatActivity {
     public String[] blogNames;
     public int[] siteIds;
     public String[] blogUrls;

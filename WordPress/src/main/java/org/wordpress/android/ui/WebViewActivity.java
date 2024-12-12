@@ -25,7 +25,7 @@ import javax.inject.Inject;
 /**
  * Basic activity for displaying a WebView.
  */
-public abstract class WebViewActivity extends LocaleAwareActivity {
+public abstract class WebViewActivity extends AppCompatActivity {
     /**
      * Primary webview used to display content.
      */

@@ -20,6 +20,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -55,7 +56,6 @@ import org.wordpress.android.ui.CollapseFullScreenDialogFragment.Builder;
 import org.wordpress.android.ui.CollapseFullScreenDialogFragment.OnCollapseListener;
 import org.wordpress.android.ui.CollapseFullScreenDialogFragment.OnConfirmListener;
 import org.wordpress.android.ui.CommentFullScreenDialogFragment;
-import org.wordpress.android.ui.LocaleAwareActivity;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.comments.unified.CommentIdentifier.ReaderCommentIdentifier;
 import org.wordpress.android.ui.comments.unified.UnifiedCommentsEditActivity;
@@ -96,17 +96,17 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import dagger.hilt.android.AndroidEntryPoint;
-import kotlin.Unit;
-
 import static org.wordpress.android.ui.CommentFullScreenDialogFragment.RESULT_REPLY;
 import static org.wordpress.android.ui.CommentFullScreenDialogFragment.RESULT_SELECTION_END;
 import static org.wordpress.android.ui.CommentFullScreenDialogFragment.RESULT_SELECTION_START;
 import static org.wordpress.android.ui.reader.FollowConversationUiStateKt.FOLLOW_CONVERSATION_UI_STATE_FLAGS_KEY;
 import static org.wordpress.android.util.WPSwipeToRefreshHelper.buildSwipeToRefreshHelper;
 
+import dagger.hilt.android.AndroidEntryPoint;
+import kotlin.Unit;
+
 @AndroidEntryPoint
-public class ReaderCommentListActivity extends LocaleAwareActivity implements OnConfirmListener,
+public class ReaderCommentListActivity extends AppCompatActivity implements OnConfirmListener,
         OnCollapseListener {
     private static final String KEY_REPLY_TO_COMMENT_ID = "reply_to_comment_id";
     private static final String KEY_HAS_UPDATED_COMMENTS = "has_updated_comments";
