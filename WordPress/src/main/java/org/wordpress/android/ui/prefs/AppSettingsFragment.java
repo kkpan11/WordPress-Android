@@ -13,7 +13,6 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,8 +50,6 @@ import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalPhaseHelper;
 import org.wordpress.android.ui.mysite.jetpackbadge.JetpackPoweredBottomSheetFragment;
 import org.wordpress.android.ui.prefs.language.LocalePickerBottomSheet;
 import org.wordpress.android.ui.prefs.language.LocalePickerBottomSheet.LocalePickerCallback;
-import org.wordpress.android.ui.reader.services.update.ReaderUpdateLogic;
-import org.wordpress.android.ui.reader.services.update.ReaderUpdateServiceStarter;
 import org.wordpress.android.ui.utils.UiHelpers;
 import org.wordpress.android.ui.whatsnew.FeatureAnnouncementDialogFragment;
 import org.wordpress.android.ui.whatsnew.FeatureAnnouncementProvider;
@@ -60,7 +57,6 @@ import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppThemeUtils;
 import org.wordpress.android.util.BuildConfigWrapper;
 import org.wordpress.android.util.JetpackBrandingUtils;
-import org.wordpress.android.util.LocaleManager;
 import org.wordpress.android.util.LocaleProvider;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.PerAppLocaleManager;
@@ -71,9 +67,7 @@ import org.wordpress.android.util.analytics.AnalyticsUtils;
 import org.wordpress.android.viewmodel.ContextProvider;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -493,39 +487,6 @@ public class AppSettingsFragment extends PreferenceFragment
         return super.onOptionsItemSelected(item);
     }
 
-    private void changeLanguage(String languageCode) {
-        if (mLanguagePreference == null || TextUtils.isEmpty(languageCode)) {
-            return;
-        }
-
-        if (LocaleManager.isSameLanguage(languageCode)) {
-            return;
-        }
-
-        LocaleManager.setNewLocale(WordPress.getContext(), languageCode);
-        WordPress.updateContextLocale();
-        mContextProvider.refreshContext();
-
-        // Track language change on Analytics because we have both the device language and app selected language
-        // data in Tracks metadata.
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("app_locale", Locale.getDefault());
-        AnalyticsTracker.track(Stat.ACCOUNT_SETTINGS_LANGUAGE_CHANGED, properties);
-
-        // Language is now part of metadata, so we need to refresh them
-        AnalyticsUtils.refreshMetadata(mAccountStore, mSiteStore);
-
-        // Refresh the app
-        Intent refresh = new Intent(getActivity(), getActivity().getClass());
-        startActivity(refresh);
-        getActivity().setResult(LANGUAGE_CHANGED);
-        getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        getActivity().finish();
-
-        // update Reader tags as they need be localized
-        ReaderUpdateServiceStarter.startService(WordPress.getContext(), EnumSet.of(ReaderUpdateLogic.UpdateTask.TAGS));
-    }
-
     private boolean handleDevicePreferenceClick() {
         try {
             // open specific app info screen
@@ -667,7 +628,7 @@ public class AppSettingsFragment extends PreferenceFragment
 
     @Override
     public void onLocaleSelected(@NonNull String languageCode) {
-        mPerAppLocaleManager.setCurrentLocaleByLanguageCode(languageCode);
+        mPerAppLocaleManager.onLanguageChanged(languageCode);
     }
 
     private void handleOpenLinksInJetpack(Boolean newValue) {
