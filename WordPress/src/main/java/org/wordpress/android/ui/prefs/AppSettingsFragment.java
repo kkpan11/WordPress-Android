@@ -49,7 +49,6 @@ import org.wordpress.android.models.JetpackPoweredScreen;
 import org.wordpress.android.ui.deeplinks.DeepLinkOpenWebLinksWithJetpackHelper;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalPhaseHelper;
 import org.wordpress.android.ui.mysite.jetpackbadge.JetpackPoweredBottomSheetFragment;
-import org.wordpress.android.util.PerAppLocaleManager;
 import org.wordpress.android.ui.prefs.language.LocalePickerBottomSheet;
 import org.wordpress.android.ui.prefs.language.LocalePickerBottomSheet.LocalePickerCallback;
 import org.wordpress.android.ui.reader.services.update.ReaderUpdateLogic;
@@ -64,6 +63,7 @@ import org.wordpress.android.util.JetpackBrandingUtils;
 import org.wordpress.android.util.LocaleManager;
 import org.wordpress.android.util.LocaleProvider;
 import org.wordpress.android.util.NetworkUtils;
+import org.wordpress.android.util.PerAppLocaleManager;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPActivityUtils;
 import org.wordpress.android.util.WPPrefUtils;
@@ -101,7 +101,6 @@ public class AppSettingsFragment extends PreferenceFragment
     private WPSwitchPreference mOpenWebLinksWithJetpack;
 
     private Preference mWhatsNew;
-    private Boolean mIsPerAppLanguagePrefsEnabled;
 
     @Inject SiteStore mSiteStore;
     @Inject AccountStore mAccountStore;
@@ -124,8 +123,6 @@ public class AppSettingsFragment extends PreferenceFragment
         super.onCreate(savedInstanceState);
         ((WordPress) getActivity().getApplication()).component().inject(this);
         mDispatcher.register(this);
-
-        mIsPerAppLanguagePrefsEnabled = mPerAppLocaleManager.isPerAppLanguagePrefsEnabled();
 
         addPreferencesFromResource(R.xml.app_settings);
 
@@ -259,11 +256,7 @@ public class AppSettingsFragment extends PreferenceFragment
         mLanguagePreference = (WPPreference) findPreference(getString(R.string.pref_key_language));
         mLanguagePreference.setOnPreferenceChangeListener(this);
         mLanguagePreference.setOnPreferenceClickListener(this);
-        if (mIsPerAppLanguagePrefsEnabled) {
-            mLanguagePreference.setSummary(mPerAppLocaleManager.getCurrentLocaleDisplayName());
-        } else {
-            mLanguagePreference.setSummary(mLocaleProvider.getAppLanguageDisplayString());
-        }
+        mLanguagePreference.setSummary(mPerAppLocaleManager.getCurrentLocaleDisplayName());
 
         return view;
     }
@@ -436,10 +429,7 @@ public class AppSettingsFragment extends PreferenceFragment
             return false;
         }
 
-        if (preference == mLanguagePreference) {
-            changeLanguage(newValue.toString());
-            return false;
-        } else if (preference == mOptimizedImage) {
+        if (preference == mOptimizedImage) {
             AppPrefs.setImageOptimize((Boolean) newValue);
             mImageMaxSizePref.setEnabled((Boolean) newValue);
             Map<String, Object> properties = new HashMap<>();
@@ -648,9 +638,8 @@ public class AppSettingsFragment extends PreferenceFragment
     }
 
     private boolean handleAppLocalePickerClick() {
-        // if per-app language preferences are enabled and the device is on API 33+, take the user to the
-        // system app settings to change the language
-        if (mIsPerAppLanguagePrefsEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        // if  the device is on API 33+, take the user to the system app settings to change the language
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mPerAppLocaleManager.openAppLanguageSettings(getContext());
             return true;
         } else if (getActivity() instanceof AppCompatActivity) {
@@ -678,11 +667,7 @@ public class AppSettingsFragment extends PreferenceFragment
 
     @Override
     public void onLocaleSelected(@NonNull String languageCode) {
-        if (mIsPerAppLanguagePrefsEnabled) {
-            mPerAppLocaleManager.setCurrentLocaleByLanguageCode(languageCode);
-        } else {
-            onPreferenceChange(mLanguagePreference, languageCode);
-        }
+        mPerAppLocaleManager.setCurrentLocaleByLanguageCode(languageCode);
     }
 
     private void handleOpenLinksInJetpack(Boolean newValue) {

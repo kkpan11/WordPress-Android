@@ -952,11 +952,7 @@ class AppInitializer @Inject constructor(
         override fun onConfigurationChanged(newConfig: Configuration) {
             // If per-app locale is enabled make sure the in-app locale is correct,
             // otherwise reapply in-app locale on configuration change
-            if (perAppLocaleManager.isPerAppLanguagePrefsEnabled()) {
-                perAppLocaleManager.checkAndUpdateOldLanguagePrefKey()
-            } else {
-                LocaleManager.setLocale(context)
-            }
+            perAppLocaleManager.checkAndUpdateOldLanguagePrefKey()
         }
 
         override fun onLowMemory() {
