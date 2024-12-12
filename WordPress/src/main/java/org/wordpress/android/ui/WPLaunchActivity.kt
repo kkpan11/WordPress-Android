@@ -3,6 +3,7 @@ package org.wordpress.android.ui
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.wordpress.android.R
 import org.wordpress.android.WordPress
