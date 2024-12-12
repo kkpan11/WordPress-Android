@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
  * the need for this class. Instead of extending from this class, we should extend
  * from AppCompatActivity.
  */
-abstract class AppCompatActivity : AppCompatActivity() {
+abstract class LocaleAwareActivity : AppCompatActivity() {
     /**
      * Used to update locales on API 21 to API 25.
      */
