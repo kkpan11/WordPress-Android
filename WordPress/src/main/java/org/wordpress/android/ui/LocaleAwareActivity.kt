@@ -5,8 +5,8 @@ import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 
 /**
- * Update Dec 2024: We've added experimental support for per-app language preferences which
- * negate the need for this class. Instead of extending from this class, we should extend
+ * Update Dec 2024: We've added support for per-app language preferences which negate
+ * the need for this class. Instead of extending from this class, we should extend
  * from AppCompatActivity.
  */
 abstract class LocaleAwareActivity : AppCompatActivity() {
