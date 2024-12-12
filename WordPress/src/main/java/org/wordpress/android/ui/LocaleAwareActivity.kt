@@ -5,19 +5,9 @@ import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 
 /**
- * Newer versions of the AppCompat library no longer support locale changes at application level,
- * so this activity is used to help handle those changes at activity level.
- * Reference: https://issuetracker.google.com/issues/141869006#comment9
- *
- * All the actual logic is inside the LocaleManager class, which should be used directly in cases where
- * extending from this class is not possible/preferable.
- *
- * Note: please be mindful of the principle of favoring composition over inheritance and refrain from
- * building upon this class unless it's absolutely necessary.
- *
  * Update Dec 2024: We've added experimental support for per-app language preferences which
- * will eventually negate the need for this class. Instead of extending from this class, we
- * should extend from AppCompatActivity once this feature is out of the experimental phase.
+ * negate the need for this class. Instead of extending from this class, we should extend
+ * from AppCompatActivity.
  */
 abstract class LocaleAwareActivity : AppCompatActivity() {
     /**
