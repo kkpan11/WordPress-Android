@@ -126,7 +126,7 @@ class PerAppLocaleManager @Inject constructor(
 
     /**
      * Called when the device language is changed from our in-app language picker
-     * TODO: Detect when language changed from app settings dialog
+     * TODO Detect when language changed from app settings dialog
      */
     fun onLanguageChanged(languageCode: String) {
         if (languageCode.isEmpty()) {
