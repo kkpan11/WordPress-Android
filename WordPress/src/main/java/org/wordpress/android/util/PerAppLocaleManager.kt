@@ -134,7 +134,7 @@ class PerAppLocaleManager @Inject constructor(
         }
 
         // Only update if the language is different
-        if (languageCode.equals(getCurrentLocaleLanguageCode()).not()) {
+        if (languageCode != getCurrentLocaleLanguageCode()) {
             setCurrentLocaleByLanguageCode(languageCode)
         }
 
