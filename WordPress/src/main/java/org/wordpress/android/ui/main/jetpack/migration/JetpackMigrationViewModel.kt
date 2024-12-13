@@ -66,7 +66,6 @@ import org.wordpress.android.ui.utils.UiString.UiStringRes
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.AppLog.T
 import org.wordpress.android.util.WPAvatarUtilsWrapper
-import org.wordpress.android.util.LocaleManagerWrapper
 import org.wordpress.android.util.SiteUtilsWrapper
 import org.wordpress.android.util.config.PreventDuplicateNotifsFeatureConfig
 import org.wordpress.android.viewmodel.ContextProvider
@@ -88,16 +87,12 @@ class JetpackMigrationViewModel @Inject constructor(
     private val migrationAnalyticsTracker: ContentMigrationAnalyticsTracker,
     private val accountStore: AccountStore,
     private val siteStore: SiteStore,
-    private val localeManagerWrapper: LocaleManagerWrapper,
 ) : ScopedViewModel(mainDispatcher) {
     private val _actionEvents = Channel<JetpackMigrationActionEvent>(Channel.BUFFERED)
     val actionEvents = _actionEvents.receiveAsFlow()
 
     private val _refreshAppTheme = MutableLiveData<Unit>()
     val refreshAppTheme: LiveData<Unit> = _refreshAppTheme
-
-    private val _refreshAppLanguage = MutableLiveData<String>()
-    val refreshAppLanguage: LiveData<String> = _refreshAppLanguage
 
     private var isStarted = false
     private val migrationStateFlow = MutableStateFlow<LocalMigrationState>(Initial)
@@ -170,7 +165,6 @@ class JetpackMigrationViewModel @Inject constructor(
         }
 
         if (data.flags.isNotEmpty()) {
-            emitLanguageRefreshIfNeeded(extractLanguageFromFlagsMap(data.flags))
             _refreshAppTheme.value = Unit
         }
 
@@ -184,20 +178,6 @@ class JetpackMigrationViewModel @Inject constructor(
                 onHelpClicked(source = HelpButtonSource.Welcome)
             },
         )
-    }
-
-    private fun extractLanguageFromFlagsMap(userPrefs: Map<String, Any?>): String {
-        val languageKey = localeManagerWrapper.getLocalePrefKeyString()
-        return userPrefs[languageKey] as? String ?: ""
-    }
-
-    private fun emitLanguageRefreshIfNeeded(languageCode: String) {
-        if (languageCode.isNotEmpty()) {
-            val shouldEmitLanguageRefresh = !localeManagerWrapper.isSameLanguage(languageCode)
-            if (shouldEmitLanguageRefresh) {
-                _refreshAppLanguage.value = languageCode
-            }
-        }
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -231,11 +211,6 @@ class JetpackMigrationViewModel @Inject constructor(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun initPleaseDeleteWordPressAppScreenUi(): Delete {
         migrationAnalyticsTracker.trackPleaseDeleteWordPressScreenShown()
-
-        // We need to manually apply the app language for the Compose UI since the host JetpackMigrationActivity
-        // does not inherit from AppCompatActivity on purpose, in order to avoid possible issues
-        // when the Ui mode (dark/light) and the language are manually set by the user.
-        emitLanguageRefreshIfNeeded(localeManagerWrapper.getLanguage())
 
         return Delete(
             primaryActionButton = DeletePrimaryButton(::onGotItClicked),

@@ -1,6 +1,5 @@
 package org.wordpress.android.ui.mysite.menu
 
-import androidx.lifecycle.Observer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -42,7 +41,6 @@ class MenuViewModelTest : BaseUnitTest() {
     private val quickStartRepository: QuickStartRepository = mock()
     private val selectedSiteRepository: SelectedSiteRepository = mock()
     private val siteItemsBuilder: SiteItemsBuilder = mock()
-    private val refreshAppLanguageObserver: Observer<String> = mock()
     private val contextProvider: ContextProvider = mock()
     private val uiHelpers: UiHelpers = mock()
     private val analyticsTrackerWrapper: AnalyticsTrackerWrapper = mock()
@@ -62,7 +60,6 @@ class MenuViewModelTest : BaseUnitTest() {
             blazeFeatureUtils,
             jetpackCapabilitiesUseCase,
             listItemActionHandler,
-            localeManagerWrapper,
             quickStartRepository,
             selectedSiteRepository,
             siteItemsBuilder,
@@ -71,8 +68,6 @@ class MenuViewModelTest : BaseUnitTest() {
             testDispatcher(),
             analyticsTrackerWrapper
         )
-
-        viewModel.refreshAppLanguage.observeForever(refreshAppLanguageObserver)
     }
 
     @Test

@@ -83,10 +83,8 @@ class JetpackMigrationViewModelTest : BaseUnitTest() {
             migrationAnalyticsTracker = contentMigrationAnalyticsTracker,
             accountStore = accountStore,
             siteStore = siteStore,
-            localeManagerWrapper = localeManagerWrapper,
         )
         classToTest.refreshAppTheme.observeForever(refreshAppThemeObserver)
-        classToTest.refreshAppLanguage.observeForever(refreshAppLanguageObserver)
     }
 
     // region ViewModel

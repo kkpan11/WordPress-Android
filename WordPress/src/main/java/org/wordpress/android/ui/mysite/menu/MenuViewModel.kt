@@ -28,7 +28,6 @@ import org.wordpress.android.ui.pages.SnackbarMessageHolder
 import org.wordpress.android.ui.quickstart.QuickStartEvent
 import org.wordpress.android.ui.utils.UiHelpers
 import org.wordpress.android.util.LONG_DURATION_MS
-import org.wordpress.android.util.LocaleManagerWrapper
 import org.wordpress.android.util.SHORT_DURATION_MS
 import org.wordpress.android.util.SnackbarItem
 import org.wordpress.android.util.analytics.AnalyticsTrackerWrapper
@@ -46,7 +45,6 @@ class MenuViewModel @Inject constructor(
     private val blazeFeatureUtils: BlazeFeatureUtils,
     private val jetpackCapabilitiesUseCase: JetpackCapabilitiesUseCase,
     private val listItemActionHandler: ListItemActionHandler,
-    private val localeManagerWrapper: LocaleManagerWrapper,
     private val quickStartRepository: QuickStartRepository,
     private val selectedSiteRepository: SelectedSiteRepository,
     private val siteItemsBuilder: SiteItemsBuilder,
@@ -63,9 +61,6 @@ class MenuViewModel @Inject constructor(
 
     val onQuickStartMySitePrompts = quickStartRepository.onQuickStartMySitePrompts
 
-    private val _refreshAppLanguage = MutableLiveData<String>()
-    val refreshAppLanguage: LiveData<String> = _refreshAppLanguage
-
     private val _uiState = MutableStateFlow(MenuViewState(items = emptyList()))
     val uiState: StateFlow<MenuViewState> = _uiState
 
@@ -77,10 +72,6 @@ class MenuViewModel @Inject constructor(
 
     private var quickStartEvent: QuickStartEvent? = null
     private var isStarted = false
-
-    init {
-        emitLanguageRefreshIfNeeded(localeManagerWrapper.getLanguage())
-    }
 
     fun start(quickStartEvent: QuickStartEvent? = null) {
         if (isStarted) {
@@ -254,15 +245,6 @@ class MenuViewModel @Inject constructor(
             }
         )
         _snackbar.emit(snackbarMessage)
-    }
-
-    private fun emitLanguageRefreshIfNeeded(languageCode: String) {
-        if (languageCode.isNotEmpty()) {
-            val shouldEmitLanguageRefresh = !localeManagerWrapper.isSameLanguage(languageCode)
-            if (shouldEmitLanguageRefresh) {
-                _refreshAppLanguage.value = languageCode
-            }
-        }
     }
 
     override fun onCleared() {
