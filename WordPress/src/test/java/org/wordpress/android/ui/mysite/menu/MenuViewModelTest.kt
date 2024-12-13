@@ -27,7 +27,6 @@ import org.wordpress.android.ui.mysite.items.listitem.SiteItemsBuilder
 import org.wordpress.android.ui.utils.ListItemInteraction
 import org.wordpress.android.ui.utils.UiHelpers
 import org.wordpress.android.ui.utils.UiString
-import org.wordpress.android.util.LocaleManagerWrapper
 import org.wordpress.android.util.analytics.AnalyticsTrackerWrapper
 import org.wordpress.android.viewmodel.ContextProvider
 
@@ -37,7 +36,6 @@ class MenuViewModelTest : BaseUnitTest() {
     private val blazeFeatureUtils: BlazeFeatureUtils = mock()
     private val jetpackCapabilitiesUseCase: JetpackCapabilitiesUseCase = mock()
     private val listItemActionHandler: ListItemActionHandler = mock()
-    private val localeManagerWrapper: LocaleManagerWrapper = mock()
     private val quickStartRepository: QuickStartRepository = mock()
     private val selectedSiteRepository: SelectedSiteRepository = mock()
     private val siteItemsBuilder: SiteItemsBuilder = mock()
@@ -52,7 +50,6 @@ class MenuViewModelTest : BaseUnitTest() {
 
     @Before
     fun setUp() = test {
-        whenever(localeManagerWrapper.getLanguage()).thenReturn("")
         whenever(selectedSiteRepository.getSelectedSite()).thenReturn(site)
         initJetpackCapabilities(scanPurchased = false, backupPurchased = false)
 
