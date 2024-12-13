@@ -27,7 +27,6 @@ import org.wordpress.android.ui.mysite.items.listitem.SiteItemsBuilder
 import org.wordpress.android.ui.pages.SnackbarMessageHolder
 import org.wordpress.android.ui.quickstart.QuickStartEvent
 import org.wordpress.android.ui.utils.UiHelpers
-import org.wordpress.android.util.JetpackMigrationLanguageUtil
 import org.wordpress.android.util.LONG_DURATION_MS
 import org.wordpress.android.util.LocaleManagerWrapper
 import org.wordpress.android.util.SHORT_DURATION_MS
@@ -37,7 +36,6 @@ import org.wordpress.android.util.merge
 import org.wordpress.android.viewmodel.ContextProvider
 import org.wordpress.android.viewmodel.Event
 import org.wordpress.android.viewmodel.ScopedViewModel
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -47,7 +45,6 @@ const val MENU_ITEM_TRACKING_PARAMETER = "item"
 class MenuViewModel @Inject constructor(
     private val blazeFeatureUtils: BlazeFeatureUtils,
     private val jetpackCapabilitiesUseCase: JetpackCapabilitiesUseCase,
-    private val jetpackMigrationLanguageUtil: JetpackMigrationLanguageUtil,
     private val listItemActionHandler: ListItemActionHandler,
     private val localeManagerWrapper: LocaleManagerWrapper,
     private val quickStartRepository: QuickStartRepository,
@@ -266,10 +263,6 @@ class MenuViewModel @Inject constructor(
                 _refreshAppLanguage.value = languageCode
             }
         }
-    }
-
-    fun setAppLanguage(locale: Locale) {
-        jetpackMigrationLanguageUtil.applyLanguage(locale.language)
     }
 
     override fun onCleared() {

@@ -66,13 +66,11 @@ import org.wordpress.android.ui.utils.UiString.UiStringRes
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.AppLog.T
 import org.wordpress.android.util.WPAvatarUtilsWrapper
-import org.wordpress.android.util.JetpackMigrationLanguageUtil
 import org.wordpress.android.util.LocaleManagerWrapper
 import org.wordpress.android.util.SiteUtilsWrapper
 import org.wordpress.android.util.config.PreventDuplicateNotifsFeatureConfig
 import org.wordpress.android.viewmodel.ContextProvider
 import org.wordpress.android.viewmodel.ScopedViewModel
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -91,7 +89,6 @@ class JetpackMigrationViewModel @Inject constructor(
     private val accountStore: AccountStore,
     private val siteStore: SiteStore,
     private val localeManagerWrapper: LocaleManagerWrapper,
-    private val jetpackMigrationLanguageUtil: JetpackMigrationLanguageUtil,
 ) : ScopedViewModel(mainDispatcher) {
     private val _actionEvents = Channel<JetpackMigrationActionEvent>(Channel.BUFFERED)
     val actionEvents = _actionEvents.receiveAsFlow()
@@ -201,10 +198,6 @@ class JetpackMigrationViewModel @Inject constructor(
                 _refreshAppLanguage.value = languageCode
             }
         }
-    }
-
-    fun setAppLanguage(locale: Locale) {
-        jetpackMigrationLanguageUtil.applyLanguage(locale.language)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
