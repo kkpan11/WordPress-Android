@@ -8,8 +8,16 @@ import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import org.wordpress.android.WordPress.Companion.getContext
+import org.wordpress.android.analytics.AnalyticsTracker
+import org.wordpress.android.fluxc.store.AccountStore
+import org.wordpress.android.fluxc.store.SiteStore
 import org.wordpress.android.fluxc.utils.AppLogWrapper
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
+import org.wordpress.android.ui.reader.services.update.ReaderUpdateLogic.UpdateTask
+import org.wordpress.android.ui.reader.services.update.ReaderUpdateServiceStarter
+import org.wordpress.android.util.analytics.AnalyticsUtils
+import java.util.EnumSet
 import java.util.Locale
 import javax.inject.Inject
 
@@ -20,6 +28,8 @@ import javax.inject.Inject
 class PerAppLocaleManager @Inject constructor(
     private val appPrefsWrapper: AppPrefsWrapper,
     private val appLogWrapper: AppLogWrapper,
+    private val siteStore: SiteStore,
+    private val accountStore: AccountStore,
 ) {
     private fun getCurrentLocale(): Locale {
         return if (isApplicationLocaleEmpty()) {
@@ -30,6 +40,8 @@ class PerAppLocaleManager @Inject constructor(
     }
 
     fun getCurrentLocaleDisplayName(): String = getCurrentLocale().displayName
+
+    private fun getCurrentLocaleLanguageCode(): String = getCurrentLocale().language
 
     /**
      * Important: this should only be called after Activity.onCreate()
@@ -65,7 +77,7 @@ class PerAppLocaleManager @Inject constructor(
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
     }
 
-    fun setCurrentLocaleByLanguageCode(languageCode: String) {
+    private fun setCurrentLocaleByLanguageCode(languageCode: String) {
         // We shouldn't have to replace "_" with "-" but this is in order to work with our existing language picker
         // on pre-Android 13 devices
         val appLocale = LocaleListCompat.forLanguageTags(languageCode.replace("_", "-"))
@@ -77,31 +89,25 @@ class PerAppLocaleManager @Inject constructor(
      * Previously the app locale was stored in SharedPreferences, so here we migrate to AndroidX per-app language prefs
      */
     fun performMigrationIfNecessary() {
-        if (isPerAppLanguagePrefsEnabled()) {
-            if (isApplicationLocaleEmpty()) {
-                val prefKey = LocaleManager.getLocalePrefKeyString()
-                val previousLanguage = appPrefsWrapper.getPrefString(prefKey, "")
-                if (previousLanguage?.isNotEmpty() == true) {
-                    appLogWrapper.d(
-                        AppLog.T.SETTINGS,
-                        "PerAppLocaleManager: performing migration to AndroidX per-app language prefs"
-                    )
-                    setCurrentLocaleByLanguageCode(previousLanguage)
-                } else {
-                    appLogWrapper.d(
-                        AppLog.T.SETTINGS,
-                        "PerAppLocaleManager: setting default locale"
-                    )
-                    setCurrentLocaleByLanguageCode(Locale.getDefault().language)
-                }
+        if (isApplicationLocaleEmpty()) {
+            val prefKey = LocaleManager.getLocalePrefKeyString()
+            val previousLanguage = appPrefsWrapper.getPrefString(prefKey, "")
+            if (previousLanguage?.isNotEmpty() == true) {
+                appLogWrapper.d(
+                    AppLog.T.SETTINGS,
+                    "PerAppLocaleManager: performing migration to AndroidX per-app language prefs"
+                )
+                setCurrentLocaleByLanguageCode(previousLanguage)
             } else {
-                checkAndUpdateOldLanguagePrefKey()
+                appLogWrapper.d(
+                    AppLog.T.SETTINGS,
+                    "PerAppLocaleManager: setting default locale"
+                )
+                setCurrentLocaleByLanguageCode(Locale.getDefault().language)
             }
+        } else {
+            checkAndUpdateOldLanguagePrefKey()
         }
-    }
-
-    fun isPerAppLanguagePrefsEnabled(): Boolean {
-        return appPrefsWrapper.getManualFeatureConfig(EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY)
     }
 
     /**
@@ -118,7 +124,30 @@ class PerAppLocaleManager @Inject constructor(
         }
     }
 
-    companion object {
-        const val EXPERIMENTAL_PER_APP_LANGUAGE_PREF_KEY = "experimental_per_app_language_prefs"
+    /**
+     * Called when the device language is changed from our in-app language picker
+     * TODO Detect when language changed from app settings dialog
+     */
+    fun onLanguageChanged(languageCode: String) {
+        if (languageCode.isEmpty()) {
+            return
+        }
+
+        // Only update if the language is different
+        if (languageCode != getCurrentLocaleLanguageCode()) {
+            setCurrentLocaleByLanguageCode(languageCode)
+        }
+
+        // Track language change on Analytics because we have both the device language and app selected language
+        // data in Tracks metadata.
+        val properties: MutableMap<String, Any?> = HashMap()
+        properties["app_locale"] = languageCode
+        AnalyticsTracker.track(AnalyticsTracker.Stat.ACCOUNT_SETTINGS_LANGUAGE_CHANGED, properties)
+
+        // Language is now part of metadata, so we need to refresh them
+        AnalyticsUtils.refreshMetadata(accountStore, siteStore)
+
+        // update Reader tags as they need be localized
+        ReaderUpdateServiceStarter.startService(getContext(), EnumSet.of(UpdateTask.TAGS))
     }
 }
