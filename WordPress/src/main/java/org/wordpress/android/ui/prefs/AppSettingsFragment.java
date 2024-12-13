@@ -597,7 +597,7 @@ public class AppSettingsFragment extends PreferenceFragment
     }
 
     private boolean handleAppLocalePickerClick() {
-        // if  the device is on API 33+, take the user to the system app settings to change the language
+        // if the device is on API 33+, take the user to the system app settings to change the language
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mPerAppLocaleManager.openAppLanguageSettings(getContext());
             return true;
