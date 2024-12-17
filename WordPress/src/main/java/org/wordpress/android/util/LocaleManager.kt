@@ -175,7 +175,7 @@ object LocaleManager {
     fun createSortedLanguageDisplayStrings(
         languageCodes: Array<CharSequence>?,
         locale: Locale
-    ): Triple<Array<String?>, Array<String?>, Array<String?>>? {
+    ): Triple<Array<String>, Array<String>, Array<String>>? {
         if (languageCodes.isNullOrEmpty()) {
             return null
         }
@@ -192,9 +192,9 @@ object LocaleManager {
 
         entryStrings.sortWith(Collator.getInstance(locale))
 
-        val sortedEntries = arrayOfNulls<String>(languageCodes.size)
-        val sortedValues = arrayOfNulls<String>(languageCodes.size)
-        val detailStrings = arrayOfNulls<String>(languageCodes.size)
+        val sortedEntries = Array(languageCodes.size) { "" }
+        val sortedValues = Array(languageCodes.size) { "" }
+        val detailStrings = Array(languageCodes.size) { "" }
 
         for (i in entryStrings.indices) {
             // now, we can split the sorted array to extract the display string and the language code
@@ -220,6 +220,7 @@ object LocaleManager {
      * Return a non-null display string for a given language code.
      */
     @JvmStatic
+    @Suppress("MagicNumber")
     fun getLanguageString(languageCode: String?, displayLocale: Locale): String {
         if (languageCode == null || languageCode.length < 2 || languageCode.length > 6) {
             return ""
@@ -230,10 +231,11 @@ object LocaleManager {
             StringUtils.capitalize(languageLocale.getDisplayLanguage(displayLocale))
         val displayCountry = languageLocale.getDisplayCountry(displayLocale)
 
-        if (!TextUtils.isEmpty(displayCountry)) {
-            return "$displayLanguage ($displayCountry)"
+        return if (!TextUtils.isEmpty(displayCountry)) {
+            "$displayLanguage ($displayCountry)"
+        } else {
+            displayLanguage
         }
-        return displayLanguage
     }
 
     @JvmStatic
