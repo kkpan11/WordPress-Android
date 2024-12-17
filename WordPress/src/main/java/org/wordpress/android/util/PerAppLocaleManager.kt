@@ -32,24 +32,6 @@ class PerAppLocaleManager @Inject constructor(
     private val accountStore: AccountStore,
 ) {
     /**
-     * We want to make sure the language pref for the in-app locale (old implementation) is set
-     * to the same locale as the AndroidX per-app locale. This way LocaleManager.getLanguage -
-     * which is used throughout the app - returns the correct language code. We can remove
-     * this once the per-app language pref is no longer experimental.
-     */
-    fun checkAndUpdateOldLanguagePrefKey() {
-        val inAppLanguage = appPrefsWrapper.getPrefString(OLD_LOCALE_PREF_KEY_STRING, "")
-        val perAppLanguage = getCurrentLocale().language
-        if (perAppLanguage.isNotEmpty() && inAppLanguage.equals(perAppLanguage).not()) {
-            appPrefsWrapper.setPrefString(OLD_LOCALE_PREF_KEY_STRING, perAppLanguage)
-            appLogWrapper.d(
-                AppLog.T.SETTINGS,
-                "PerAppLocaleManager: changed inAppLanguage from $inAppLanguage to $perAppLanguage"
-            )
-        }
-    }
-
-    /**
      * This routine can be helpful during development to reset the app locale
      */
     @Suppress("unused")
@@ -62,7 +44,6 @@ class PerAppLocaleManager @Inject constructor(
         // on pre-Android 13 devices
         val appLocale = LocaleListCompat.forLanguageTags(languageCode.replace("_", "-"))
         AppCompatDelegate.setApplicationLocales(appLocale)
-        checkAndUpdateOldLanguagePrefKey()
     }
 
     /**
@@ -85,8 +66,6 @@ class PerAppLocaleManager @Inject constructor(
                 )
                 setCurrentLocaleByLanguageCode(Locale.getDefault().language)
             }
-        } else {
-            checkAndUpdateOldLanguagePrefKey()
         }
     }
 
@@ -135,7 +114,7 @@ class PerAppLocaleManager @Inject constructor(
 
     companion object {
          // Key previously used for saving the language selection to shared preferences.
-        const val OLD_LOCALE_PREF_KEY_STRING: String = "language-pref"
+        private const val OLD_LOCALE_PREF_KEY_STRING: String = "language-pref"
 
         private fun getCurrentLocale(): Locale {
             val locales = AppCompatDelegate.getApplicationLocales()
