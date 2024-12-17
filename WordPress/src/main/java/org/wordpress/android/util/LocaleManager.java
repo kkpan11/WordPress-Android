@@ -48,38 +48,6 @@ public class LocaleManager {
         return updateResources(context, getLanguage(context));
     }
 
-    /**
-     * Apply locale to the provided configuration.
-     *
-     * @param context current context used to access Shared Preferences.
-     * @param configuration configuration that the locale should be applied to.
-     */
-    @SuppressLint("AppBundleLocaleChanges")
-    public static Configuration updatedConfigLocale(Context context, Configuration configuration) {
-        Locale locale = languageLocale(getLanguage(context));
-        Locale.setDefault(locale);
-
-        // NOTE: Earlier versions of Android require both of these to be set, otherwise
-        // RTL may not be implemented properly.
-        configuration.setLocale(locale);
-
-        return configuration;
-    }
-
-    /**
-     * Change the active locale to the language provided. Save the updated language
-     * settings to sharedPreferences.
-     *
-     * @param context  The current context
-     * @param language The 2-letter language code (example "en") to switch to
-     */
-    public static void setNewLocale(Context context, String language) {
-        if (isSameLanguage(language)) {
-            return;
-        }
-        saveLanguageToPref(context, language);
-        updateResources(context, language);
-    }
 
     /**
      * Compare the language for the current context with another language.
@@ -130,20 +98,6 @@ public class LocaleManager {
             langID = deviceLanguageCode;
         }
         return langID;
-    }
-
-    /**
-     * Save the updated language to SharedPreferences.
-     * Use commit() instead of apply() to ensure the language preference is saved instantly
-     * as the app may be restarted immediately.
-     *
-     * @param context  The current context
-     * @param language The 2-letter language code (example "en")
-     */
-    @SuppressLint("ApplySharedPref")
-    private static void saveLanguageToPref(Context context, String language) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        prefs.edit().putString(LANGUAGE_KEY, language).commit();
     }
 
     /**
