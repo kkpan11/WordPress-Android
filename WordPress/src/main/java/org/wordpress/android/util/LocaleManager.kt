@@ -171,6 +171,7 @@ object LocaleManager {
     /**
      * Generates display strings for given language codes. Used as entries in language preference.
      */
+    @JvmStatic
     fun createSortedLanguageDisplayStrings(
         languageCodes: Array<CharSequence>?,
         locale: Locale
