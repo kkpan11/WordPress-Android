@@ -59,6 +59,7 @@ class PerAppLocaleManager @Inject constructor(
                     "PerAppLocaleManager: performing migration to AndroidX per-app language prefs"
                 )
                 setCurrentLocaleByLanguageCode(previousLanguage)
+                appPrefsWrapper.removePref(OLD_LOCALE_PREF_KEY_STRING)
             } else {
                 appLogWrapper.d(
                     AppLog.T.SETTINGS,
