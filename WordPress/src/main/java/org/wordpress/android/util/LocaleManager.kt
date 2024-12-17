@@ -64,6 +64,7 @@ object LocaleManager {
         return langID ?: deviceLanguageCode
     }
 
+    @Suppress("ForbiddenComment")
     /**
      * Method gets around a bug in the java.util.Formatter for API 7.x as detailed here
      * [https://bugs.openjdk.java.net/browse/JDK-8167567]. Any strings that contain
@@ -74,7 +75,8 @@ object LocaleManager {
      * An example of a string that contains locale-specific grouping separators:
      * `
      * <string name="test">%,d likes</string>
-    ` *
+    `*
+     * TODO: This is a workaround for a bug in API 7, which we no longer support. Investigate removing this.
      */
     @JvmStatic
     fun getSafeLocale(context: Context?): Locale {
