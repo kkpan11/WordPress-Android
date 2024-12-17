@@ -158,10 +158,10 @@ class LocalePickerViewModel @Inject constructor(
         for (i in availableLocalesData.first.indices) {
             cachedLocales.add(
                 LocaleRow(
-                    sortedEntries[i] ?: "",
-                    sortedLocalizedEntries[i] ?: "",
-                    sortedValues[i] ?: "",
-                    ClickAction(sortedValues[i] ?: "", this::clickItem)
+                    sortedEntries[i],
+                    sortedLocalizedEntries[i],
+                    sortedValues[i],
+                    ClickAction(sortedValues[i], this::clickItem)
                 )
             )
         }
