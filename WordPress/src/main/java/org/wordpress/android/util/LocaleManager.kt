@@ -1,51 +1,39 @@
-package org.wordpress.android.util;
+package org.wordpress.android.util
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.text.TextUtils;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.preference.PreferenceManager;
-
-import org.wordpress.android.R;
-
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import kotlin.Triple;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.Configuration
+import android.text.TextUtils
+import androidx.preference.PreferenceManager
+import org.wordpress.android.R
+import java.text.Collator
+import java.util.Locale
+import java.util.regex.Pattern
 
 /**
  * Helper class for working with localized strings. Ensures updates to the users
  * selected language is properly saved and resources appropriately updated for the
  * android version.
  */
-public class LocaleManager {
+object LocaleManager {
     /**
      * Key used for saving the language selection to shared preferences.
      */
-    private static final String LANGUAGE_KEY = "language-pref";
+    private const val LOCALE_PREF_KEY_STRING: String = "language-pref"
 
     /**
      * Pattern to split a language string (to parse the language and region values).
      */
-    private static final Pattern LANGUAGE_SPLITTER = Pattern.compile("_");
+    private val LANGUAGE_SPLITTER: Pattern = Pattern.compile("_")
 
     /**
      * Activate the locale associated with the provided context.
      *
      * @param context The current context.
      */
-    @NonNull
-    public static Context setLocale(@NonNull Context context) {
-        return updateResources(context, getLanguage(context));
+    @JvmStatic
+    fun setLocale(context: Context): Context {
+        return updateResources(context, getLanguage(context))
     }
 
     /**
@@ -54,9 +42,9 @@ public class LocaleManager {
      * @param language The language to compare
      * @return True if the languages are the same, else false
      */
-    public static boolean isSameLanguage(@NonNull String language) {
-        Locale newLocale = languageLocale(language);
-        return Locale.getDefault().toString().equals(newLocale.toString());
+    fun isSameLanguage(language: String): Boolean {
+        val newLocale = languageLocale(language)
+        return Locale.getDefault().toString() == newLocale.toString()
     }
 
     /**
@@ -65,39 +53,35 @@ public class LocaleManager {
      *
      * @return The 2-letter language code (example "en")
      */
-    @NonNull
-    public static String getLanguage(@NonNull Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString(LANGUAGE_KEY, LanguageUtils.getCurrentDeviceLanguageCode());
+    @JvmStatic
+    fun getLanguage(context: Context): String {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        return prefs.getString(LOCALE_PREF_KEY_STRING, LanguageUtils.getCurrentDeviceLanguageCode())!!
     }
 
     /**
      * Convert the device language code (codes defined by ISO 639-1) to a Language ID.
      * Language IDs, used only by WordPress, are integer values that map to a language code.
      * http://bit.ly/2H7gksN
-     **/
-    public static @NonNull String getLanguageWordPressId(@NonNull Context context) {
-        final String deviceLanguageCode = LanguageUtils.getPatchedCurrentDeviceLanguage(context);
+     */
+    fun getLanguageWordPressId(context: Context): String {
+        val deviceLanguageCode = LanguageUtils.getPatchedCurrentDeviceLanguage(context)
 
-        Map<String, String> languageCodeToID = LocaleManager.generateLanguageMap(context);
-        String langID = null;
+        val languageCodeToID = generateLanguageMap(context)
+        var langID: String? = null
         if (languageCodeToID.containsKey(deviceLanguageCode)) {
-            langID = languageCodeToID.get(deviceLanguageCode);
+            langID = languageCodeToID[deviceLanguageCode]
         } else {
-            int pos = deviceLanguageCode.indexOf("_");
+            val pos = deviceLanguageCode.indexOf("_")
             if (pos > -1) {
-                String newLang = deviceLanguageCode.substring(0, pos);
+                val newLang = deviceLanguageCode.substring(0, pos)
                 if (languageCodeToID.containsKey(newLang)) {
-                    langID = languageCodeToID.get(newLang);
+                    langID = languageCodeToID[newLang]
                 }
             }
         }
 
-        if (langID == null) {
-            // fallback to device language code if there is no match
-            langID = deviceLanguageCode;
-        }
-        return langID;
+        return langID ?: deviceLanguageCode
     }
 
     /**
@@ -108,142 +92,149 @@ public class LocaleManager {
      * @return The modified context containing the updated localized resources
      */
     @SuppressLint("AppBundleLocaleChanges")
-    @NonNull
-    private static Context updateResources(@NonNull Context context, @NonNull String language) {
-        Locale locale = languageLocale(language);
-        Locale.setDefault(locale);
+    private fun updateResources(context: Context, language: String): Context {
+        val locale = languageLocale(language)
+        Locale.setDefault(locale)
 
-        Resources res = context.getResources();
-        Configuration config = new Configuration(res.getConfiguration());
+        val res = context.resources
+        val config = Configuration(res.configuration)
 
         // NOTE: Earlier versions of Android require both of these to be set, otherwise
         // RTL may not be implemented properly.
-        config.setLocale(locale);
-        context = context.createConfigurationContext(config);
-
-        return context;
+        config.setLocale(locale)
+        return context.createConfigurationContext(config)
     }
 
     /**
      * Method gets around a bug in the java.util.Formatter for API 7.x as detailed here
      * [https://bugs.openjdk.java.net/browse/JDK-8167567]. Any strings that contain
      * locale-specific grouping separators should use:
-     * <code>
+     * `
      * String.format(LocaleManager.getSafeLocale(context), baseString, val)
-     * </code>
-     * <p>
+     *
      * An example of a string that contains locale-specific grouping separators:
-     * <code>
+     * `
      * <string name="test">%,d likes</string>
-     * </code>
+    ` *
      */
-    @NonNull
-    public static Locale getSafeLocale(@Nullable Context context) {
-        Locale baseLocale;
+    @JvmStatic
+    fun getSafeLocale(context: Context?): Locale {
+        val baseLocale: Locale
         if (context == null) {
-            baseLocale = Locale.getDefault();
+            baseLocale = Locale.getDefault()
         } else {
-            Configuration config = context.getResources().getConfiguration();
-            baseLocale = config.getLocales().get(0);
+            val config = context.resources.configuration
+            baseLocale = config.locales[0]
         }
 
-        return languageLocale(baseLocale.getLanguage());
+        return languageLocale(baseLocale.language)
     }
 
     /**
      * Gets a locale for the given language code.
      *
      * @param languageCode The language code (example "en" or "es-US"). If null or empty will return
-     *                     the current default locale.
+     * the current default locale.
      */
-    @NonNull
-    public static Locale languageLocale(@Nullable String languageCode) {
+    @JvmStatic
+    fun languageLocale(languageCode: String?): Locale {
         if (languageCode == null || TextUtils.isEmpty(languageCode)) {
-            return Locale.getDefault();
+            return Locale.getDefault()
         }
         // Attempt to parse language and region codes.
-        String[] opts = LANGUAGE_SPLITTER.split(languageCode, 0);
-        if (opts.length > 1) {
-            return new Locale(opts[0], opts[1]);
+        val opts = LANGUAGE_SPLITTER.split(languageCode, 0)
+        return if (opts.size > 1) {
+            Locale(opts[0], opts[1])
         } else {
-            return new Locale(opts[0]);
+            Locale(opts[0])
         }
     }
 
     /**
      * Creates a map from language codes to WordPress language IDs.
      */
-    @NonNull
-    public static Map<String, String> generateLanguageMap(@NonNull Context context) {
-        String[] languageIds = context.getResources().getStringArray(R.array.lang_ids);
-        String[] languageCodes = context.getResources().getStringArray(R.array.language_codes);
+    @JvmStatic
+    fun generateLanguageMap(context: Context): Map<String, String> {
+        val languageIds = context.resources.getStringArray(R.array.lang_ids)
+        val languageCodes = context.resources.getStringArray(R.array.language_codes)
 
-        Map<String, String> languageMap = new HashMap<>();
-        for (int i = 0; i < languageIds.length && i < languageCodes.length; ++i) {
-            languageMap.put(languageCodes[i], languageIds[i]);
+        val languageMap: MutableMap<String, String> = HashMap()
+        var i = 0
+        while (i < languageIds.size && i < languageCodes.size) {
+            languageMap[languageCodes[i]] = languageIds[i]
+            ++i
         }
 
-        return languageMap;
+        return languageMap
     }
 
     /**
      * Generates display strings for given language codes. Used as entries in language preference.
      */
-    @Nullable
-    public static Triple<String[], String[], String[]> createSortedLanguageDisplayStrings(
-            @Nullable CharSequence[] languageCodes,
-            @NonNull Locale locale
-    ) {
-        if (languageCodes == null || languageCodes.length < 1) {
-            return null;
+    fun createSortedLanguageDisplayStrings(
+        languageCodes: Array<CharSequence>?,
+        locale: Locale
+    ): Triple<Array<String?>, Array<String?>, Array<String?>>? {
+        if (languageCodes.isNullOrEmpty()) {
+            return null
         }
 
-        ArrayList<String> entryStrings = new ArrayList<>(languageCodes.length);
-        for (int i = 0; i < languageCodes.length; ++i) {
+        val entryStrings = ArrayList<String>(languageCodes.size)
+        for (i in languageCodes.indices) {
             // "__" is used to sort the language code with the display string so both arrays are sorted at the same time
-            entryStrings.add(i, StringUtils.capitalize(
-                    getLanguageString(languageCodes[i].toString(), locale)) + "__" + languageCodes[i]);
+            entryStrings.add(
+                i, StringUtils.capitalize(
+                    getLanguageString(languageCodes[i].toString(), locale)
+                ) + "__" + languageCodes[i]
+            )
         }
 
-        entryStrings.sort(Collator.getInstance(locale));
+        entryStrings.sortWith(Collator.getInstance(locale))
 
-        String[] sortedEntries = new String[languageCodes.length];
-        String[] sortedValues = new String[languageCodes.length];
-        String[] detailStrings = new String[languageCodes.length];
+        val sortedEntries = arrayOfNulls<String>(languageCodes.size)
+        val sortedValues = arrayOfNulls<String>(languageCodes.size)
+        val detailStrings = arrayOfNulls<String>(languageCodes.size)
 
-        for (int i = 0; i < entryStrings.size(); ++i) {
+        for (i in entryStrings.indices) {
             // now, we can split the sorted array to extract the display string and the language code
-            String[] split = entryStrings.get(i).split("__");
-            sortedEntries[i] = split[0];
-            sortedValues[i] = split[1];
+            val split =
+                entryStrings[i].split("__".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            sortedEntries[i] = split[0]
+            sortedValues[i] = split[1]
             detailStrings[i] =
-                    StringUtils.capitalize(getLanguageString(sortedValues[i], languageLocale(sortedValues[i])));
+                StringUtils.capitalize(
+                    getLanguageString(
+                        sortedValues[i], languageLocale(
+                            sortedValues[i]
+                        )
+                    )
+                )
         }
 
-        return new Triple<>(sortedEntries, sortedValues, detailStrings);
+        return Triple(sortedEntries, sortedValues, detailStrings)
     }
 
 
     /**
      * Return a non-null display string for a given language code.
      */
-    @NonNull
-    public static String getLanguageString(@Nullable String languageCode, @NonNull Locale displayLocale) {
-        if (languageCode == null || languageCode.length() < 2 || languageCode.length() > 6) {
-            return "";
+    @JvmStatic
+    fun getLanguageString(languageCode: String?, displayLocale: Locale): String {
+        if (languageCode == null || languageCode.length < 2 || languageCode.length > 6) {
+            return ""
         }
 
-        Locale languageLocale = languageLocale(languageCode);
-        String displayLanguage = StringUtils.capitalize(languageLocale.getDisplayLanguage(displayLocale));
-        String displayCountry = languageLocale.getDisplayCountry(displayLocale);
+        val languageLocale = languageLocale(languageCode)
+        val displayLanguage =
+            StringUtils.capitalize(languageLocale.getDisplayLanguage(displayLocale))
+        val displayCountry = languageLocale.getDisplayCountry(displayLocale)
 
         if (!TextUtils.isEmpty(displayCountry)) {
-            return displayLanguage + " (" + displayCountry + ")";
+            return "$displayLanguage ($displayCountry)"
         }
-        return displayLanguage;
+        return displayLanguage
     }
 
-    public static @NonNull String getLocalePrefKeyString() {
-        return LANGUAGE_KEY;
-    }
+    @JvmStatic
+    fun getLocalePrefKeyString(): String = LOCALE_PREF_KEY_STRING
 }
