@@ -15,7 +15,6 @@ import org.wordpress.android.R;
 
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -37,17 +36,17 @@ public class LocaleManager {
     /**
      * Pattern to split a language string (to parse the language and region values).
      */
-    private static Pattern languageSplitter = Pattern.compile("_");
+    private static final Pattern LANGUAGE_SPLITTER = Pattern.compile("_");
 
     /**
      * Activate the locale associated with the provided context.
      *
      * @param context The current context.
      */
-    public static Context setLocale(Context context) {
+    @NonNull
+    public static Context setLocale(@NonNull Context context) {
         return updateResources(context, getLanguage(context));
     }
-
 
     /**
      * Compare the language for the current context with another language.
@@ -66,7 +65,8 @@ public class LocaleManager {
      *
      * @return The 2-letter language code (example "en")
      */
-    public static String getLanguage(Context context) {
+    @NonNull
+    public static String getLanguage(@NonNull Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString(LANGUAGE_KEY, LanguageUtils.getCurrentDeviceLanguageCode());
     }
@@ -76,7 +76,7 @@ public class LocaleManager {
      * Language IDs, used only by WordPress, are integer values that map to a language code.
      * http://bit.ly/2H7gksN
      **/
-    public static @NonNull String getLanguageWordPressId(Context context) {
+    public static @NonNull String getLanguageWordPressId(@NonNull Context context) {
         final String deviceLanguageCode = LanguageUtils.getPatchedCurrentDeviceLanguage(context);
 
         Map<String, String> languageCodeToID = LocaleManager.generateLanguageMap(context);
@@ -108,7 +108,8 @@ public class LocaleManager {
      * @return The modified context containing the updated localized resources
      */
     @SuppressLint("AppBundleLocaleChanges")
-    private static Context updateResources(Context context, String language) {
+    @NonNull
+    private static Context updateResources(@NonNull Context context, @NonNull String language) {
         Locale locale = languageLocale(language);
         Locale.setDefault(locale);
 
@@ -136,6 +137,7 @@ public class LocaleManager {
      * <string name="test">%,d likes</string>
      * </code>
      */
+    @NonNull
     public static Locale getSafeLocale(@Nullable Context context) {
         Locale baseLocale;
         if (context == null) {
@@ -154,12 +156,13 @@ public class LocaleManager {
      * @param languageCode The language code (example "en" or "es-US"). If null or empty will return
      *                     the current default locale.
      */
+    @NonNull
     public static Locale languageLocale(@Nullable String languageCode) {
-        if (TextUtils.isEmpty(languageCode)) {
+        if (languageCode == null || TextUtils.isEmpty(languageCode)) {
             return Locale.getDefault();
         }
         // Attempt to parse language and region codes.
-        String[] opts = languageSplitter.split(languageCode, 0);
+        String[] opts = LANGUAGE_SPLITTER.split(languageCode, 0);
         if (opts.length > 1) {
             return new Locale(opts[0], opts[1]);
         } else {
@@ -170,7 +173,8 @@ public class LocaleManager {
     /**
      * Creates a map from language codes to WordPress language IDs.
      */
-    public static Map<String, String> generateLanguageMap(Context context) {
+    @NonNull
+    public static Map<String, String> generateLanguageMap(@NonNull Context context) {
         String[] languageIds = context.getResources().getStringArray(R.array.lang_ids);
         String[] languageCodes = context.getResources().getStringArray(R.array.language_codes);
 
@@ -186,8 +190,10 @@ public class LocaleManager {
      * Generates display strings for given language codes. Used as entries in language preference.
      */
     @Nullable
-    public static Triple<String[], String[], String[]> createSortedLanguageDisplayStrings(CharSequence[] languageCodes,
-                                                                                Locale locale) {
+    public static Triple<String[], String[], String[]> createSortedLanguageDisplayStrings(
+            @Nullable CharSequence[] languageCodes,
+            @NonNull Locale locale
+    ) {
         if (languageCodes == null || languageCodes.length < 1) {
             return null;
         }
@@ -199,7 +205,7 @@ public class LocaleManager {
                     getLanguageString(languageCodes[i].toString(), locale)) + "__" + languageCodes[i]);
         }
 
-        Collections.sort(entryStrings, Collator.getInstance(locale));
+        entryStrings.sort(Collator.getInstance(locale));
 
         String[] sortedEntries = new String[languageCodes.length];
         String[] sortedValues = new String[languageCodes.length];
@@ -217,29 +223,12 @@ public class LocaleManager {
         return new Triple<>(sortedEntries, sortedValues, detailStrings);
     }
 
-    /**
-     * Generates detail display strings in the currently selected locale. Used as detail text
-     * in language preference dialog.
-     */
-    @Nullable
-    public static String[] createLanguageDetailDisplayStrings(CharSequence[] languageCodes) {
-        if (languageCodes == null || languageCodes.length < 1) {
-            return null;
-        }
-
-        String[] detailStrings = new String[languageCodes.length];
-        for (int i = 0; i < languageCodes.length; ++i) {
-            detailStrings[i] = StringUtils.capitalize(getLanguageString(
-                    languageCodes[i].toString(), languageLocale(languageCodes[i].toString())));
-        }
-
-        return detailStrings;
-    }
 
     /**
      * Return a non-null display string for a given language code.
      */
-    public static String getLanguageString(String languageCode, Locale displayLocale) {
+    @NonNull
+    public static String getLanguageString(@Nullable String languageCode, @NonNull Locale displayLocale) {
         if (languageCode == null || languageCode.length() < 2 || languageCode.length() > 6) {
             return "";
         }
@@ -254,7 +243,7 @@ public class LocaleManager {
         return displayLanguage;
     }
 
-    public static String getLocalePrefKeyString() {
+    public static @NonNull String getLocalePrefKeyString() {
         return LANGUAGE_KEY;
     }
 }
