@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.text.TextUtils
 import androidx.preference.PreferenceManager
 import org.wordpress.android.R
+import org.wordpress.android.util.PerAppLocaleManager.Companion.OLD_LOCALE_PREF_KEY_STRING
 import java.text.Collator
 import java.util.Locale
 import java.util.regex.Pattern
@@ -16,11 +17,6 @@ import java.util.regex.Pattern
  * android version.
  */
 object LocaleManager {
-    /**
-     * Key used for saving the language selection to shared preferences.
-     */
-    private const val LOCALE_PREF_KEY_STRING: String = "language-pref"
-
     /**
      * Pattern to split a language string (to parse the language and region values).
      */
@@ -56,7 +52,7 @@ object LocaleManager {
     @JvmStatic
     fun getLanguage(context: Context): String {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        return prefs.getString(LOCALE_PREF_KEY_STRING, LanguageUtils.getCurrentDeviceLanguageCode())!!
+        return prefs.getString(OLD_LOCALE_PREF_KEY_STRING, LanguageUtils.getCurrentDeviceLanguageCode())!!
     }
 
     /**
@@ -237,7 +233,4 @@ object LocaleManager {
             displayLanguage
         }
     }
-
-    @JvmStatic
-    fun getLocalePrefKeyString(): String = LOCALE_PREF_KEY_STRING
 }

@@ -61,11 +61,10 @@ class PerAppLocaleManager @Inject constructor(
      * this once the per-app language pref is no longer experimental.
      */
     fun checkAndUpdateOldLanguagePrefKey() {
-        val prefKey = LocaleManager.getLocalePrefKeyString()
-        val inAppLanguage = appPrefsWrapper.getPrefString(prefKey, "")
+        val inAppLanguage = appPrefsWrapper.getPrefString(OLD_LOCALE_PREF_KEY_STRING, "")
         val perAppLanguage = getCurrentLocale().language
         if (perAppLanguage.isNotEmpty() && inAppLanguage.equals(perAppLanguage).not()) {
-            appPrefsWrapper.setPrefString(prefKey, perAppLanguage)
+            appPrefsWrapper.setPrefString(OLD_LOCALE_PREF_KEY_STRING, perAppLanguage)
             appLogWrapper.d(
                 AppLog.T.SETTINGS,
                 "PerAppLocaleManager: changed inAppLanguage from $inAppLanguage to $perAppLanguage"
@@ -94,8 +93,7 @@ class PerAppLocaleManager @Inject constructor(
      */
     fun performMigrationIfNecessary() {
         if (isApplicationLocaleEmpty()) {
-            val prefKey = LocaleManager.getLocalePrefKeyString()
-            val previousLanguage = appPrefsWrapper.getPrefString(prefKey, "")
+            val previousLanguage = appPrefsWrapper.getPrefString(OLD_LOCALE_PREF_KEY_STRING, "")
             if (previousLanguage?.isNotEmpty() == true) {
                 appLogWrapper.d(
                     AppLog.T.SETTINGS,
@@ -154,5 +152,10 @@ class PerAppLocaleManager @Inject constructor(
 
         // update Reader tags as they need be localized
         ReaderUpdateServiceStarter.startService(getContext(), EnumSet.of(UpdateTask.TAGS))
+    }
+
+    companion object {
+         // Key previously used for saving the language selection to shared preferences.
+        const val OLD_LOCALE_PREF_KEY_STRING: String = "language-pref"
     }
 }
