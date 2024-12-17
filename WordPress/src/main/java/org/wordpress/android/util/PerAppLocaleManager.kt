@@ -31,29 +31,6 @@ class PerAppLocaleManager @Inject constructor(
     private val siteStore: SiteStore,
     private val accountStore: AccountStore,
 ) {
-    private fun getCurrentLocale(): Locale {
-        return if (isApplicationLocaleEmpty()) {
-            Locale.getDefault()
-        } else {
-            getApplicationLocaleList()[0] ?: Locale.getDefault()
-        }
-    }
-
-    fun getCurrentLocaleDisplayName(): String = getCurrentLocale().displayName
-
-    private fun getCurrentLocaleLanguageCode(): String = getCurrentLocale().language
-
-    /**
-     * Important: this should only be called after Activity.onCreate()
-     * https://developer.android.com/reference/androidx/appcompat/app/AppCompatDelegate#getApplicationLocales()
-     */
-    private fun getApplicationLocaleList() = AppCompatDelegate.getApplicationLocales()
-
-    private fun isApplicationLocaleEmpty(): Boolean {
-        val locales = getApplicationLocaleList()
-        return (locales.isEmpty || locales == LocaleListCompat.getEmptyLocaleList())
-    }
-
     /**
      * We want to make sure the language pref for the in-app locale (old implementation) is set
      * to the same locale as the AndroidX per-app locale. This way LocaleManager.getLanguage -
@@ -92,7 +69,8 @@ class PerAppLocaleManager @Inject constructor(
      * Previously the app locale was stored in SharedPreferences, so here we migrate to AndroidX per-app language prefs
      */
     fun performMigrationIfNecessary() {
-        if (isApplicationLocaleEmpty()) {
+        val locales = AppCompatDelegate.getApplicationLocales()
+        if (locales.isEmpty || locales == LocaleListCompat.getEmptyLocaleList()) {
             val previousLanguage = appPrefsWrapper.getPrefString(OLD_LOCALE_PREF_KEY_STRING, "")
             if (previousLanguage?.isNotEmpty() == true) {
                 appLogWrapper.d(
@@ -157,5 +135,18 @@ class PerAppLocaleManager @Inject constructor(
     companion object {
          // Key previously used for saving the language selection to shared preferences.
         const val OLD_LOCALE_PREF_KEY_STRING: String = "language-pref"
+
+        private fun getCurrentLocale(): Locale {
+            val locales = AppCompatDelegate.getApplicationLocales()
+            return if (locales.isEmpty || locales == LocaleListCompat.getEmptyLocaleList()) {
+                Locale.getDefault()
+            } else {
+                locales[0] ?: Locale.getDefault()
+            }
+        }
+
+        fun getCurrentLocaleDisplayName(): String = getCurrentLocale().displayName
+
+        fun getCurrentLocaleLanguageCode(): String = getCurrentLocale().language
     }
 }
