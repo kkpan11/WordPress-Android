@@ -8,9 +8,7 @@ import java.util.Locale
 import java.util.regex.Pattern
 
 /**
- * Helper class for working with localized strings. Ensures updates to the users
- * selected language is properly saved and resources appropriately updated for the
- * android version.
+ * Helper class for working with localized strings
  */
 object LocaleManager {
     /**
