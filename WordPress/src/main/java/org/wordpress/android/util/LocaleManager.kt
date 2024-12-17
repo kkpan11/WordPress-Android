@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.text.TextUtils
-import androidx.preference.PreferenceManager
 import org.wordpress.android.R
-import org.wordpress.android.util.PerAppLocaleManager.Companion.OLD_LOCALE_PREF_KEY_STRING
 import java.text.Collator
 import java.util.Locale
 import java.util.regex.Pattern
@@ -29,7 +27,7 @@ object LocaleManager {
      */
     @JvmStatic
     fun setLocale(context: Context): Context {
-        return updateResources(context, getLanguage(context))
+        return updateResources(context, getLanguage())
     }
 
     /**
@@ -43,16 +41,16 @@ object LocaleManager {
         return Locale.getDefault().toString() == newLocale.toString()
     }
 
+    @Suppress("ForbiddenComment")
     /**
-     * If the user has selected a language other than the device default, return that
-     * language code, else just return the device default language code.
+     * This is simply a wrapper for the per-app language code.
+     * TODO: Remove this and directly call PerAppLocaleManager
      *
      * @return The 2-letter language code (example "en")
      */
     @JvmStatic
-    fun getLanguage(context: Context): String {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        return prefs.getString(OLD_LOCALE_PREF_KEY_STRING, LanguageUtils.getCurrentDeviceLanguageCode())!!
+    fun getLanguage(): String {
+        return PerAppLocaleManager.getCurrentLocaleLanguageCode()
     }
 
     /**

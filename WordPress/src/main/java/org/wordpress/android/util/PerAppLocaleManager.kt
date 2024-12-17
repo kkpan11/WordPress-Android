@@ -132,6 +132,7 @@ class PerAppLocaleManager @Inject constructor(
         ReaderUpdateServiceStarter.startService(getContext(), EnumSet.of(UpdateTask.TAGS))
     }
 
+
     companion object {
          // Key previously used for saving the language selection to shared preferences.
         const val OLD_LOCALE_PREF_KEY_STRING: String = "language-pref"
