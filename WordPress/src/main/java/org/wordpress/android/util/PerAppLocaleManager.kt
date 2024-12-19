@@ -39,7 +39,8 @@ class PerAppLocaleManager @Inject constructor(
     }
 
     /**
-     * Previously the app locale was stored in SharedPreferences, so here we migrate to AndroidX per-app language prefs
+     * Previously the app locale was stored in SharedPreferences, so here we migrate to AndroidX per-app language prefs.
+     * This was added in our Jan 2025 release and can be removed after a few subsequent releases.
      */
     fun performMigrationIfNecessary() {
         val previousLanguage = appPrefsWrapper.getPrefString(OLD_LOCALE_PREF_KEY_STRING, "")
