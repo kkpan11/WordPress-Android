@@ -19,16 +19,6 @@ object LocaleManager {
     private const val MIN_LANGUAGE_CODE_LENGTH = 2
     private const val MAX_LANGUAGE_CODE_LENGTH = 6
 
-    /**
-     * Compare the language for the current context with another language.
-     *
-     * @param language The language to compare
-     * @return True if the languages are the same, else false
-     */
-    fun isSameLanguage(language: String): Boolean {
-        val newLocale = languageLocale(language)
-        return Locale.getDefault().toString() == newLocale.toString()
-    }
 
     @Suppress("ForbiddenComment")
     /**
