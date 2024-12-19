@@ -14,7 +14,10 @@ object LocaleManager {
     /**
      * Pattern to split a language string (to parse the language and region values).
      */
-    private val LANGUAGE_SPLITTER: Pattern = Pattern.compile("_")
+    private val LANGUAGE_SPLITTER = Pattern.compile("_")
+
+    private const val MIN_LANGUAGE_CODE_LENGTH = 2
+    private const val MAX_LANGUAGE_CODE_LENGTH = 6
 
     /**
      * Compare the language for the current context with another language.
@@ -69,8 +72,8 @@ object LocaleManager {
      * Method gets around a bug in the java.util.Formatter for API 7.x as detailed here
      * [https://bugs.openjdk.java.net/browse/JDK-8167567]. Any strings that contain
      * locale-specific grouping separators should use:
-     * `
-     * String.format(LocaleManager.getSafeLocale(context), baseString, val)
+     *
+     * `String.format(LocaleManager.getSafeLocale(context), baseString, val)`
      *
      * An example of a string that contains locale-specific grouping separators:
      * `
@@ -119,7 +122,7 @@ object LocaleManager {
         val languageIds = context.resources.getStringArray(R.array.lang_ids)
         val languageCodes = context.resources.getStringArray(R.array.language_codes)
 
-        val languageMap: MutableMap<String, String> = HashMap()
+        val languageMap = hashMapOf<String, String>()
         var i = 0
         while (i < languageIds.size && i < languageCodes.size) {
             languageMap[languageCodes[i]] = languageIds[i]
@@ -159,8 +162,10 @@ object LocaleManager {
 
         for (i in entryStrings.indices) {
             // now, we can split the sorted array to extract the display string and the language code
-            val split =
-                entryStrings[i].split("__".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val split = entryStrings[i]
+                .split("__".toRegex())
+                .dropLastWhile { it.isEmpty() }
+                .toTypedArray()
             sortedEntries[i] = split[0]
             sortedValues[i] = split[1]
             detailStrings[i] =
@@ -181,9 +186,11 @@ object LocaleManager {
      * Return a non-null display string for a given language code.
      */
     @JvmStatic
-    @Suppress("MagicNumber")
     fun getLanguageString(languageCode: String?, displayLocale: Locale): String {
-        if (languageCode == null || languageCode.length < 2 || languageCode.length > 6) {
+        if (languageCode == null
+            || languageCode.length < MIN_LANGUAGE_CODE_LENGTH
+            || languageCode.length > MAX_LANGUAGE_CODE_LENGTH
+        ) {
             return ""
         }
 
