@@ -73,6 +73,10 @@ class PerAppLocaleManager @Inject constructor(
         }
     }
 
+    /**
+     * This routine can be helpful during development to reset the app locale
+     */
+    @Suppress("unused")
     fun resetApplicationLocale() {
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
     }
