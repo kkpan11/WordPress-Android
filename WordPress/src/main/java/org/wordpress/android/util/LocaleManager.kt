@@ -201,8 +201,10 @@ object LocaleManager {
 
         for (i in entryStrings.indices) {
             // now, we can split the sorted array to extract the display string and the language code
-            val split =
-                entryStrings[i].split("__".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val split = entryStrings[i]
+                .split("__".toRegex())
+                .dropLastWhile { it.isEmpty() }
+                .toTypedArray()
             sortedEntries[i] = split[0]
             sortedValues[i] = split[1]
             detailStrings[i] =
@@ -224,8 +226,8 @@ object LocaleManager {
      */
     @JvmStatic
     fun getLanguageString(languageCode: String?, displayLocale: Locale): String {
-        if (languageCode == null ||
-            languageCode.length < MIN_LANGUAGE_CODE_LENGTH
+        if (languageCode == null
+            || languageCode.length < MIN_LANGUAGE_CODE_LENGTH
             || languageCode.length > MAX_LANGUAGE_CODE_LENGTH
         ) {
             return ""
