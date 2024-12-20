@@ -16,7 +16,6 @@ import org.wordpress.android.ui.reader.discover.interests.ReaderInterestsViewMod
 import org.wordpress.android.ui.reader.discover.interests.ReaderInterestsViewModel.UiState.InitialLoadingUiState
 import org.wordpress.android.ui.reader.viewmodels.ReaderViewModel
 import org.wordpress.android.ui.utils.UiHelpers
-import org.wordpress.android.util.LocaleManager
 import org.wordpress.android.util.PerAppLocaleManager
 import org.wordpress.android.util.extensions.getSerializableExtraCompat
 import org.wordpress.android.viewmodel.observeEvent
