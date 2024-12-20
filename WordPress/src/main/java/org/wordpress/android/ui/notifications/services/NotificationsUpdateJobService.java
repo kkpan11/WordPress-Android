@@ -9,8 +9,11 @@ import org.wordpress.android.util.PerAppLocaleManager;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 import static org.wordpress.android.ui.notifications.services.NotificationsUpdateServiceStarter.IS_TAPPED_ON_NOTIFICATION;
 
+@AndroidEntryPoint
 public class NotificationsUpdateJobService extends JobService
         implements NotificationsUpdateLogic.ServiceCompletionListener {
     private NotificationsUpdateLogic mNotificationsUpdateLogic;
