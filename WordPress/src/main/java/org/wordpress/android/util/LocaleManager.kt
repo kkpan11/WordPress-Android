@@ -152,10 +152,7 @@ object LocaleManager {
 
         for (i in entryStrings.indices) {
             // now, we can split the sorted array to extract the display string and the language code
-            val split = entryStrings[i]
-                .split("__".toRegex())
-                .dropLastWhile { it.isEmpty() }
-                .toTypedArray()
+            val split = entryStrings[i].split("__")
             sortedEntries[i] = split[0]
             sortedValues[i] = split[1]
             detailStrings[i] =
