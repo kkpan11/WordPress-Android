@@ -17,6 +17,7 @@ import org.wordpress.android.ui.reader.discover.interests.ReaderInterestsViewMod
 import org.wordpress.android.ui.reader.viewmodels.ReaderViewModel
 import org.wordpress.android.ui.utils.UiHelpers
 import org.wordpress.android.util.LocaleManager
+import org.wordpress.android.util.PerAppLocaleManager
 import org.wordpress.android.util.extensions.getSerializableExtraCompat
 import org.wordpress.android.viewmodel.observeEvent
 import org.wordpress.android.widgets.WPSnackbar
@@ -30,6 +31,9 @@ class ReaderInterestsFragment : Fragment(R.layout.reader_interests_fragment_layo
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: ReaderInterestsViewModel
     private var parentViewModel: ReaderViewModel? = null
+
+    @Inject
+    lateinit var perAppLocaleManager: PerAppLocaleManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,7 +113,7 @@ class ReaderInterestsFragment : Fragment(R.layout.reader_interests_fragment_layo
         }
 
         viewModel.start(
-            LocaleManager.getLanguage(),
+            perAppLocaleManager.getCurrentLocaleLanguageCode(),
             parentViewModel,
             entryPoint
         )
