@@ -1,26 +1,16 @@
 package org.wordpress.android.util
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Configuration
 import android.text.TextUtils
-import androidx.preference.PreferenceManager
 import org.wordpress.android.R
 import java.text.Collator
 import java.util.Locale
 import java.util.regex.Pattern
 
 /**
- * Helper class for working with localized strings. Ensures updates to the users
- * selected language is properly saved and resources appropriately updated for the
- * android version.
+ * Helper class for working with localized strings
  */
 object LocaleManager {
-    /**
-     * Key used for saving the language selection to shared preferences.
-     */
-    private const val LOCALE_PREF_KEY_STRING = "language-pref"
-
     /**
      * Pattern to split a language string (to parse the language and region values).
      */
@@ -29,37 +19,17 @@ object LocaleManager {
     private const val MIN_LANGUAGE_CODE_LENGTH = 2
     private const val MAX_LANGUAGE_CODE_LENGTH = 6
 
-    /**
-     * Activate the locale associated with the provided context.
-     *
-     * @param context The current context.
-     */
-    @JvmStatic
-    fun setLocale(context: Context): Context {
-        return updateResources(context, getLanguage(context))
-    }
 
+    @Suppress("ForbiddenComment")
     /**
-     * Compare the language for the current context with another language.
-     *
-     * @param language The language to compare
-     * @return True if the languages are the same, else false
-     */
-    fun isSameLanguage(language: String): Boolean {
-        val newLocale = languageLocale(language)
-        return Locale.getDefault().toString() == newLocale.toString()
-    }
-
-    /**
-     * If the user has selected a language other than the device default, return that
-     * language code, else just return the device default language code.
+     * This is simply a wrapper for the per-app language code.
+     * TODO: Remove this and directly call PerAppLocaleManager
      *
      * @return The 2-letter language code (example "en")
      */
     @JvmStatic
-    fun getLanguage(context: Context): String {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        return prefs.getString(LOCALE_PREF_KEY_STRING, LanguageUtils.getCurrentDeviceLanguageCode())!!
+    fun getLanguage(): String {
+        return PerAppLocaleManager.getCurrentLocaleLanguageCode()
     }
 
     /**
@@ -87,27 +57,7 @@ object LocaleManager {
         return langID ?: deviceLanguageCode
     }
 
-    /**
-     * Update resources for the current session.
-     *
-     * @param context  The current active context
-     * @param language The 2-letter language code (example "en")
-     * @return The modified context containing the updated localized resources
-     */
-    @SuppressLint("AppBundleLocaleChanges")
-    private fun updateResources(context: Context, language: String): Context {
-        val locale = languageLocale(language)
-        Locale.setDefault(locale)
-
-        val res = context.resources
-        val config = Configuration(res.configuration)
-
-        // NOTE: Earlier versions of Android require both of these to be set, otherwise
-        // RTL may not be implemented properly.
-        config.setLocale(locale)
-        return context.createConfigurationContext(config)
-    }
-
+    @Suppress("ForbiddenComment")
     /**
      * Method gets around a bug in the java.util.Formatter for API 7.x as detailed here
      * [https://bugs.openjdk.java.net/browse/JDK-8167567]. Any strings that contain
@@ -116,9 +66,10 @@ object LocaleManager {
      * `String.format(LocaleManager.getSafeLocale(context), baseString, val)`
      *
      * An example of a string that contains locale-specific grouping separators:
-     *
-     * ` %,d likes `
-     *
+     * `
+     * <string name="test">%,d likes</string>
+    `*
+     * TODO: This is a workaround for a bug in API 7, which we no longer support. Investigate removing this.
      */
     @JvmStatic
     fun getSafeLocale(context: Context?): Locale {
@@ -201,10 +152,7 @@ object LocaleManager {
 
         for (i in entryStrings.indices) {
             // now, we can split the sorted array to extract the display string and the language code
-            val split = entryStrings[i]
-                .split("__".toRegex())
-                .dropLastWhile { it.isEmpty() }
-                .toTypedArray()
+            val split = entryStrings[i].split("__")
             sortedEntries[i] = split[0]
             sortedValues[i] = split[1]
             detailStrings[i] =
@@ -244,7 +192,4 @@ object LocaleManager {
             displayLanguage
         }
     }
-
-    @JvmStatic
-    fun getLocalePrefKeyString(): String = LOCALE_PREF_KEY_STRING
 }
