@@ -19,19 +19,6 @@ object LocaleManager {
     private const val MIN_LANGUAGE_CODE_LENGTH = 2
     private const val MAX_LANGUAGE_CODE_LENGTH = 6
 
-
-    @Suppress("ForbiddenComment")
-    /**
-     * This is simply a wrapper for the per-app language code.
-     * TODO: Remove this and directly call PerAppLocaleManager
-     *
-     * @return The 2-letter language code (example "en")
-     */
-    @JvmStatic
-    fun getLanguage(): String {
-        return PerAppLocaleManager.getCurrentLocaleLanguageCode()
-    }
-
     /**
      * Convert the device language code (codes defined by ISO 639-1) to a Language ID.
      * Language IDs, used only by WordPress, are integer values that map to a language code.
