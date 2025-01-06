@@ -191,6 +191,8 @@ platform :android do
     apps.each do |app|
       app_values = APP_SPECIFIC_VALUES[app]
       metadata_source_dir = File.join(PROJECT_ROOT_FOLDER, 'WordPress', app_values[:metadata_dir])
+      metadata_download_path = File.join(FASTLANE_FOLDER, app_values[:metadata_dir], 'android')
+      locales = { wordpress: WP_RELEASE_NOTES_LOCALES, jetpack: JP_RELEASE_NOTES_LOCALES }[app]
 
       files = {
         play_store_app_title: { desc: 'title.txt', max_size: 30 },
@@ -200,36 +202,48 @@ platform :android do
       unless skip_release_notes
         version_suffix = version.split('.').join
         files["release_note_#{version_suffix}"] = { desc: 'changelogs/default.txt', max_size: 500, alternate_key: "release_note_short_#{version_suffix}" }
+
+        # Clear release notes if the source file is empty
+        source_notes_file = File.join(metadata_source_dir, 'release_notes.txt')
+        if !File.exist?(source_notes_file) || File.read(source_notes_file).strip.empty?
+          all_app_locales = locales + [['en', 'en-US']]
+          all_app_locales.each do |_, google_play_locale|
+            changelog_dir = File.join(metadata_download_path, google_play_locale, 'changelogs')
+            FileUtils.mkdir_p(changelog_dir)
+            File.write(File.join(changelog_dir, 'default.txt'), '')
+          end
+          # Skip downloading release notes translations since the source is empty
+          files.delete("release_note_#{version_suffix}")
+        end
       end
+
       # Add key mappings for `screenshots_*` files too
       Dir.glob('screenshot_*.txt', base: metadata_source_dir).each do |f|
         key = "play_store_#{File.basename(f, '.txt')}"
         files[key] = { desc: f }
       end
 
-      download_path = File.join(FASTLANE_FOLDER, app_values[:metadata_dir], 'android')
-      locales = { wordpress: WP_RELEASE_NOTES_LOCALES, jetpack: JP_RELEASE_NOTES_LOCALES }[app]
       UI.header("Downloading metadata translations for #{app_values[:display_name]}")
       gp_downloadmetadata(
         project_url: app_values[:glotpress_metadata_project],
         target_files: files,
         locales: locales,
-        download_path: download_path
+        download_path: metadata_download_path
       )
 
       # Copy the source `.txt` files (used as source of truth when we generated the `.po`) to the `fastlane/*metadata/android/en-US` dir,
       # as `en-US` is the source language, and isn't exported from GlotPress during `gp_downloadmetadata`
       files.each do |key, h|
         source_file = key.to_s.start_with?('release_note_') ? 'release_notes.txt' : h[:desc]
-        FileUtils.cp(File.join(metadata_source_dir, source_file), File.join(download_path, 'en-US', h[:desc]))
+        FileUtils.cp(File.join(metadata_source_dir, source_file), File.join(metadata_download_path, 'en-US', h[:desc]))
       end
 
       next if skip_commit
 
-      git_add(path: download_path)
+      git_add(path: metadata_download_path)
       message = "Update #{app_values[:display_name]} metadata translations"
       message += " for #{version}" unless version.nil?
-      git_commit(path: download_path, message: message, allow_nothing_to_commit: true)
+      git_commit(path: metadata_download_path, message: message, allow_nothing_to_commit: true)
     end
     push_to_git_remote unless skip_commit || skip_git_push
   end
