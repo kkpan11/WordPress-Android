@@ -207,8 +207,8 @@ platform :android do
         # Clear release notes if the source file is empty
         source_notes_file = File.join(metadata_source_dir, 'release_notes.txt')
         if !File.exist?(source_notes_file) || File.read(source_notes_file).strip.empty?
-          all_app_locales = locales + [['en', 'en-US']]
-          all_app_locales.each do |_, google_play_locale|
+          all_app_locales = locales + [%w[en en-US]]
+          all_app_locales.each_value do |google_play_locale|
             changelog_dir = File.join(metadata_download_path, google_play_locale, 'changelogs')
             FileUtils.mkdir_p(changelog_dir)
             File.write(File.join(changelog_dir, 'default.txt'), '')
