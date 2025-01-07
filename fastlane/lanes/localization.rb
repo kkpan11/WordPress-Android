@@ -165,43 +165,44 @@ platform :android do
   # Downloads the translated metadata (release notes, app store strings, title, etc.)
   # from GlotPress, and updates the local `.txt` files with them.
   #
-  # @option [String|Symbol] app The app to take screenshots for. Must be `wordpress` or `jetpack`
-  # @option [String] version The `versionName` of the app, used to extract the release notes from the right GlotPress key. Defaults to current `versionName`.
-  # @option [Boolean] skip_release_notes If set to true, will not download release notes. Defaults to `false`. This can be useful when all you want to download
-  #         is screenshots translations and metadata not linked to a specific version (in which case the `version` parameters is optional).
-  # @option [Boolean] skip_commit If set to true, will skip the `git add`, `git commit` and `git push` operations. Default to false.
-  # @option [Boolean] skip_git_push If set to true, will skip the `git push` at the end. Default to false. Inferred to `true` if `skip_commit` is `true`.
+  # @param [Symbol|String] app The app to download metadata for. If nil, downloads for both WordPress and Jetpack
+  # @param [String] version The `versionName` of the app, used to extract release notes from GlotPress.
+  #                         Defaults to current `versionName`. Only required if skip_release_notes is false
+  # @param [Boolean] skip_release_notes Whether to skip downloading release notes. Default false
+  # @param [Boolean] skip_commit If true, will skip the `git add`, `git commit` and `git push` operations. Default to false.
+  # @param [Boolean] skip_git_push If true, will skip the `git push` at the end. Default to false. Inferred to `true` if `skip_commit` is `true`.
   #
-  desc 'Downloads translated metadata from GlotPress'
-  lane :download_metadata_strings do |options|
-    skip_release_notes = options.fetch(:skip_release_notes, false)
-    version = skip_release_notes ? nil : options.fetch(:version, current_release_version)
-
-    skip_commit = options.fetch(:skip_commit, false)
-    skip_git_push = options.fetch(:skip_git_push, false)
+  # @return [void]
+  #
+  lane :download_metadata_strings do |app: nil, version: current_release_version, skip_release_notes: false, skip_commit: false, skip_git_push: false|
+    version = nil if skip_release_notes
 
     # If no `app:` is specified, call this for both WordPress and Jetpack
-    app_param = options[:app]
-    apps = if app_param.nil?
+    apps = if app.nil?
              %i[wordpress jetpack]
            else
-             Array(app_param.to_s.downcase.to_sym)
+             Array(app.to_s.downcase.to_sym)
            end
 
-    apps.each do |app|
-      app_values = APP_SPECIFIC_VALUES[app]
+    apps.each do |current_app|
+      app_values = APP_SPECIFIC_VALUES[current_app]
       metadata_source_dir = File.join(PROJECT_ROOT_FOLDER, 'WordPress', app_values[:metadata_dir])
       metadata_download_path = File.join(FASTLANE_FOLDER, app_values[:metadata_dir], 'android')
-      locales = { wordpress: WP_RELEASE_NOTES_LOCALES, jetpack: JP_RELEASE_NOTES_LOCALES }[app]
+      locales = { wordpress: WP_RELEASE_NOTES_LOCALES, jetpack: JP_RELEASE_NOTES_LOCALES }[current_app]
 
       files = {
         play_store_app_title: { desc: 'title.txt', max_size: 30 },
         play_store_promo: { desc: 'short_description.txt', max_size: 80 },
         play_store_desc: { desc: 'full_description.txt', max_size: 4000 }
       }
+
       unless skip_release_notes
         version_suffix = version.split('.').join
-        files["release_note_#{version_suffix}"] = { desc: 'changelogs/default.txt', max_size: 500, alternate_key: "release_note_short_#{version_suffix}" }
+        files["release_note_#{version_suffix}"] = {
+          desc: 'changelogs/default.txt',
+          max_size: 500,
+          alternate_key: "release_note_short_#{version_suffix}"
+        }
 
         # Clear release notes if the source file is empty
         source_notes_file = File.join(metadata_source_dir, 'release_notes.txt')
