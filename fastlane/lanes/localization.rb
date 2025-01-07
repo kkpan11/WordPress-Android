@@ -198,23 +198,23 @@ platform :android do
 
       unless skip_release_notes
         version_suffix = version.split('.').join
-        files["release_note_#{version_suffix}"] = {
-          desc: 'changelogs/default.txt',
-          max_size: 500,
-          alternate_key: "release_note_short_#{version_suffix}"
-        }
 
-        # Clear release notes if the source file is empty
         source_notes_file = File.join(metadata_source_dir, 'release_notes.txt')
         if !File.exist?(source_notes_file) || File.read(source_notes_file).strip.empty?
+          # Clear release notes if the source file is empty
           all_app_locales = locales + [%w[en en-US]]
           all_app_locales.each_value do |google_play_locale|
             changelog_dir = File.join(metadata_download_path, google_play_locale, 'changelogs')
             FileUtils.mkdir_p(changelog_dir)
             File.write(File.join(changelog_dir, 'default.txt'), '')
           end
-          # Skip downloading release notes translations since the source is empty
-          files.delete("release_note_#{version_suffix}")
+        else
+          # Make sure to also download the release notes translations as the source file (release_notes.txt) is not empty
+          files["release_note_#{version_suffix}"] = {
+            desc: 'changelogs/default.txt',
+            max_size: 500,
+            alternate_key: "release_note_short_#{version_suffix}"
+          }
         end
       end
 
