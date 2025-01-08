@@ -529,11 +529,11 @@ public class GutenbergKitEditorFragment extends EditorFragmentAbstract implement
     }
 
     @Override public void onUndoPressed() {
-        // Currently unsupported
+        mGutenbergView.undo();
     }
 
     @Override public void onRedoPressed() {
-        // Currently unsupported
+        mGutenbergView.redo();
     }
 
     @Override
