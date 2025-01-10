@@ -238,12 +238,12 @@
             android:key="@string/pref_key_site_accelerator_settings"
             android:title="@string/site_settings_site_accelerator">
 
+            <org.wordpress.android.ui.prefs.WPPreference android:summary="@string/site_settings_site_accelerator_summary" />
+
             <org.wordpress.android.ui.prefs.WPSwitchPreference
                 android:id="@+id/pref_site_accelerator"
                 android:key="@string/pref_key_site_accelerator"
                 android:title="@string/site_settings_site_accelerator" />
-
-            <org.wordpress.android.ui.prefs.WPPreference android:summary="@string/site_settings_site_accelerator_summary" />
 
             <org.wordpress.android.ui.prefs.WPSwitchPreference
                 android:id="@+id/pref_serve_images_from_our_servers"
