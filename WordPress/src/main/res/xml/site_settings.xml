@@ -10,6 +10,31 @@
         android:key="@string/pref_key_site_general"
         android:title="@string/site_settings_general_header">
 
+        <org.wordpress.android.ui.prefs.SummaryEditTextPreference
+            android:id="@+id/pref_site_title"
+            android:key="@string/pref_key_site_title"
+            android:title="@string/site_settings_title_title"
+            app:longClickHint="@string/site_settings_title_hint"
+            app:maxSummaryLines="2"
+            app:summaryLines="1" />
+
+        <org.wordpress.android.ui.prefs.SummaryEditTextPreference
+            android:id="@+id/pref_site_tagline"
+            android:key="@string/pref_key_site_tagline"
+            android:title="@string/site_settings_tagline_title"
+            app:longClickHint="@string/site_settings_tagline_hint"
+            app:maxSummaryLines="1"
+            app:summaryLines="1" />
+
+        <org.wordpress.android.ui.prefs.SummaryEditTextPreference
+            android:id="@+id/pref_site_address"
+            android:enabled="false"
+            android:key="@string/pref_key_site_address"
+            android:title="@string/site_settings_address_title"
+            app:longClickHint="@string/site_settings_address_hint"
+            app:maxSummaryLines="1"
+            app:summaryLines="1" />
+
         <org.wordpress.android.ui.prefs.DetailListPreference
             android:id="@+id/pref_site_privacy"
             android:defaultValue="-2"
@@ -27,31 +52,6 @@
             android:key="@string/pref_key_site_language"
             android:title="@string/site_settings_language_title"
             app:longClickHint="@string/site_settings_language_hint" />
-
-        <org.wordpress.android.ui.prefs.SummaryEditTextPreference
-            android:id="@+id/pref_site_address"
-            android:enabled="false"
-            android:key="@string/pref_key_site_address"
-            android:title="@string/site_settings_address_title"
-            app:longClickHint="@string/site_settings_address_hint"
-            app:maxSummaryLines="1"
-            app:summaryLines="1" />
-
-        <org.wordpress.android.ui.prefs.SummaryEditTextPreference
-            android:id="@+id/pref_site_title"
-            android:key="@string/pref_key_site_title"
-            android:title="@string/site_settings_title_title"
-            app:longClickHint="@string/site_settings_title_hint"
-            app:maxSummaryLines="2"
-            app:summaryLines="1" />
-
-        <org.wordpress.android.ui.prefs.SummaryEditTextPreference
-            android:id="@+id/pref_site_tagline"
-            android:key="@string/pref_key_site_tagline"
-            android:title="@string/site_settings_tagline_title"
-            app:longClickHint="@string/site_settings_tagline_hint"
-            app:maxSummaryLines="1"
-            app:summaryLines="1" />
 
         <org.wordpress.android.ui.prefs.WPPreference
             android:id="@+id/pref_site_timezone"
@@ -97,6 +97,16 @@
         android:key="@string/pref_key_site_account"
         android:title="@string/site_settings_account_header">
 
+        <org.wordpress.android.ui.prefs.SummaryEditTextPreference
+            android:id="@+id/pref_site_username"
+            android:enabled="false"
+            android:key="@string/pref_key_site_username"
+            android:maxLength="@integer/max_length_username"
+            android:title="@string/site_settings_username_title"
+            app:longClickHint="@string/site_settings_username_hint"
+            app:maxSummaryLines="2"
+            app:summaryLines="1" />
+
         <org.wordpress.android.ui.prefs.EditTextPreferenceWithValidation
             android:id="@+id/pref_site_password"
             android:dialogTitle="@string/site_settings_password_dialog_title"
@@ -106,16 +116,6 @@
             android:maxLength="@integer/max_length_password"
             android:title="@string/site_settings_password_title"
             app:longClickHint="@string/site_settings_password_hint"
-            app:maxSummaryLines="2"
-            app:summaryLines="1" />
-
-        <org.wordpress.android.ui.prefs.SummaryEditTextPreference
-            android:id="@+id/pref_site_username"
-            android:enabled="false"
-            android:key="@string/pref_key_site_username"
-            android:maxLength="@integer/max_length_username"
-            android:title="@string/site_settings_username_title"
-            app:longClickHint="@string/site_settings_username_hint"
             app:maxSummaryLines="2"
             app:summaryLines="1" />
 
@@ -146,6 +146,18 @@
             android:title="@string/site_settings_default_category_title"
             app:longClickHint="@string/site_settings_category_hint" />
 
+        <org.wordpress.android.ui.prefs.WPPreference
+            android:id="@+id/pref_categories"
+            android:key="@string/pref_key_site_categories"
+            android:title="@string/site_settings_categories_title"
+            app:longClickHint="@string/site_settings_categories_hint" />
+
+        <org.wordpress.android.ui.prefs.WPPreference
+            android:id="@+id/pref_tags"
+            android:key="@string/pref_key_site_tags"
+            android:title="@string/site_settings_tags_title"
+            app:longClickHint="@string/site_settings_tags_hint" />
+
         <org.wordpress.android.ui.prefs.DetailListPreference
             android:id="@+id/pref_default_format"
             android:entries="@array/post_format_display_names"
@@ -153,19 +165,6 @@
             android:key="@string/pref_key_site_format"
             android:title="@string/site_settings_default_format_title"
             app:longClickHint="@string/site_settings_format_hint" />
-
-        <org.wordpress.android.ui.prefs.DetailListPreference
-            android:id="@+id/pref_week_starts"
-            android:entries="@array/site_settings_weekdays"
-            android:entryValues="@array/site_settings_weekday_values"
-            android:key="@string/pref_key_site_week_start"
-            android:title="@string/site_settings_week_start_title" />
-
-        <org.wordpress.android.ui.prefs.WPPreference
-            android:id="@+id/pref_categories"
-            android:key="@string/pref_key_site_categories"
-            android:title="@string/site_settings_categories_title"
-            app:longClickHint="@string/site_settings_categories_hint" />
 
         <org.wordpress.android.ui.prefs.WPPreference
             android:id="@+id/pref_date_format"
@@ -177,11 +176,12 @@
             android:key="@string/pref_key_site_time_format"
             android:title="@string/site_settings_time_format_title" />
 
-        <org.wordpress.android.ui.prefs.WPPreference
-            android:id="@+id/pref_tags"
-            android:key="@string/pref_key_site_tags"
-            android:title="@string/site_settings_tags_title"
-            app:longClickHint="@string/site_settings_tags_hint" />
+        <org.wordpress.android.ui.prefs.DetailListPreference
+            android:id="@+id/pref_week_starts"
+            android:entries="@array/site_settings_weekdays"
+            android:entryValues="@array/site_settings_weekday_values"
+            android:key="@string/pref_key_site_week_start"
+            android:title="@string/site_settings_week_start_title" />
 
         <org.wordpress.android.ui.prefs.WPPreference
             android:id="@+id/pref_related_posts"
@@ -238,8 +238,6 @@
             android:key="@string/pref_key_site_accelerator_settings"
             android:title="@string/site_settings_site_accelerator">
 
-            <org.wordpress.android.ui.prefs.WPPreference android:summary="@string/site_settings_site_accelerator_summary" />
-
             <org.wordpress.android.ui.prefs.WPSwitchPreference
                 android:id="@+id/pref_site_accelerator"
                 android:key="@string/pref_key_site_accelerator"
@@ -257,7 +255,14 @@
                 android:title="@string/site_settings_faster_static_files"
                 app:startOffset="@dimen/margin_extra_large" />
 
+            <org.wordpress.android.ui.prefs.WPPreference android:summary="@string/site_settings_site_accelerator_summary" />
+
         </PreferenceScreen>
+
+        <org.wordpress.android.ui.prefs.WPSwitchPreference
+            android:id="@+id/pref_ad_free_video_hosting"
+            android:key="@string/pref_key_ad_free_video_hosting"
+            android:title="@string/site_settings_ad_free_video_hosting" />
 
         <PreferenceScreen
             android:id="@+id/pref_jetpack_performance_more_settings"
@@ -274,7 +279,10 @@
                     android:key="@string/pref_key_site_accelerator_settings_nested"
                     android:title="@string/site_settings_site_accelerator">
 
-                    <org.wordpress.android.ui.prefs.WPPreference android:summary="@string/site_settings_site_accelerator_summary" />
+                    <org.wordpress.android.ui.prefs.WPSwitchPreference
+                        android:id="@+id/pref_site_accelerator_nested"
+                        android:key="@string/pref_key_site_accelerator_nested"
+                        android:title="@string/site_settings_site_accelerator" />
 
                     <org.wordpress.android.ui.prefs.WPSwitchPreference
                         android:id="@+id/pref_serve_images_from_our_servers_nested"
@@ -288,10 +296,7 @@
                         android:title="@string/site_settings_faster_static_files"
                         app:startOffset="@dimen/margin_extra_large" />
 
-                    <org.wordpress.android.ui.prefs.WPSwitchPreference
-                        android:id="@+id/pref_site_accelerator_nested"
-                        android:key="@string/pref_key_site_accelerator_nested"
-                        android:title="@string/site_settings_site_accelerator" />
+                    <org.wordpress.android.ui.prefs.WPPreference android:summary="@string/site_settings_site_accelerator_summary" />
 
                 </PreferenceScreen>
 
@@ -322,11 +327,6 @@
 
         </PreferenceScreen>
 
-        <org.wordpress.android.ui.prefs.WPSwitchPreference
-            android:id="@+id/pref_ad_free_video_hosting"
-            android:key="@string/pref_key_ad_free_video_hosting"
-            android:title="@string/site_settings_ad_free_video_hosting" />
-
     </PreferenceCategory>
 
     <!-- Discussion settings -->
@@ -335,6 +335,24 @@
         android:key="@string/pref_key_site_discussion"
         android:title="@string/site_settings_discussion_header"
         app:longClickHint="@string/site_settings_discussion_hint">
+
+        <org.wordpress.android.ui.prefs.WPSwitchPreference
+            android:id="@+id/pref_allow_comments"
+            android:key="@string/pref_key_site_allow_comments"
+            android:title="@string/site_settings_allow_comments_title"
+            app:longClickHint="@string/site_settings_allow_comments_hint" />
+
+        <org.wordpress.android.ui.prefs.WPSwitchPreference
+            android:id="@+id/pref_send_pingbacks"
+            android:key="@string/pref_key_site_send_pingbacks"
+            android:title="@string/site_settings_send_pingbacks_title"
+            app:longClickHint="@string/site_settings_send_pingbacks_hint" />
+
+        <org.wordpress.android.ui.prefs.WPSwitchPreference
+            android:id="@+id/pref_receive_pingbacks"
+            android:key="@string/pref_key_site_receive_pingbacks"
+            android:title="@string/site_settings_receive_pingbacks_title"
+            app:longClickHint="@string/site_settings_receive_pingbacks_hint" />
 
         <PreferenceScreen
             android:id="@+id/pref_more_discussion_settings"
@@ -346,15 +364,11 @@
                 android:id="@+id/pref_site_new_posts_defaults"
                 android:title="@string/site_settings_discussion_new_posts_header">
 
-                <org.wordpress.android.ui.prefs.LearnMorePreference
-                    android:id="@+id/pref_learn_more"
-                    android:key="@string/pref_key_site_learn_more"
-                    android:title="@string/site_settings_learn_more_header"
-                    app:caption="@string/site_settings_learn_more_caption"
-                    app:layout="@layout/learn_more_pref_old"
-                    app:openInDialog="true"
-                    app:url="https://wordpress.com/support/settings/discussion-settings/#default-article-settings"
-                    app:useCustomJsFormatting="true" />
+                <org.wordpress.android.ui.prefs.WPSwitchPreference
+                    android:id="@+id/pref_allow_comments_nested"
+                    android:key="@string/pref_key_site_allow_comments_nested"
+                    android:title="@string/site_settings_allow_comments_title"
+                    app:longClickHint="@string/site_settings_allow_comments_hint" />
 
                 <org.wordpress.android.ui.prefs.WPSwitchPreference
                     android:id="@+id/pref_send_pingbacks_nested"
@@ -368,17 +382,40 @@
                     android:title="@string/site_settings_receive_pingbacks_title"
                     app:longClickHint="@string/site_settings_receive_pingbacks_hint" />
 
-                <org.wordpress.android.ui.prefs.WPSwitchPreference
-                    android:id="@+id/pref_allow_comments_nested"
-                    android:key="@string/pref_key_site_allow_comments_nested"
-                    android:title="@string/site_settings_allow_comments_title"
-                    app:longClickHint="@string/site_settings_allow_comments_hint" />
+                <org.wordpress.android.ui.prefs.LearnMorePreference
+                    android:id="@+id/pref_learn_more"
+                    android:key="@string/pref_key_site_learn_more"
+                    android:title="@string/site_settings_learn_more_header"
+                    app:caption="@string/site_settings_learn_more_caption"
+                    app:layout="@layout/learn_more_pref_old"
+                    app:openInDialog="true"
+                    app:url="https://wordpress.com/support/settings/discussion-settings/#default-article-settings"
+                    app:useCustomJsFormatting="true" />
 
             </PreferenceCategory>
 
             <PreferenceCategory
                 android:id="@+id/pref_site_comments"
                 android:title="@string/site_settings_comments_header">
+
+                <org.wordpress.android.ui.prefs.WPSwitchPreference
+                    android:id="@+id/pref_identity_required"
+                    android:key="@string/pref_key_site_identity_required"
+                    android:title="@string/site_settings_identity_required_title"
+                    app:longClickHint="@string/site_settings_identity_required_hint" />
+
+                <org.wordpress.android.ui.prefs.WPSwitchPreference
+                    android:id="@+id/pref_user_account_required"
+                    android:key="@string/pref_key_site_user_account_required"
+                    android:title="@string/site_settings_account_required_title"
+                    app:longClickHint="@string/site_settings_user_account_required_hint" />
+
+                <org.wordpress.android.ui.prefs.WPPreference
+                    android:id="@+id/pref_close_after"
+                    android:defaultValue="0"
+                    android:key="@string/pref_key_site_close_after"
+                    android:title="@string/site_settings_close_after_title"
+                    app:longClickHint="@string/site_settings_close_after_hint" />
 
                 <org.wordpress.android.ui.prefs.DetailListPreference
                     android:id="@+id/pref_sort_by"
@@ -388,22 +425,6 @@
                     android:key="@string/pref_key_site_sort_by"
                     android:title="@string/site_settings_sort_by_title"
                     app:longClickHint="@string/site_settings_sort_by_hint" />
-
-                <org.wordpress.android.ui.prefs.DetailListPreference
-                    android:id="@+id/pref_allowlist"
-                    android:entries="@array/site_settings_auto_approve_entries"
-                    android:entryValues="@array/site_settings_auto_approve_values"
-                    android:key="@string/pref_key_site_allowlist"
-                    android:title="@string/site_settings_allowlist_title"
-                    app:entryDetails="@array/site_settings_auto_approve_details"
-                    app:longClickHint="@string/site_settings_allowlist_hint" />
-
-                <org.wordpress.android.ui.prefs.WPPreference
-                    android:id="@+id/pref_close_after"
-                    android:defaultValue="0"
-                    android:key="@string/pref_key_site_close_after"
-                    android:title="@string/site_settings_close_after_title"
-                    app:longClickHint="@string/site_settings_close_after_hint" />
 
                 <org.wordpress.android.ui.prefs.WPPreference
                     android:id="@+id/pref_threading"
@@ -418,6 +439,15 @@
                     android:key="@string/pref_key_site_paging"
                     android:title="@string/site_settings_paging_title"
                     app:longClickHint="@string/site_settings_paging_hint" />
+
+                <org.wordpress.android.ui.prefs.DetailListPreference
+                    android:id="@+id/pref_allowlist"
+                    android:entries="@array/site_settings_auto_approve_entries"
+                    android:entryValues="@array/site_settings_auto_approve_values"
+                    android:key="@string/pref_key_site_allowlist"
+                    android:title="@string/site_settings_allowlist_title"
+                    app:entryDetails="@array/site_settings_auto_approve_details"
+                    app:longClickHint="@string/site_settings_allowlist_hint" />
 
                 <org.wordpress.android.ui.prefs.WPPreference
                     android:id="@+id/pref_multiple_links"
@@ -437,39 +467,9 @@
                     android:title="@string/site_settings_denylist_title"
                     app:longClickHint="@string/site_settings_denylist_hint" />
 
-                <org.wordpress.android.ui.prefs.WPSwitchPreference
-                    android:id="@+id/pref_identity_required"
-                    android:key="@string/pref_key_site_identity_required"
-                    android:title="@string/site_settings_identity_required_title"
-                    app:longClickHint="@string/site_settings_identity_required_hint" />
-
-                <org.wordpress.android.ui.prefs.WPSwitchPreference
-                    android:id="@+id/pref_user_account_required"
-                    android:key="@string/pref_key_site_user_account_required"
-                    android:title="@string/site_settings_account_required_title"
-                    app:longClickHint="@string/site_settings_user_account_required_hint" />
-
             </PreferenceCategory>
 
         </PreferenceScreen>
-
-        <org.wordpress.android.ui.prefs.WPSwitchPreference
-            android:id="@+id/pref_send_pingbacks"
-            android:key="@string/pref_key_site_send_pingbacks"
-            android:title="@string/site_settings_send_pingbacks_title"
-            app:longClickHint="@string/site_settings_send_pingbacks_hint" />
-
-        <org.wordpress.android.ui.prefs.WPSwitchPreference
-            android:id="@+id/pref_receive_pingbacks"
-            android:key="@string/pref_key_site_receive_pingbacks"
-            android:title="@string/site_settings_receive_pingbacks_title"
-            app:longClickHint="@string/site_settings_receive_pingbacks_hint" />
-
-        <org.wordpress.android.ui.prefs.WPSwitchPreference
-            android:id="@+id/pref_allow_comments"
-            android:key="@string/pref_key_site_allow_comments"
-            android:title="@string/site_settings_allow_comments_title"
-            app:longClickHint="@string/site_settings_allow_comments_hint" />
 
     </PreferenceCategory>
 
@@ -484,9 +484,31 @@
             android:key="@string/pref_key_jetpack_security_screen"
             android:title="@string/jetpack_security_setting_title">
 
+            <org.wordpress.android.ui.prefs.WPSwitchPreference
+                android:id="@+id/pref_monitor_uptime"
+                android:key="@string/pref_key_jetpack_monitor_uptime"
+                android:title="@string/jetpack_monitor_uptime_title" />
+
+            <org.wordpress.android.ui.prefs.WPSwitchPreference
+                android:id="@+id/pref_jetpack_send_email_notifications"
+                android:dependency="@string/pref_key_jetpack_monitor_uptime"
+                android:key="@string/pref_key_jetpack_send_email_notifications"
+                android:title="@string/jetpack_send_email_notifications_title" />
+
+            <org.wordpress.android.ui.prefs.WPSwitchPreference
+                android:id="@+id/pref_jetpack_send_wp_notifications"
+                android:dependency="@string/pref_key_jetpack_monitor_uptime"
+                android:key="@string/pref_key_jetpack_send_wp_notifications"
+                android:title="@string/jetpack_send_wp_notifications_title" />
+
             <PreferenceCategory
                 android:id="@+id/pref_category_jetpack_brute_force"
                 android:title="@string/jetpack_prevent_brute_force_category_title">
+
+                <org.wordpress.android.ui.prefs.WPSwitchPreference
+                    android:id="@+id/pref_prevent_brute_force"
+                    android:key="@string/pref_key_jetpack_prevent_brute_force"
+                    android:title="@string/jetpack_prevent_brute_force_title" />
 
                 <org.wordpress.android.ui.prefs.WPPreference
                     android:id="@+id/pref_brute_force_allowlist"
@@ -494,25 +516,16 @@
                     android:key="@string/pref_key_jetpack_brute_force_allowlist"
                     android:title="@string/jetpack_brute_force_allowlist_title" />
 
-                <org.wordpress.android.ui.prefs.WPSwitchPreference
-                    android:id="@+id/pref_prevent_brute_force"
-                    android:key="@string/pref_key_jetpack_prevent_brute_force"
-                    android:title="@string/jetpack_prevent_brute_force_title" />
-
             </PreferenceCategory>
 
             <PreferenceCategory
                 android:id="@+id/pref_category_jetpack_wpcom_sign_in"
                 android:title="@string/jetpack_wpcom_sign_in_category_title">
 
-                <org.wordpress.android.ui.prefs.LearnMorePreference
-                    android:id="@+id/pref_jetpack_learn_more"
-                    android:key="@string/pref_key_jetpack_learn_more"
-                    android:title="@string/site_settings_learn_more_header"
-                    app:layout="@layout/learn_more_pref_old"
-                    app:openInDialog="true"
-                    app:url="https://jetpack.com/support/sso/"
-                    app:useCustomJsFormatting="false" />
+                <org.wordpress.android.ui.prefs.WPSwitchPreference
+                    android:id="@+id/pref_allow_wpcom_sign_in"
+                    android:key="@string/pref_key_jetpack_allow_wpcom_sign_in"
+                    android:title="@string/jetpack_allow_wpcom_sign_in_title" />
 
                 <org.wordpress.android.ui.prefs.WPSwitchPreference
                     android:id="@+id/pref_jetpack_match_wpcom_email"
@@ -526,29 +539,16 @@
                     android:key="@string/pref_key_jetpack_require_two_factor"
                     android:title="@string/jetpack_require_two_factor_title" />
 
-                <org.wordpress.android.ui.prefs.WPSwitchPreference
-                    android:id="@+id/pref_allow_wpcom_sign_in"
-                    android:key="@string/pref_key_jetpack_allow_wpcom_sign_in"
-                    android:title="@string/jetpack_allow_wpcom_sign_in_title" />
+                <org.wordpress.android.ui.prefs.LearnMorePreference
+                    android:id="@+id/pref_jetpack_learn_more"
+                    android:key="@string/pref_key_jetpack_learn_more"
+                    android:title="@string/site_settings_learn_more_header"
+                    app:layout="@layout/learn_more_pref_old"
+                    app:openInDialog="true"
+                    app:url="https://jetpack.com/support/sso/"
+                    app:useCustomJsFormatting="false" />
 
             </PreferenceCategory>
-
-            <org.wordpress.android.ui.prefs.WPSwitchPreference
-                android:id="@+id/pref_jetpack_send_wp_notifications"
-                android:dependency="@string/pref_key_jetpack_monitor_uptime"
-                android:key="@string/pref_key_jetpack_send_wp_notifications"
-                android:title="@string/jetpack_send_wp_notifications_title" />
-
-            <org.wordpress.android.ui.prefs.WPSwitchPreference
-                android:id="@+id/pref_monitor_uptime"
-                android:key="@string/pref_key_jetpack_monitor_uptime"
-                android:title="@string/jetpack_monitor_uptime_title" />
-
-            <org.wordpress.android.ui.prefs.WPSwitchPreference
-                android:id="@+id/pref_jetpack_send_email_notifications"
-                android:dependency="@string/pref_key_jetpack_monitor_uptime"
-                android:key="@string/pref_key_jetpack_send_email_notifications"
-                android:title="@string/jetpack_send_email_notifications_title" />
         </PreferenceScreen>
     </PreferenceCategory>
 
