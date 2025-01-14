@@ -32,8 +32,6 @@ fun DebugSharedPreferenceFlagsScreen(
                 title = stringResource(R.string.debug_settings_debug_flags_screen),
                 navigationIcon = NavigationIcons.BackIcon,
                 onNavigationIconClick = onBackTapped,
-                backgroundColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface,
             )
         },
     ) { paddingValues ->
