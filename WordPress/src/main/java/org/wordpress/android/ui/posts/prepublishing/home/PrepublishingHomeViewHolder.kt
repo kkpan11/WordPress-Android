@@ -10,7 +10,7 @@ import androidx.annotation.LayoutRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -133,7 +133,7 @@ sealed class PrepublishingHomeViewHolder(
                             is JetpackSocialUiState.Loaded -> {
                                 PostSocialSharingItem(
                                     model = internalState.socialSharingModel,
-                                    backgroundColor = MaterialTheme.colors.surface,
+                                    backgroundColor = MaterialTheme.colorScheme.surface,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable(
@@ -151,7 +151,7 @@ sealed class PrepublishingHomeViewHolder(
                                         internalState.onConnectProfilesClick(JetpackSocialFlow.PRE_PUBLISHING)
                                      },
                                     onDismissClick = { internalState.onNotNowClick(JetpackSocialFlow.PRE_PUBLISHING) },
-                                    backgroundColor = MaterialTheme.colors.surface,
+                                    backgroundColor = MaterialTheme.colorScheme.surface,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }

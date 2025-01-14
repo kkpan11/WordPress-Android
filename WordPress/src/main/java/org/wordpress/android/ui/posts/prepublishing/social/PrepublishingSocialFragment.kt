@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -72,7 +72,7 @@ class PrepublishingSocialFragment : Fragment(R.layout.prepublishing_social_fragm
                                 state = state,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(MaterialTheme.colors.surface),
+                                    .background(MaterialTheme.colorScheme.surface),
                             )
                         }
                     }
