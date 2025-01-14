@@ -3,16 +3,18 @@ package org.wordpress.android.ui.compose.components
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -72,6 +74,7 @@ object NavigationIcons {
  * @param onNavigationIconClick The lambda to be invoked when the navigation icon is pressed.
  * @param actions The actions displayed at the end of the TopAppBar. This should typically be IconButtons
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTopAppBar(
     title: String?,
@@ -84,10 +87,13 @@ fun MainTopAppBar(
     elevation: Dp = 0.dp,
 ) {
     TopAppBar(
-        modifier = modifier,
-        backgroundColor = backgroundColor,
-        contentColor = contentColor,
-        elevation = elevation,
+        modifier = modifier.then(
+            Modifier.shadow(
+                elevation = elevation,
+            )
+        ),
+        // backgroundColor = backgroundColor,
+        // contentColor = contentColor,
         title = { Text(text = title ?: "") },
         navigationIcon = {
             navigationIcon?.let {
