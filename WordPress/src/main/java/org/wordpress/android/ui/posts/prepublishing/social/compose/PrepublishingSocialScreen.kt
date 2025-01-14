@@ -7,7 +7,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import org.wordpress.android.ui.compose.components.buttons.PrimaryButton
+import org.wordpress.android.ui.compose.components.buttons.PrimaryButtonM3
 import org.wordpress.android.ui.compose.unit.Margin
 import org.wordpress.android.ui.posts.EditPostJetpackSocialConnectionsContainer
 import org.wordpress.android.ui.posts.EditorJetpackSocialViewModel.JetpackSocialUiState
@@ -38,7 +38,7 @@ fun PrepublishingSocialScreen(
                 modifier = Modifier.padding(Margin.ExtraLarge.value),
             )
 
-            PrimaryButton(
+            PrimaryButtonM3(
                 text = state.subscribeButtonLabel,
                 onClick = { state.onSubscribeClick(JetpackSocialFlow.PRE_PUBLISHING) },
                 padding = PaddingValues(horizontal = Margin.ExtraLarge.value)

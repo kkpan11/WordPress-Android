@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import org.wordpress.android.R
 import org.wordpress.android.ui.compose.components.TrainOfIcons
 import org.wordpress.android.ui.compose.components.TrainOfIconsModel
-import org.wordpress.android.ui.compose.components.buttons.SecondaryButton
+import org.wordpress.android.ui.compose.components.buttons.SecondaryButtonM3
 import org.wordpress.android.ui.compose.theme.AppColor
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.Margin
@@ -63,7 +63,7 @@ fun PrepublishingHomeSocialNoConnectionsItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            SecondaryButton(
+            SecondaryButtonM3(
                 text = stringResource(R.string.prepublishing_nudges_social_new_connection_cta),
                 onClick = { onConnectClick(JetpackSocialFlow.PRE_PUBLISHING) },
                 padding = PaddingValues(0.dp),
@@ -75,7 +75,7 @@ fun PrepublishingHomeSocialNoConnectionsItem(
             // min spacing between buttons
             Spacer(Modifier.width(Margin.Medium.value))
 
-            SecondaryButton(
+            SecondaryButtonM3(
                 text = stringResource(R.string.button_not_now),
                 onClick = onDismissClick,
                 padding = PaddingValues(0.dp),

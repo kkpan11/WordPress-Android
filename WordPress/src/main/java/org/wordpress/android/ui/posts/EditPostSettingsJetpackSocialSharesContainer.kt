@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import org.wordpress.android.ui.compose.components.TrainOfIconsModel
-import org.wordpress.android.ui.compose.components.buttons.PrimaryButton
+import org.wordpress.android.ui.compose.components.buttons.PrimaryButtonM3
 import org.wordpress.android.ui.compose.theme.AppColor
 import org.wordpress.android.ui.compose.theme.AppThemeM3Editor
 import org.wordpress.android.ui.compose.unit.Margin
@@ -32,7 +32,7 @@ fun EditPostSettingsJetpackSocialSharesContainer(
             horizontal = Margin.ExtraLarge.value,
         )
     )
-    PrimaryButton(
+    PrimaryButtonM3(
         text = subscribeButtonLabel,
         onClick = onSubscribeClick,
         fillMaxWidth = false,

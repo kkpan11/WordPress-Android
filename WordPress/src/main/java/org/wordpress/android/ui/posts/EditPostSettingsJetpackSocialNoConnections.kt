@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.wordpress.android.ui.compose.components.TrainOfIcons
 import org.wordpress.android.ui.compose.components.TrainOfIconsModel
-import org.wordpress.android.ui.compose.components.buttons.SecondaryButton
+import org.wordpress.android.ui.compose.components.buttons.SecondaryButtonM3
 import org.wordpress.android.ui.compose.theme.AppColor
 import org.wordpress.android.ui.compose.theme.AppThemeM3Editor
 import org.wordpress.android.ui.compose.unit.Margin
@@ -77,7 +77,7 @@ fun EditPostSettingsJetpackSocialNoConnections(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            SecondaryButton(
+            SecondaryButtonM3(
                 text = connectProfilesButtonLabel,
                 onClick = onConnectProfilesCLick,
                 padding = PaddingValues(0.dp),
@@ -88,7 +88,7 @@ fun EditPostSettingsJetpackSocialNoConnections(
 
             Spacer(Modifier.width(Margin.Medium.value))
 
-            SecondaryButton(
+            SecondaryButtonM3(
                 text = notNowButtonLabel,
                 onClick = onNotNowClick,
                 padding = PaddingValues(0.dp),
