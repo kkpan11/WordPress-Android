@@ -21,7 +21,6 @@ import androidx.core.view.isGone
 import androidx.recyclerview.widget.RecyclerView
 import org.wordpress.android.R
 import org.wordpress.android.ui.compose.theme.AppThemeM3
-import org.wordpress.android.ui.compose.utils.withBottomSheetElevation
 import org.wordpress.android.ui.posts.EditorJetpackSocialViewModel.JetpackSocialUiState
 import org.wordpress.android.ui.posts.prepublishing.home.PrepublishingHomeItemUiState.ButtonUiState
 import org.wordpress.android.ui.posts.prepublishing.home.PrepublishingHomeItemUiState.HeaderUiState
@@ -134,7 +133,7 @@ sealed class PrepublishingHomeViewHolder(
                             is JetpackSocialUiState.Loaded -> {
                                 PostSocialSharingItem(
                                     model = internalState.socialSharingModel,
-                                    backgroundColor = MaterialTheme.colors.surface.withBottomSheetElevation(),
+                                    backgroundColor = MaterialTheme.colors.surface,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable(
@@ -152,7 +151,7 @@ sealed class PrepublishingHomeViewHolder(
                                         internalState.onConnectProfilesClick(JetpackSocialFlow.PRE_PUBLISHING)
                                      },
                                     onDismissClick = { internalState.onNotNowClick(JetpackSocialFlow.PRE_PUBLISHING) },
-                                    backgroundColor = MaterialTheme.colors.surface.withBottomSheetElevation(),
+                                    backgroundColor = MaterialTheme.colors.surface,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }

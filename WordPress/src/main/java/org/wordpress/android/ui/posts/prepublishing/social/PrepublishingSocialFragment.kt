@@ -13,7 +13,6 @@ import org.wordpress.android.WordPress
 import org.wordpress.android.databinding.PrepublishingSocialFragmentBinding
 import org.wordpress.android.databinding.PrepublishingToolbarBinding
 import org.wordpress.android.ui.compose.theme.AppThemeM3
-import org.wordpress.android.ui.compose.utils.withBottomSheetElevation
 import org.wordpress.android.ui.posts.EditorJetpackSocialViewModel
 import org.wordpress.android.ui.posts.EditorJetpackSocialViewModel.JetpackSocialUiState
 import org.wordpress.android.ui.posts.prepublishing.PrepublishingViewModel
@@ -73,7 +72,7 @@ class PrepublishingSocialFragment : Fragment(R.layout.prepublishing_social_fragm
                                 state = state,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(MaterialTheme.colors.surface.withBottomSheetElevation()),
+                                    .background(MaterialTheme.colors.surface),
                             )
                         }
                     }
