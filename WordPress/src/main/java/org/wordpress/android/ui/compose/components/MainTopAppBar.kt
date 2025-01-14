@@ -2,7 +2,6 @@ package org.wordpress.android.ui.compose.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -57,15 +56,7 @@ object NavigationIcons {
  *
  * Extra info and workarounds regarding [TopAppBar]:
  *
- * [TopAppBar] from Material internally provide a different [LocalContentAlpha] according to low vs high
- * contrast use cases. This forces the navigation icon, title, and actions "Composables" to use that alpha.
- * In addition to that, most people use the default phone settings, which is considered LOW CONTRAST, making
- * the provided alpha be smaller than 1f, which makes the components mentioned above have some transparency, which
- * is not aligned with our Design Specs.
- *
- * This Composable works around that by setting LocalContentAlpha in the appropriate parts of the code using the helper
- * [withFullContentAlpha] function, which provides a full alpha to the [LocalContentAlpha] Composition Local.
- *
+ * [TopAppBar] from Material 3
  * @param title The title String to be shown in the top bar.
  * @param modifier The [Modifier] to be applied to this TopAppBar.
  * @param navigationIcon The composable to be used as navigation icon, preferably one of the default options from
