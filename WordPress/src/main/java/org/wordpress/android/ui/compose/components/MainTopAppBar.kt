@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import org.wordpress.android.R
-import org.wordpress.android.ui.compose.theme.AppThemeM2
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.utils.withFullContentAlpha
 
 typealias NavigationIcon = @Composable () -> Unit
@@ -109,7 +109,7 @@ fun MainTopAppBar(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun MainTopAppBarPreview() {
-    AppThemeM2 {
+    AppThemeM3 {
         MainTopAppBar(
             title = "Preview",
             navigationIcon = NavigationIcons.BackIcon,
