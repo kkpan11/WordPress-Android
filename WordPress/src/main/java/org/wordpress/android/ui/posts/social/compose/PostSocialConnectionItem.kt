@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material3.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -53,15 +51,15 @@ fun PostSocialConnectionItem(
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
             colorFilter = ColorFilter.colorMatrix(saturationMatrix),
-            alpha = if (enabled) 1f else ContentAlpha.disabled,
+            alpha = if (enabled) 1f else 0.38f,
             modifier = Modifier.size(28.dp),
         )
         Spacer(modifier = Modifier.width(Margin.ExtraLarge.value))
         Text(
             text = connection.externalName,
-            style = MaterialTheme.typography.subtitle1,
-            color = MaterialTheme.colors.onSurface
-                .copy(alpha = if (enabled) ContentAlpha.high else ContentAlpha.disabled),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+                .copy(alpha = if (enabled) 1f else 0.38f),
         )
         Spacer(modifier = Modifier.weight(1f))
         WPSwitch(
