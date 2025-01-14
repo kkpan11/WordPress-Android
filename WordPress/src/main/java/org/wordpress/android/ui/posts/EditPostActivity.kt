@@ -1428,11 +1428,7 @@ class EditPostActivity : AppCompatActivity(), EditorFragmentActivity, EditorImag
         }
         previewMenuItem?.setVisible(showMenuItems)
         if (viewHtmlModeMenuItem != null) {
-            viewHtmlModeMenuItem.setVisible(
-                (((editorFragment is AztecEditorFragment)
-                        || (editorFragment is GutenbergEditorFragment)
-                        || (editorFragment is GutenbergKitEditorFragment))) && showMenuItems
-            )
+            viewHtmlModeMenuItem.isVisible = showMenuItems
             viewHtmlModeMenuItem.setTitle(
                 if (htmlModeMenuStateOn) R.string.menu_visual_mode else R.string.menu_html_mode)
         }
