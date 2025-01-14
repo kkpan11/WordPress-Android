@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -35,7 +35,7 @@ fun PrepublishingSocialScreen(
             DescriptionText(
                 text = socialSharingModel.description,
                 isLowOnShares = socialSharingModel.isLowOnShares,
-                baseTextStyle = MaterialTheme.typography.subtitle1,
+                baseTextStyle = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(Margin.ExtraLarge.value),
             )
 
