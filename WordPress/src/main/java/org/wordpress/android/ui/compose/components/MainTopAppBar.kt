@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import org.wordpress.android.R
 import org.wordpress.android.ui.compose.theme.AppThemeM3
-import org.wordpress.android.ui.compose.utils.withFullContentAlpha
 
 typealias NavigationIcon = @Composable () -> Unit
 
@@ -89,13 +88,9 @@ fun MainTopAppBar(
         backgroundColor = backgroundColor,
         contentColor = contentColor,
         elevation = elevation,
-        title = title?.let {
-            withFullContentAlpha {
-                Text(title)
-            }
-        } ?: { },
-        navigationIcon = navigationIcon?.let {
-            withFullContentAlpha {
+        title = { Text(text = title ?: "") },
+        navigationIcon = {
+            navigationIcon?.let {
                 IconButton(onClick = onNavigationIconClick) {
                     navigationIcon()
                 }
