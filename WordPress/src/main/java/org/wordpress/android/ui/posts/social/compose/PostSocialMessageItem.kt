@@ -6,10 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material3.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -37,17 +36,17 @@ fun PostSocialMessageItem(
     ) {
         Text(
             text = stringResource(R.string.social_item_message_title),
-            style = MaterialTheme.typography.subtitle1,
-            color = MaterialTheme.colors.onSurface
-                .copy(alpha = if (enabled) ContentAlpha.high else ContentAlpha.disabled),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+                .copy(alpha = if (enabled) 0.74f else 0.38f),
         )
         Text(
             text = message,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.body2,
-            color = MaterialTheme.colors.onSurface
-                .copy(alpha = if (enabled) ContentAlpha.medium else ContentAlpha.disabled),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+                .copy(alpha = if (enabled) 0.74f else ContentAlpha.disabled),
         )
     }
 }
