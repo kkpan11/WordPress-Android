@@ -39,7 +39,7 @@ val JpDarkColorPalette = darkColors(
 )
 
 @Composable
-fun JpColorPalette(isDarkTheme: Boolean = isSystemInDarkTheme()) = when (isDarkTheme) {
+fun jpColorPalette(isDarkTheme: Boolean = isSystemInDarkTheme()) = when (isDarkTheme) {
     true -> JpDarkColorPalette
     else -> JpLightColorPalette
 }

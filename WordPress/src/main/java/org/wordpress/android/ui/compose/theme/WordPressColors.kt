@@ -39,7 +39,7 @@ val WpDarkColorPalette = darkColors(
 )
 
 @Composable
-fun WpColorPalette(isDarkTheme: Boolean = isSystemInDarkTheme()) = when (isDarkTheme) {
+fun wpColorPalette(isDarkTheme: Boolean = isSystemInDarkTheme()) = when (isDarkTheme) {
     true -> WpDarkColorPalette
     else -> WpLightColorPalette
 }

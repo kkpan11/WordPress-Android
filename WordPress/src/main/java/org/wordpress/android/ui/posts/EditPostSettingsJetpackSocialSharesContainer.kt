@@ -3,7 +3,7 @@ package org.wordpress.android.ui.posts
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,7 +25,7 @@ fun EditPostSettingsJetpackSocialSharesContainer(
     DescriptionText(
         text = postSocialSharingModel.description,
         isLowOnShares = postSocialSharingModel.isLowOnShares,
-        baseTextStyle = MaterialTheme.typography.body2
+        baseTextStyle = MaterialTheme.typography.bodyMedium
             .copy(color = AppColor.Gray30),
         modifier = Modifier.padding(
             vertical = Margin.ExtraLarge.value,

@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +36,7 @@ fun EditPostSettingsJetpackSocialNoConnections(
     notNowButtonLabel: String,
     onNotNowClick: () -> Unit,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colors.surface,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
 ) {
     Column(
         modifier = Modifier
@@ -60,7 +60,7 @@ fun EditPostSettingsJetpackSocialNoConnections(
         Spacer(Modifier.height(Margin.ExtraLarge.value))
         Text(
             text = message,
-            style = MaterialTheme.typography.body1.copy(color = AppColor.Gray30),
+            style = MaterialTheme.typography.bodyLarge.copy(color = AppColor.Gray30),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
