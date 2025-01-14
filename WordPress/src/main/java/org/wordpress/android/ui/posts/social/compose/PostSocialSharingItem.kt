@@ -10,11 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -37,7 +36,7 @@ import org.wordpress.android.ui.compose.unit.Margin
 fun PostSocialSharingItem(
     model: PostSocialSharingModel,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colors.surface
+    backgroundColor: Color = MaterialTheme.colorScheme.surface
 ) {
     SocialContainer(
         iconCount = model.iconModels.size,
@@ -48,7 +47,7 @@ fun PostSocialSharingItem(
         Column(modifier = textColumnModifier) {
             Text(
                 text = model.title,
-                style = MaterialTheme.typography.subtitle1.copy(),
+                style = MaterialTheme.typography.titleMedium.copy(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -59,7 +58,7 @@ fun PostSocialSharingItem(
                 DescriptionText(
                     text = model.description,
                     isLowOnShares = model.isLowOnShares,
-                    baseTextStyle = MaterialTheme.typography.body2
+                    baseTextStyle = MaterialTheme.typography.bodyMedium
                         .copy(color = AppColor.Gray30),
                 )
             }
@@ -107,7 +106,7 @@ fun DescriptionText(
     text: String,
     isLowOnShares: Boolean,
     modifier: Modifier = Modifier,
-    baseTextStyle: TextStyle = MaterialTheme.typography.body2,
+    baseTextStyle: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
     Row(
         modifier,
@@ -150,13 +149,13 @@ private fun PostSocialSharingItemPreview() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colors.surface)
+                .background(MaterialTheme.colorScheme.surface)
         ) {
             val model = PostSocialSharingModel(
                 title = "Sharing to 2 of 3 accounts",
                 description = "27/30 social shares remaining",
                 iconModels = listOf(
-                    TrainOfIconsModel(R.drawable.ic_social_tumblr, ContentAlpha.disabled),
+                    TrainOfIconsModel(R.drawable.ic_social_tumblr, 0.38f),
                     TrainOfIconsModel(R.drawable.ic_social_facebook),
                 ),
             )
@@ -171,7 +170,7 @@ private fun PostSocialSharingItemPreview() {
                 title = "Sharing to 2 of 3 accounts",
                 description = "27/30 social shares remaining with a very long text that should be truncated",
                 iconModels = listOf(
-                    TrainOfIconsModel(R.drawable.ic_social_tumblr, ContentAlpha.disabled),
+                    TrainOfIconsModel(R.drawable.ic_social_tumblr, 0.38f),
                     TrainOfIconsModel(R.drawable.ic_social_facebook),
                 ),
             )
@@ -188,8 +187,8 @@ private fun PostSocialSharingItemPreview() {
                 title = "Sharing to 3 of 5 accounts",
                 description = "27/30 social shares remaining",
                 iconModels = listOf(
-                    TrainOfIconsModel(R.drawable.ic_social_facebook, ContentAlpha.disabled),
-                    TrainOfIconsModel(R.drawable.ic_social_mastodon, ContentAlpha.disabled),
+                    TrainOfIconsModel(R.drawable.ic_social_facebook, 0.38f),
+                    TrainOfIconsModel(R.drawable.ic_social_mastodon, 0.38f),
                     TrainOfIconsModel(R.drawable.ic_social_twitter),
                     TrainOfIconsModel(R.drawable.ic_social_linkedin),
                     TrainOfIconsModel(R.drawable.ic_social_instagram),
@@ -209,7 +208,7 @@ private fun PostSocialSharingItemPreview() {
                 title = "Not sharing to social",
                 description = "0/30 social shares remaining",
                 iconModels = listOf(
-                    TrainOfIconsModel(R.drawable.ic_social_tumblr, ContentAlpha.disabled),
+                    TrainOfIconsModel(R.drawable.ic_social_tumblr, 0.38f),
                 ),
                 isLowOnShares = true,
             )
