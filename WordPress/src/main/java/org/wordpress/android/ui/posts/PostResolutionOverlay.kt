@@ -3,6 +3,7 @@ package org.wordpress.android.ui.posts
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,19 +21,18 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Checkbox
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material3.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +45,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.wordpress.android.R
-import org.wordpress.android.ui.compose.components.ContentAlphaProvider
 import org.wordpress.android.ui.compose.theme.AppColor
 import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.Margin
@@ -56,17 +55,17 @@ private val contentIconForegroundColor: Color
     get() = AppColor.White
 
 private val contentIconBackgroundColor: Color
-    @Composable get() = if (MaterialTheme.colors.isLight) {
-        AppColor.Black
-    } else {
+    @Composable get() = if (isSystemInDarkTheme()) {
         AppColor.White.copy(alpha = 0.18f)
+    } else {
+        AppColor.Black
     }
 
 private val contentTextEmphasis: Float
-    @Composable get() = if (MaterialTheme.colors.isLight) {
-        1f
-    } else {
+    @Composable get() = if (isSystemInDarkTheme()) {
         ContentAlpha.medium
+    } else {
+        1f
     }
 
 @Composable
@@ -161,8 +160,8 @@ fun PostResolutionOverlay(
                 elevation = null,
                 contentPadding = PaddingValues(vertical = Margin.Large.value),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MaterialTheme.colors.onSurface,
-                    contentColor = MaterialTheme.colors.surface,
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                    contentColor = MaterialTheme.colorScheme.surface,
                 ),
             ) {
                 Text(text = stringResource(R.string.cancel))
@@ -176,8 +175,8 @@ fun PostResolutionOverlay(
                 elevation = null,
                 contentPadding = PaddingValues(vertical = Margin.Large.value),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MaterialTheme.colors.onSurface,
-                    contentColor = MaterialTheme.colors.surface,
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                    contentColor = MaterialTheme.colorScheme.surface,
                 ),
             ) {
                 Text(text = stringResource(R.string.confirm))
@@ -240,31 +239,26 @@ private fun OverlayContentItem(
                 .weight(1f)
                 .padding(vertical = Margin.ExtraLarge.value)
         ) {
-            ContentAlphaProvider(contentTextEmphasis) {
-                Text(
-                    stringResource(item.headerResId),
-                    style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
-
-            ContentAlphaProvider(contentTextEmphasis) {
-                Text(
-                    uiStringText(item.dateLine),
-                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
+            Text(
+                stringResource(item.headerResId),
+                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
         }
 
-        Checkbox(
-            checked = item.isSelected,
-            onCheckedChange = { isChecked ->
-                onSelected(item.copy(isSelected = isChecked))
-            },
-            modifier = Modifier.align(Alignment.CenterVertically)
+        Text(
+            uiStringText(item.dateLine),
+            style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(bottom = 4.dp)
         )
     }
+
+    Checkbox(
+        checked = item.isSelected,
+        onCheckedChange = { isChecked ->
+            onSelected(item.copy(isSelected = isChecked))
+        },
+    )
 }
 
 @Preview(name = "Light Mode")
