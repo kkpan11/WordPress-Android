@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import org.wordpress.android.R
 import org.wordpress.android.ui.compose.modifiers.conditionalThen
 import org.wordpress.android.ui.compose.theme.AppColor
-import org.wordpress.android.ui.compose.theme.AppThemeM2
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 
 @Composable
 fun PrimaryButton(
@@ -81,7 +81,7 @@ fun PrimaryButton(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PrimaryButtonPreview() {
-    AppThemeM2 {
+    AppThemeM3 {
         PrimaryButton(text = "Continue", onClick = {})
     }
 }
@@ -90,7 +90,7 @@ private fun PrimaryButtonPreview() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PrimaryButtonInProgressPreview() {
-    AppThemeM2 {
+    AppThemeM3 {
         PrimaryButton(text = "Continue", onClick = {}, isInProgress = true)
     }
 }
@@ -99,7 +99,7 @@ private fun PrimaryButtonInProgressPreview() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PrimaryButtonLargePreview() {
-    AppThemeM2 {
+    AppThemeM3 {
         PrimaryButton(text = "Continue", onClick = {}, buttonSize = ButtonSize.LARGE)
     }
 }
