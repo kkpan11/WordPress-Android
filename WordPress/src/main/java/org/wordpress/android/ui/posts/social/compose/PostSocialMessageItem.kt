@@ -19,7 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import org.wordpress.android.R
-import org.wordpress.android.ui.compose.theme.AppThemeM2
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.compose.unit.Margin
 
 @Composable
@@ -66,7 +66,7 @@ fun PostSocialMessageItemPreview() {
         messageId = (messageId + 1) % messages.size
     }
 
-    AppThemeM2 {
+    AppThemeM3 {
         Column(
             modifier = Modifier.fillMaxWidth(),
         ) {
