@@ -11,10 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Divider
+import androidx.compose.material3.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
@@ -181,7 +182,7 @@ private fun PostSocialSharingItemPreview() {
                     .padding(16.dp),
             )
 
-            Divider()
+            HorizontalDivider()
 
             val model3 = PostSocialSharingModel(
                 title = "Sharing to 3 of 5 accounts",
@@ -202,7 +203,7 @@ private fun PostSocialSharingItemPreview() {
                     .padding(16.dp)
             )
 
-            Divider()
+            HorizontalDivider()
 
             val model4 = PostSocialSharingModel(
                 title = "Not sharing to social",

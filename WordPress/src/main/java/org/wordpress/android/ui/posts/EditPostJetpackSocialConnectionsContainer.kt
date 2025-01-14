@@ -4,7 +4,8 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Divider
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +35,7 @@ fun ColumnScope.EditPostJetpackSocialConnectionsContainer(
         enabled = isShareMessageEnabled,
         onClick = onShareMessageClick
     )
-    Divider()
+    HorizontalDivider()
 }
 
 @Preview

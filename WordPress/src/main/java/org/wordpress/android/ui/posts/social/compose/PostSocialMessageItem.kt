@@ -6,9 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Divider
+import androidx.compose.material3.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -76,7 +77,7 @@ fun PostSocialMessageItemPreview() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Divider()
+            HorizontalDivider()
 
             PostSocialMessageItem(
                 message = messages[0],

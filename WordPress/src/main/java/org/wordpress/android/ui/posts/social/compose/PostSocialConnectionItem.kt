@@ -9,9 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Divider
+import androidx.compose.material3.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -94,7 +95,7 @@ fun PostSocialConnectionItemPreview() {
                 onSharingChange = { connectionState = connectionState.copy(isSharingEnabled = it) },
             )
 
-            Divider()
+            HorizontalDivider()
 
             // disabled
             PostSocialConnectionItem(

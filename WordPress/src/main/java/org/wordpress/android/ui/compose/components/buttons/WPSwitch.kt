@@ -9,13 +9,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Divider
+import androidx.compose.material3.Divider
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchColors
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -167,7 +168,7 @@ private fun WPSwitchPreview() {
                 initialCheckedState = true,
             )
 
-            Divider()
+            HorizontalDivider()
 
             // view enabled checked
             AndroidView(
@@ -181,7 +182,7 @@ private fun WPSwitchPreview() {
                 modifier = viewModifier
             )
 
-            Divider()
+            HorizontalDivider()
 
             // compose enabled unchecked
             StatefulWPSwitchWithText(
@@ -190,7 +191,7 @@ private fun WPSwitchPreview() {
                 initialCheckedState = false,
             )
 
-            Divider()
+            HorizontalDivider()
 
             // view enabled unchecked
             AndroidView(
@@ -204,7 +205,7 @@ private fun WPSwitchPreview() {
                 modifier = viewModifier
             )
 
-            Divider()
+            HorizontalDivider()
 
             // compose disabled checked
             StatefulWPSwitchWithText(
@@ -214,7 +215,7 @@ private fun WPSwitchPreview() {
                 enabled = false,
             )
 
-            Divider()
+            HorizontalDivider()
 
             // view disabled checked
             AndroidView(
@@ -228,7 +229,7 @@ private fun WPSwitchPreview() {
                 modifier = viewModifier
             )
 
-            Divider()
+            HorizontalDivider()
 
             // compose disabled unchecked
             StatefulWPSwitchWithText(
@@ -238,7 +239,7 @@ private fun WPSwitchPreview() {
                 enabled = false,
             )
 
-            Divider()
+            HorizontalDivider()
 
             // view disabled unchecked
             AndroidView(

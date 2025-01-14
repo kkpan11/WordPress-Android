@@ -3,8 +3,9 @@ package org.wordpress.android.ui.posts.prepublishing.social.compose
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Divider
+import androidx.compose.material3.Divider
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.wordpress.android.ui.compose.components.buttons.PrimaryButtonM3
@@ -20,7 +21,7 @@ fun PrepublishingSocialScreen(
     modifier: Modifier = Modifier,
 ): Unit = with(state) {
     Column(modifier) {
-        Divider()
+        HorizontalDivider()
 
         EditPostJetpackSocialConnectionsContainer(
             jetpackSocialConnectionDataList = jetpackSocialConnectionDataList,
