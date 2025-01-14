@@ -21,16 +21,15 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,13 +58,6 @@ private val contentIconBackgroundColor: Color
         AppColor.White.copy(alpha = 0.18f)
     } else {
         AppColor.Black
-    }
-
-private val contentTextEmphasis: Float
-    @Composable get() = if (isSystemInDarkTheme()) {
-        ContentAlpha.medium
-    } else {
-        1f
     }
 
 @Composable
@@ -126,8 +118,7 @@ fun PostResolutionOverlay(
                             end = Margin.ExtraMediumLarge.value
                         ),
                     textAlign = TextAlign.Center,
-                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                    color = LocalContentColor.current.copy(alpha = ContentAlpha.medium),
+                    style = MaterialTheme.typography.bodyMedium,
                 )
 
                 Spacer(Modifier.height(Margin.ExtraExtraMediumLarge.value))
