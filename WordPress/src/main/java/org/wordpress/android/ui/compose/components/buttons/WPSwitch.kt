@@ -8,14 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.Divider
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Switch
-import androidx.compose.material.SwitchColors
-import androidx.compose.material.SwitchDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchColors
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -94,17 +93,15 @@ object WPSwitchDefaults {
                 MaterialR.color.switch_thumb_normal_material_dark
             }
         )
-        val thumbEnabledCheckedColor = MaterialTheme.colors.primary
+        val thumbEnabledCheckedColor = MaterialTheme.colorScheme.primary
 
         // track colors
-        val baseTrackColor = MaterialTheme.colors.surface
-        val trackDisabledColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
-        val trackEnabledUncheckedColor = MaterialTheme.colors.onSurface
-        val trackEnabledCheckedColor = MaterialTheme.colors.primary
+        val baseTrackColor = MaterialTheme.colorScheme.surface
+        val trackDisabledColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+        val trackEnabledUncheckedColor = MaterialTheme.colorScheme.onSurface
+        val trackEnabledCheckedColor = MaterialTheme.colorScheme.primary
 
         return SwitchDefaults.colors(
-            checkedTrackAlpha = ContentAlpha.disabled,
-            uncheckedTrackAlpha = ContentAlpha.disabled,
             checkedThumbColor = thumbEnabledCheckedColor,
             checkedTrackColor = trackEnabledCheckedColor,
             uncheckedThumbColor = thumbEnabledUncheckedColor,
@@ -135,8 +132,8 @@ private fun StatefulWPSwitchWithText(
         Text(
             text,
             modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.body2,
-            color = if (enabled) Color.Unspecified else LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (enabled) Color.Unspecified else LocalContentColor.current.copy(alpha = 0.38f),
         )
         WPSwitch(
             checked = checkedState.value,

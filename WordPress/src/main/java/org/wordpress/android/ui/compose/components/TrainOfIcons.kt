@@ -5,7 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,7 +57,7 @@ fun TrainOfIcons(
     contentDescription: String? = null,
     iconSize: Dp = DEFAULT_ICON_SIZE.dp,
     iconBorderWidth: Dp = DEFAULT_ICON_BORDER_WIDTH.dp,
-    iconBorderColor: Color = MaterialTheme.colors.surface,
+    iconBorderColor: Color = MaterialTheme.colorScheme.surface,
     placeholderPainter: Painter = ColorPainter(colorResource(R.color.placeholder)),
 ) {
     if (iconModels.isEmpty()) {
