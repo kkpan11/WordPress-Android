@@ -19,6 +19,9 @@ class FeedbackFormActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val feedbackPrefix = intent.getStringExtra(EXTRA_FEEDBACK_PREFIX)
+        viewModel.feedbackPrefix = feedbackPrefix
+
         setContentView(
             ComposeView(this).apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -70,5 +73,9 @@ class FeedbackFormActivity : AppCompatActivity() {
                 viewModel.onPhotoPickerResult(this, it)
             }
         }
+    }
+
+    companion object {
+        const val EXTRA_FEEDBACK_PREFIX = "extra_feedback_prefix"
     }
 }

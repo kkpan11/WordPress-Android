@@ -1653,7 +1653,7 @@ class EditPostActivity : AppCompatActivity(), EditorFragmentActivity, EditorImag
                     (editorFragment as GutenbergEditorFragment).showEditorHelp()
                 }
             } else if (itemId == R.id.menu_editor_send_feedback) {
-                ActivityLauncher.viewFeedbackForm(this@EditPostActivity)
+                ActivityLauncher.viewFeedbackForm(this@EditPostActivity, "Editor")
             } else if (itemId == R.id.menu_undo_action) {
                 if (editorFragment is GutenbergEditorFragment) {
                     (editorFragment as GutenbergEditorFragment).onUndoPressed()
