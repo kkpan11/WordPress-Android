@@ -101,7 +101,7 @@ fun PostResolutionOverlay(
                 // Title
                 Text(
                     stringResource(uiState.titleResId),
-                    style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
+                    style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                 )
@@ -226,29 +226,31 @@ private fun OverlayContentItem(
 
         Column(
             modifier = Modifier
-                .weight(1f)
-                .padding(vertical = Margin.ExtraLarge.value)
+                .padding(
+                    top = Margin.ExtraLarge.value,
+                    bottom = Margin.ExtraLarge.value,
+                    end = Margin.Medium.value
+                )
         ) {
             Text(
                 stringResource(item.headerResId),
-                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                uiStringText(item.dateLine),
+                style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
         }
 
-        Text(
-            uiStringText(item.dateLine),
-            style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(bottom = 4.dp)
+        Checkbox(
+            checked = item.isSelected,
+            onCheckedChange = { isChecked ->
+                onSelected(item.copy(isSelected = isChecked))
+            },
         )
     }
-
-    Checkbox(
-        checked = item.isSelected,
-        onCheckedChange = { isChecked ->
-            onSelected(item.copy(isSelected = isChecked))
-        },
-    )
 }
 
 @Preview(name = "Light Mode")
