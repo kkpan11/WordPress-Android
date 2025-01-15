@@ -2,7 +2,7 @@
 
 25.7
 -----
-
+* [**] Send feedback from within the experimental editor "more" options menu. [#21586]
 
 25.6
 -----
