@@ -11,10 +11,11 @@
     <com.google.android.material.textview.MaterialTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_large"
-        android:layout_marginTop="@dimen/margin_medium_large"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginHorizontal="@dimen/margin_large"
+        android:layout_marginVertical="@dimen/margin_medium_large"
+        android:gravity="center_horizontal"
         android:text="@string/prepublishing_tags_description"
-        android:textAlignment="viewStart"
         android:textAppearance="?attr/textAppearanceBody1"
         android:textColor="?wpColorOnSurfaceMedium" />
 
