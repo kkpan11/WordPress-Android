@@ -1412,6 +1412,8 @@ class EditPostActivity : AppCompatActivity(), EditorFragmentActivity, EditorImag
         val historyMenuItem = menu.findItem(R.id.menu_history)
         val settingsMenuItem = menu.findItem(R.id.menu_post_settings)
         val helpMenuItem = menu.findItem(R.id.menu_editor_help)
+        val sendFeedbackItem = menu.findItem(R.id.menu_editor_send_feedback)
+
         if (undoItem != null) {
             undoItem.setEnabled(menuHasUndo)
             undoItem.setVisible(!htmlModeMenuStateOn)
@@ -1496,6 +1498,11 @@ class EditPostActivity : AppCompatActivity(), EditorFragmentActivity, EditorImag
                 helpMenuItem.setVisible(false)
             }
         }
+
+        if (sendFeedbackItem != null) {
+            sendFeedbackItem.isVisible = editorFragment is GutenbergKitEditorFragment
+        }
+
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -1645,6 +1652,8 @@ class EditPostActivity : AppCompatActivity(), EditorFragmentActivity, EditorImag
                     analyticsTrackerWrapper.track(Stat.EDITOR_HELP_SHOWN, siteModel)
                     (editorFragment as GutenbergEditorFragment).showEditorHelp()
                 }
+            } else if (itemId == R.id.menu_editor_send_feedback) {
+                ActivityLauncher.viewFeedbackForm(this@EditPostActivity, "Editor")
             } else if (itemId == R.id.menu_undo_action) {
                 if (editorFragment is GutenbergEditorFragment) {
                     (editorFragment as GutenbergEditorFragment).onUndoPressed()
