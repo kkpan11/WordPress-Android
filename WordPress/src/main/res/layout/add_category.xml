@@ -44,7 +44,8 @@
             android:id="@+id/parent_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="-4dp"
+            android:layout_marginStart="-4dp"
+            android:layout_marginEnd="-4dp"
             app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
             tools:listitem="@layout/wp_simple_list_item_1" />
 
