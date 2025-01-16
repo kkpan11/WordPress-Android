@@ -2,12 +2,12 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:theme="@style/PostSettingsTheme"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingEnd="@dimen/margin_extra_medium_large"
     android:paddingStart="@dimen/margin_extra_medium_large"
     android:paddingTop="@dimen/margin_extra_medium_large"
-    android:paddingEnd="@dimen/margin_extra_medium_large">
+    android:theme="@style/PostSettingsTheme">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,12 +15,35 @@
         android:orientation="vertical">
 
         <!-- Category name -->
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/parent_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
+            tools:listitem="@layout/wp_simple_list_item_1" />
+
+        <!--  Parent category -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/submit_button"
+            style="@style/WordPress.PrepubPrimaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:enabled="false"
+            android:text="@string/prepublishing_nudges_add_category_button"
+            android:visibility="gone" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/category_name_container"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/category_name">
+            android:hint="@string/category_name"
+            app:hintTextColor="@color/colorPrimary"
+            app:boxStrokeColor="@color/colorPrimary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/category_name"
@@ -30,7 +53,8 @@
                 tools:text="Pony" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!--  Parent category -->
+        <!-- Submit button -->
+
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/parentDescLabel"
             android:layout_width="match_parent"
@@ -39,27 +63,5 @@
             android:labelFor="@+id/parent_category"
             android:text="@string/category_parent"
             android:textAppearance="?attr/textAppearanceSubtitle1" />
-
-        <androidx.appcompat.widget.AppCompatSpinner
-            android:id="@+id/parent_category"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
-            tools:listitem="@layout/wp_simple_list_item_1" />
-
-        <!-- Submit button -->
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/submit_button"
-            style="@style/WordPress.PrepubPrimaryButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
-            android:layout_marginEnd="@dimen/margin_medium"
-            android:layout_marginTop="@dimen/margin_medium"
-            android:layout_marginBottom="@dimen/margin_medium"
-            android:enabled="false"
-            android:text="@string/prepublishing_nudges_add_category_button"
-            android:visibility="gone"/>
     </LinearLayout>
 </ScrollView>
