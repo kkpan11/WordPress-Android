@@ -3,6 +3,7 @@ package org.wordpress.android.ui.sitecreation.domains.compose
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,13 +12,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.ripple
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,8 +31,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.wordpress.android.R
 import org.wordpress.android.ui.compose.components.SolidCircle
-import org.wordpress.android.ui.compose.theme.AppThemeWithoutBackground
+import org.wordpress.android.ui.compose.theme.AppThemeM3WithoutBackground
 import org.wordpress.android.ui.compose.unit.Margin
 import org.wordpress.android.ui.compose.utils.asString
 import org.wordpress.android.ui.sitecreation.domains.SiteCreationDomainsViewModel.ListItemUiState.New.DomainUiState
@@ -40,10 +42,9 @@ import org.wordpress.android.ui.sitecreation.domains.SiteCreationDomainsViewMode
 import org.wordpress.android.ui.sitecreation.domains.SiteCreationDomainsViewModel.ListItemUiState.New.DomainUiState.Tag.Recommended
 import org.wordpress.android.ui.sitecreation.domains.SiteCreationDomainsViewModel.ListItemUiState.New.DomainUiState.Tag.Sale
 import org.wordpress.android.ui.sitecreation.domains.SiteCreationDomainsViewModel.ListItemUiState.New.DomainUiState.Tag.Unavailable
-import androidx.compose.ui.R as ComposeR
 
-private val HighlightBgColor @Composable get() = colors.primary.copy(0.1f)
-private val SecondaryTextColor @Composable get() = colors.onSurface.copy(0.46f)
+private val HighlightBgColor @Composable get() = colorScheme.primary.copy(0.1f)
+private val SecondaryTextColor @Composable get() = colorScheme.onSurface.copy(0.46f)
 private val SecondaryFontSize = 13.sp
 private val PrimaryFontSize = 17.sp
 private val StartPadding = 40.dp
@@ -58,9 +59,10 @@ fun DomainItem(uiState: DomainUiState): Unit = with(uiState) {
             modifier = Modifier
                 .clickable(
                     interactionSource = remember(::MutableInteractionSource),
-                    indication = rememberRipple(color = HighlightBgColor),
+                    indication = ripple(color = HighlightBgColor),
                     onClick = onClick::invoke,
                 )
+                .focusable(enabled = true)
                 .then(if (cost is Cost.Paid) {
                     Modifier.padding(top = Margin.ExtraLarge.value)
                 } else {
@@ -75,8 +77,8 @@ fun DomainItem(uiState: DomainUiState): Unit = with(uiState) {
                 if (isSelected) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = stringResource(ComposeR.string.selected),
-                        tint = colors.primary,
+                        contentDescription = stringResource(R.string.item_selected),
+                        tint = colorScheme.primary,
                         modifier = Modifier.size(16.dp),
                     )
                 } else {
@@ -88,7 +90,7 @@ fun DomainItem(uiState: DomainUiState): Unit = with(uiState) {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.weight(1f)) {
                 Text(
                     text = domainName,
-                    color = colors.onSurface.takeIf { tags.none { it is Unavailable } } ?: SecondaryTextColor,
+                    color = colorScheme.onSurface.takeIf { tags.none { it is Unavailable } } ?: SecondaryTextColor,
                     fontSize = PrimaryFontSize,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
@@ -130,12 +132,12 @@ fun DomainItem(uiState: DomainUiState): Unit = with(uiState) {
             Row(modifier = Modifier.padding(bottom = Margin.ExtraLarge.value, start = StartPadding)) {
                 Text(
                     text = cost.subtitle.asString(),
-                    color = colors.primary,
+                    color = colorScheme.primary,
                     fontSize = SecondaryFontSize,
                 )
             }
         }
-        Divider(thickness = 0.5.dp)
+        HorizontalDivider(thickness = 0.5.dp)
     }
 }
 
@@ -166,14 +168,14 @@ private fun SalePrice(title: Pair<String, String>, subtitle: String, modifier: M
                 )
                 Text(
                     normalText,
-                    color = colors.primary,
+                    color = colorScheme.primary,
                     fontSize = PrimaryFontSize,
                 )
             }
         }
         Text(
             subtitle,
-            color = colors.primary,
+            color = colorScheme.primary,
             fontSize = SecondaryFontSize,
         )
     }
@@ -227,7 +229,7 @@ private fun DomainItemPreview() {
             onClick = {}
         )
     }
-    AppThemeWithoutBackground {
+    AppThemeM3WithoutBackground {
         Column {
             uiStates.forEach { DomainItem(it) }
         }

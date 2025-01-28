@@ -1,10 +1,9 @@
 package org.wordpress.android
 
 import android.app.Application
-import android.content.Context
+import coil.decode.VideoFrameDecoder
 import com.android.volley.RequestQueue
 import dagger.hilt.EntryPoints
-import org.wordpress.android.AppInitializer.StoryNotificationTrackerProvider
 import org.wordpress.android.fluxc.tools.FluxCImageLoader
 import org.wordpress.android.modules.AppComponent
 
@@ -12,16 +11,25 @@ import org.wordpress.android.modules.AppComponent
  * An abstract class to be extended by {@link WordPressApp} for real application and WordPressTest for UI test
  * application. Containing public static variables and methods to be accessed by other classes.
  */
-abstract class WordPress : Application() {
-    val storyNotificationTrackerProvider: StoryNotificationTrackerProvider
-        get() = initializer().storyNotificationTrackerProvider
-
+abstract class WordPress : Application(), coil.ImageLoaderFactory {
     abstract fun initializer(): AppInitializer
 
     fun component(): AppComponent = EntryPoints.get(this, AppComponent::class.java)
 
     fun wordPressComSignOut() {
         initializer().wordPressComSignOut()
+    }
+
+    /**
+     * This returns a singleton Coil ImageLoader that's accessed with context.imageLoader
+     */
+    override fun newImageLoader(): coil.ImageLoader {
+        return coil.ImageLoader.Builder(this)
+            .crossfade(true)
+            .components {
+                add(VideoFrameDecoder.Factory())
+            }
+            .build()
     }
 
     @Suppress("TooManyFunctions")
@@ -51,12 +59,6 @@ abstract class WordPress : Application() {
         fun getContext() = AppInitializer.context!!
 
         @JvmStatic
-        @JvmOverloads
-        fun updateContextLocale(appContext: Context? = null) {
-            AppInitializer.updateContextLocale(appContext)
-        }
-
-        @JvmStatic
         fun getRestClientUtils() = AppInitializer.restClientUtils
 
         @Suppress("FunctionNaming")
@@ -74,11 +76,5 @@ abstract class WordPress : Application() {
         fun getRestClientUtilsV2() = AppInitializer.restClientUtilsV2
 
         fun getRestClientUtilsV0() = AppInitializer.restClientUtilsV0
-
-        @JvmStatic
-        fun getDefaultUserAgent() = AppInitializer.defaultUserAgent
-
-        @JvmStatic
-        fun getUserAgent() = AppInitializer.userAgent
     }
 }

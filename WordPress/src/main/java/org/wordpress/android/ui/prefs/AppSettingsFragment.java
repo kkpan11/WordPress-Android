@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -12,7 +13,6 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,8 +50,6 @@ import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalPhaseHelper;
 import org.wordpress.android.ui.mysite.jetpackbadge.JetpackPoweredBottomSheetFragment;
 import org.wordpress.android.ui.prefs.language.LocalePickerBottomSheet;
 import org.wordpress.android.ui.prefs.language.LocalePickerBottomSheet.LocalePickerCallback;
-import org.wordpress.android.ui.reader.services.update.ReaderUpdateLogic;
-import org.wordpress.android.ui.reader.services.update.ReaderUpdateServiceStarter;
 import org.wordpress.android.ui.utils.UiHelpers;
 import org.wordpress.android.ui.whatsnew.FeatureAnnouncementDialogFragment;
 import org.wordpress.android.ui.whatsnew.FeatureAnnouncementProvider;
@@ -59,9 +57,8 @@ import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppThemeUtils;
 import org.wordpress.android.util.BuildConfigWrapper;
 import org.wordpress.android.util.JetpackBrandingUtils;
-import org.wordpress.android.util.LocaleManager;
-import org.wordpress.android.util.LocaleProvider;
 import org.wordpress.android.util.NetworkUtils;
+import org.wordpress.android.util.PerAppLocaleManager;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPActivityUtils;
 import org.wordpress.android.util.WPPrefUtils;
@@ -69,9 +66,7 @@ import org.wordpress.android.util.analytics.AnalyticsUtils;
 import org.wordpress.android.viewmodel.ContextProvider;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -107,10 +102,10 @@ public class AppSettingsFragment extends PreferenceFragment
     @Inject FeatureAnnouncementProvider mFeatureAnnouncementProvider;
     @Inject BuildConfigWrapper mBuildConfigWrapper;
     @Inject JetpackBrandingUtils mJetpackBrandingUtils;
-    @Inject LocaleProvider mLocaleProvider;
     @Inject DeepLinkOpenWebLinksWithJetpackHelper mOpenWebLinksWithJetpackHelper;
     @Inject UiHelpers mUiHelpers;
     @Inject JetpackFeatureRemovalPhaseHelper mJetpackFeatureRemovalPhaseHelper;
+    @Inject PerAppLocaleManager mPerAppLocaleManager;
 
     private static final String TRACK_STYLE = "style";
     private static final String TRACK_ENABLED = "enabled";
@@ -143,11 +138,6 @@ public class AppSettingsFragment extends PreferenceFragment
                 }
         );
         updateAnalyticsSyncUI();
-
-        mLanguagePreference = (WPPreference) findPreference(getString(R.string.pref_key_language));
-        mLanguagePreference.setOnPreferenceChangeListener(this);
-        mLanguagePreference.setOnPreferenceClickListener(this);
-        mLanguagePreference.setSummary(mLocaleProvider.getAppLanguageDisplayString());
 
         mAppThemePreference = (ListPreference) findPreference(getString(R.string.pref_key_app_theme));
         mAppThemePreference.setOnPreferenceChangeListener(this);
@@ -254,6 +244,12 @@ public class AppSettingsFragment extends PreferenceFragment
             ViewCompat.setNestedScrollingEnabled(listOfPreferences, true);
             addJetpackBadgeAsFooterIfEnabled(inflater, listOfPreferences);
         }
+
+        mLanguagePreference = (WPPreference) findPreference(getString(R.string.pref_key_language));
+        mLanguagePreference.setOnPreferenceChangeListener(this);
+        mLanguagePreference.setOnPreferenceClickListener(this);
+        mLanguagePreference.setSummary(mPerAppLocaleManager.getCurrentLocaleDisplayName());
+
         return view;
     }
 
@@ -368,6 +364,7 @@ public class AppSettingsFragment extends PreferenceFragment
         if (event.isError()) {
             switch (event.error.type) {
                 case SETTINGS_FETCH_GENERIC_ERROR:
+                case ACCOUNT_FETCH_ERROR:
                     ToastUtils
                             .showToast(getActivity(), R.string.error_fetch_account_settings, ToastUtils.Duration.LONG);
                     break;
@@ -377,6 +374,10 @@ public class AppSettingsFragment extends PreferenceFragment
                     break;
                 case SETTINGS_POST_ERROR:
                     ToastUtils.showToast(getActivity(), R.string.error_post_account_settings, ToastUtils.Duration.LONG);
+                    break;
+                case SEND_VERIFICATION_EMAIL_ERROR:
+                    break;
+                case GENERIC_ERROR:
                     break;
             }
         } else if (event.causeOfChange == AccountAction.FETCH_SETTINGS) {
@@ -420,10 +421,7 @@ public class AppSettingsFragment extends PreferenceFragment
             return false;
         }
 
-        if (preference == mLanguagePreference) {
-            changeLanguage(newValue.toString());
-            return false;
-        } else if (preference == mOptimizedImage) {
+        if (preference == mOptimizedImage) {
             AppPrefs.setImageOptimize((Boolean) newValue);
             mImageMaxSizePref.setEnabled((Boolean) newValue);
             Map<String, Object> properties = new HashMap<>();
@@ -485,39 +483,6 @@ public class AppSettingsFragment extends PreferenceFragment
                 getActivity().finish();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void changeLanguage(String languageCode) {
-        if (mLanguagePreference == null || TextUtils.isEmpty(languageCode)) {
-            return;
-        }
-
-        if (LocaleManager.isSameLanguage(languageCode)) {
-            return;
-        }
-
-        LocaleManager.setNewLocale(WordPress.getContext(), languageCode);
-        WordPress.updateContextLocale();
-        mContextProvider.refreshContext();
-
-        // Track language change on Analytics because we have both the device language and app selected language
-        // data in Tracks metadata.
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("app_locale", Locale.getDefault());
-        AnalyticsTracker.track(Stat.ACCOUNT_SETTINGS_LANGUAGE_CHANGED, properties);
-
-        // Language is now part of metadata, so we need to refresh them
-        AnalyticsUtils.refreshMetadata(mAccountStore, mSiteStore);
-
-        // Refresh the app
-        Intent refresh = new Intent(getActivity(), getActivity().getClass());
-        startActivity(refresh);
-        getActivity().setResult(LANGUAGE_CHANGED);
-        getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        getActivity().finish();
-
-        // update Reader tags as they need be localized
-        ReaderUpdateServiceStarter.startService(WordPress.getContext(), EnumSet.of(ReaderUpdateLogic.UpdateTask.TAGS));
     }
 
     private boolean handleDevicePreferenceClick() {
@@ -632,7 +597,11 @@ public class AppSettingsFragment extends PreferenceFragment
     }
 
     private boolean handleAppLocalePickerClick() {
-        if (getActivity() instanceof AppCompatActivity) {
+        // if the device is on API 33+, take the user to the system app settings to change the language
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mPerAppLocaleManager.openAppLanguageSettings(getContext());
+            return true;
+        } else if (getActivity() instanceof AppCompatActivity) {
             LocalePickerBottomSheet bottomSheet = LocalePickerBottomSheet.newInstance();
             bottomSheet.setLocalePickerCallback(this);
             bottomSheet.show(((AppCompatActivity) getActivity()).getSupportFragmentManager(),
@@ -657,7 +626,7 @@ public class AppSettingsFragment extends PreferenceFragment
 
     @Override
     public void onLocaleSelected(@NonNull String languageCode) {
-        onPreferenceChange(mLanguagePreference, languageCode);
+        mPerAppLocaleManager.onLanguageChanged(languageCode);
     }
 
     private void handleOpenLinksInJetpack(Boolean newValue) {

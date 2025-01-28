@@ -12,6 +12,7 @@ import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
@@ -63,9 +64,9 @@ import org.wordpress.android.fluxc.store.SiteStore;
 import org.wordpress.android.fluxc.store.SiteStore.OnSiteChanged;
 import org.wordpress.android.push.NotificationType;
 import org.wordpress.android.ui.ActivityId;
-import org.wordpress.android.ui.LocaleAwareActivity;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalPhaseHelper;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
 import org.wordpress.android.ui.media.MediaGridFragment.MediaFilter;
 import org.wordpress.android.ui.media.MediaGridFragment.MediaGridListener;
 import org.wordpress.android.ui.media.services.MediaDeleteService;
@@ -91,7 +92,7 @@ import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPMediaUtils;
 import org.wordpress.android.util.WPPermissionUtils;
 import org.wordpress.android.util.analytics.AnalyticsUtils;
-import org.wordpress.android.widgets.AppRatingDialog;
+import org.wordpress.android.widgets.AppReviewManager;
 import org.wordpress.android.widgets.QuickStartFocusPoint;
 
 import java.util.ArrayList;
@@ -108,7 +109,7 @@ import static org.wordpress.android.util.ToastUtils.Duration.LONG;
 /**
  * The main activity in which the user can browse their media.
  */
-public class MediaBrowserActivity extends LocaleAwareActivity implements MediaGridListener,
+public class MediaBrowserActivity extends BaseAppCompatActivity implements MediaGridListener,
         OnQueryTextListener, OnActionExpandListener,
         WPMediaUtils.LaunchCameraCallback {
     public static final String ARG_BROWSER_TYPE = "media_browser_type";
@@ -418,7 +419,15 @@ public class MediaBrowserActivity extends LocaleAwareActivity implements MediaGr
     @Override
     public void onStart() {
         super.onStart();
-        registerReceiver(mReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        if (Build.VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            registerReceiver(
+                    mReceiver,
+                    new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION),
+                    RECEIVER_EXPORTED
+            );
+        } else {
+            registerReceiver(mReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        }
         mDispatcher.register(this);
         EventBus.getDefault().register(this);
     }
@@ -508,24 +517,14 @@ public class MediaBrowserActivity extends LocaleAwareActivity implements MediaGr
             case RequestCodes.PICTURE_LIBRARY:
             case RequestCodes.VIDEO_LIBRARY:
             case RequestCodes.AUDIO_LIBRARY:
-                handlePickerResult(data, resultCode);
-                break;
             case RequestCodes.FILE_LIBRARY:
                 if (resultCode == Activity.RESULT_OK && data != null) {
-                    if (WPMediaUtils.shouldAdvertiseImageOptimization(this)) {
-                        WPMediaUtils.advertiseImageOptimization(this, () -> handlePickerResult(data, resultCode));
-                    } else {
-                        handlePickerResult(data, resultCode);
-                    }
+                    handlePickerResult(data, resultCode);
                 }
                 break;
             case RequestCodes.TAKE_PHOTO:
                 if (resultCode == Activity.RESULT_OK) {
-                    if (WPMediaUtils.shouldAdvertiseImageOptimization(this)) {
-                        WPMediaUtils.advertiseImageOptimization(this, this::addLastTakenPicture);
-                    } else {
-                        addLastTakenPicture();
-                    }
+                    addLastTakenPicture();
                 }
                 break;
             case RequestCodes.TAKE_VIDEO:
@@ -803,6 +802,10 @@ public class MediaBrowserActivity extends LocaleAwareActivity implements MediaGr
     @Override
     public void onMediaCapturePathReady(String mediaCapturePath) {
         mMediaCapturePath = mediaCapturePath;
+    }
+
+    @Override public void onCameraError(String errorMessage) {
+        ToastUtils.showToast(this, errorMessage, LONG);
     }
 
     private void showMediaToastError(@StringRes int message, @Nullable String messageDetail) {
@@ -1103,7 +1106,7 @@ public class MediaBrowserActivity extends LocaleAwareActivity implements MediaGr
         }
 
         UploadService.uploadMedia(this, mediaModels, "MediaBrowserActivity#addMediaToUploadService");
-        AppRatingDialog.INSTANCE.incrementInteractions(APP_REVIEWS_EVENT_INCREMENTED_BY_UPLOADING_MEDIA);
+        AppReviewManager.INSTANCE.incrementInteractions(APP_REVIEWS_EVENT_INCREMENTED_BY_UPLOADING_MEDIA);
     }
 
     private void queueFileForUpload(Uri uri, String mimeType) {
@@ -1159,7 +1162,13 @@ public class MediaBrowserActivity extends LocaleAwareActivity implements MediaGr
                 intent.putExtra(MediaDeleteService.MEDIA_LIST_KEY, mediaToDelete);
                 doBindDeleteService(intent);
             }
-            startService(intent);
+            try {
+                startService(intent);
+            } catch (IllegalStateException e) {
+                // This can happen if the app still appears to be running in the background
+                // see: https://github.com/wordpress-mobile/WordPress-Android/issues/18638
+                AppLog.e(AppLog.T.MEDIA, "Unable to start MediaDeleteService: " + e.getMessage());
+            }
         }
     }
 
@@ -1203,10 +1212,11 @@ public class MediaBrowserActivity extends LocaleAwareActivity implements MediaGr
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(UploadService.UploadErrorEvent event) {
         EventBus.getDefault().removeStickyEvent(event);
-        if (event.mediaModelList != null && !event.mediaModelList.isEmpty()) {
+        View snackbarAttachView = findViewById(R.id.tab_layout);
+        if (event.mediaModelList != null && !event.mediaModelList.isEmpty() && snackbarAttachView != null) {
             mUploadUtilsWrapper.onMediaUploadedSnackbarHandler(
                     this,
-                    findViewById(R.id.tab_layout),
+                    snackbarAttachView,
                     true,
                     !TextUtils.isEmpty(event.errorMessage)
                     && event.errorMessage.contains(getString(R.string.error_media_quota_exceeded))
@@ -1223,10 +1233,10 @@ public class MediaBrowserActivity extends LocaleAwareActivity implements MediaGr
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(UploadService.UploadMediaSuccessEvent event) {
         EventBus.getDefault().removeStickyEvent(event);
-        if (event.mediaModelList != null && !event.mediaModelList.isEmpty()) {
-            mUploadUtilsWrapper.onMediaUploadedSnackbarHandler(this,
-                    findViewById(R.id.tab_layout), false,
-                    event.mediaModelList, mSite, event.successMessage);
+        View snackbarAttachView = findViewById(R.id.tab_layout);
+        if (event.mediaModelList != null && !event.mediaModelList.isEmpty() && snackbarAttachView != null) {
+            mUploadUtilsWrapper.onMediaUploadedSnackbarHandler(this, snackbarAttachView, false, event.mediaModelList,
+                    mSite, event.successMessage);
             updateMediaGridForTheseMedia(event.mediaModelList);
         }
     }

@@ -53,7 +53,7 @@ import org.wordpress.android.ui.mysite.cards.nocards.NoCardsMessageViewHolder
 import org.wordpress.android.ui.mysite.cards.personalize.PersonalizeCardViewHolder
 import org.wordpress.android.ui.mysite.cards.quicklinksitem.QuickLinkRibbonViewHolder
 import org.wordpress.android.ui.mysite.cards.quickstart.QuickStartCardViewHolder
-import org.wordpress.android.ui.mysite.cards.siteinfo.SiteInfoHeaderCardViewholder
+import org.wordpress.android.ui.mysite.cards.siteinfo.SiteInfoHeaderCardViewHolder
 import org.wordpress.android.ui.mysite.cards.sotw2023.WpSotw2023NudgeCardViewHolder
 import org.wordpress.android.ui.mysite.items.categoryheader.MySiteCategoryItemEmptyViewHolder
 import org.wordpress.android.ui.mysite.items.categoryheader.MySiteCategoryItemViewHolder
@@ -73,14 +73,15 @@ class MySiteAdapter(
     val gravatarLoader: MeGravatarLoader,
     val bloggingPromptsCardAnalyticsTracker: BloggingPromptsCardAnalyticsTracker,
     val htmlCompatWrapper: HtmlCompatWrapper,
-    val learnMoreClicked: () -> Unit
+    val learnMoreClicked: () -> Unit,
+    val containerClicked: () -> Unit
 ) : ListAdapter<MySiteCardAndItem, MySiteCardAndItemViewHolder<*>>(MySiteAdapterDiffCallback) {
     private var nestedScrollStates = Bundle()
 
     @Suppress("ComplexMethod")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MySiteCardAndItemViewHolder<*> {
         return when (viewType) {
-            MySiteCardAndItem.Type.SITE_INFO_CARD.ordinal -> SiteInfoHeaderCardViewholder(parent, imageManager)
+            MySiteCardAndItem.Type.SITE_INFO_CARD.ordinal -> SiteInfoHeaderCardViewHolder(parent, imageManager)
             MySiteCardAndItem.Type.QUICK_LINK_RIBBON.ordinal -> QuickLinkRibbonViewHolder(parent)
             MySiteCardAndItem.Type.DOMAIN_REGISTRATION_CARD.ordinal -> DomainRegistrationViewHolder(parent)
             MySiteCardAndItem.Type.QUICK_START_CARD.ordinal -> QuickStartCardViewHolder(parent, uiHelpers)
@@ -108,7 +109,8 @@ class MySiteAdapter(
                 uiHelpers,
                 bloggingPromptsCardAnalyticsTracker,
                 htmlCompatWrapper,
-                learnMoreClicked
+                learnMoreClicked,
+                containerClicked
             )
 
             MySiteCardAndItem.Type.BLOGANUARY_NUDGE_CARD.ordinal -> BloganuaryNudgeCardViewHolder(parent)
@@ -136,7 +138,7 @@ class MySiteAdapter(
     @Suppress("ComplexMethod")
     override fun onBindViewHolder(holder: MySiteCardAndItemViewHolder<*>, position: Int) {
         when (holder) {
-            is SiteInfoHeaderCardViewholder -> holder.bind(getItem(position) as SiteInfoHeaderCard)
+            is SiteInfoHeaderCardViewHolder -> holder.bind(getItem(position) as SiteInfoHeaderCard)
             is QuickLinkRibbonViewHolder -> holder.bind(getItem(position) as QuickLinksItem)
             is DomainRegistrationViewHolder -> holder.bind(getItem(position) as DomainRegistrationCard)
             is QuickStartCardViewHolder -> holder.bind(getItem(position) as QuickStartCard)

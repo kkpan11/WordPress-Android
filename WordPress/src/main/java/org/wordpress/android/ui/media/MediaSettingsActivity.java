@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -16,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -65,11 +67,12 @@ import org.wordpress.android.fluxc.action.MediaAction;
 import org.wordpress.android.fluxc.generated.MediaActionBuilder;
 import org.wordpress.android.fluxc.model.MediaModel;
 import org.wordpress.android.fluxc.model.SiteModel;
+import org.wordpress.android.fluxc.network.UserAgent;
 import org.wordpress.android.fluxc.store.MediaStore;
 import org.wordpress.android.fluxc.store.MediaStore.MediaPayload;
 import org.wordpress.android.fluxc.store.MediaStore.OnMediaChanged;
-import org.wordpress.android.ui.LocaleAwareActivity;
 import org.wordpress.android.ui.RequestCodes;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
 import org.wordpress.android.ui.media.MediaPreviewActivity.MediaPreviewSwiped;
 import org.wordpress.android.ui.utils.AuthenticationUtils;
 import org.wordpress.android.util.AniUtils;
@@ -106,7 +109,7 @@ import javax.inject.Inject;
 
 import static org.wordpress.android.editor.EditorImageMetaData.ARG_EDITOR_IMAGE_METADATA;
 
-public class MediaSettingsActivity extends LocaleAwareActivity
+public class MediaSettingsActivity extends BaseAppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
     private static final String ARG_MEDIA_LOCAL_ID = "media_local_id";
     private static final String ARG_ID_LIST = "id_list";
@@ -150,6 +153,8 @@ public class MediaSettingsActivity extends LocaleAwareActivity
     }
 
     private MediaType mMediaType;
+
+    @Inject UserAgent mUserAgent;
 
     @Inject MediaStore mMediaStore;
     @Inject Dispatcher mDispatcher;
@@ -467,7 +472,15 @@ public class MediaSettingsActivity extends LocaleAwareActivity
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     public void onStart() {
         super.onStart();
-        registerReceiver(mDownloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        if (Build.VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            registerReceiver(
+                mDownloadReceiver,
+                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+                ContextWrapper.RECEIVER_NOT_EXPORTED
+            );
+        } else {
+            registerReceiver(mDownloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        }
         mDispatcher.register(this);
 
         // we only register with EventBus the first time - necessary since we don't unregister in onStop()
@@ -1021,7 +1034,7 @@ public class MediaSettingsActivity extends LocaleAwareActivity
         }
         request.allowScanningByMediaScanner();
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
-        request.addRequestHeader("User-Agent", WordPress.getUserAgent());
+        request.addRequestHeader("User-Agent", mUserAgent.toString());
 
         mDownloadId = dm.enqueue(request);
         invalidateOptionsMenu();

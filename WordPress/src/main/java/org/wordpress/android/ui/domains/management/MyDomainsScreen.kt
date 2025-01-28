@@ -42,6 +42,7 @@ import org.wordpress.android.ui.domains.management.DomainManagementViewModel.UiS
 import org.wordpress.android.ui.domains.management.DomainManagementViewModel.UiState.PopulatedList
 import org.wordpress.android.ui.domains.management.composable.DomainsSearchTextField
 import org.wordpress.android.ui.domains.management.composable.PrimaryButton
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 
 @Composable
 fun MyDomainsScreen(
@@ -70,8 +71,6 @@ fun MyDomainsScreen(
                         )
                     }
                 },
-                backgroundColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface,
             )
         },
     ) { paddingValues ->
@@ -197,7 +196,7 @@ fun MyDomainsList(
 @Preview(device = Devices.PIXEL_3A, uiMode = UI_MODE_NIGHT_YES, group = "Initial")
 @Composable
 fun PreviewMyDomainsScreen() {
-    M3Theme {
+    AppThemeM3 {
         MyDomainsScreen(
             uiState = PopulatedList.Initial,
             onSearchQueryChanged = {},
@@ -213,7 +212,7 @@ fun PreviewMyDomainsScreen() {
 @Preview(device = Devices.PIXEL_3A, uiMode = UI_MODE_NIGHT_YES, group = "Error / Offline")
 @Composable
 fun PreviewMyDomainsScreenError() {
-    M3Theme {
+    AppThemeM3 {
         MyDomainsScreen(
             uiState = Error,
             onSearchQueryChanged = {},
@@ -229,7 +228,7 @@ fun PreviewMyDomainsScreenError() {
 @Preview(device = Devices.PIXEL_3A, uiMode = UI_MODE_NIGHT_YES, group = "Empty")
 @Composable
 fun PreviewMyDomainsScreenEmpty() {
-    M3Theme {
+    AppThemeM3 {
         MyDomainsScreen(
             uiState = Empty,
             onSearchQueryChanged = {},

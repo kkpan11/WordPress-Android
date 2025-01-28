@@ -35,8 +35,8 @@ import org.wordpress.android.support.ZendeskHelper
 import org.wordpress.android.ui.ActivityId
 import org.wordpress.android.ui.ActivityLauncher
 import org.wordpress.android.ui.AppLogViewerActivity
-import org.wordpress.android.ui.LocaleAwareActivity
 import org.wordpress.android.ui.debug.DebugSettingsActivity
+import org.wordpress.android.ui.main.BaseAppCompatActivity
 import org.wordpress.android.ui.main.utils.MeGravatarLoader
 import org.wordpress.android.ui.prefs.AppPrefs
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
@@ -50,7 +50,7 @@ import javax.inject.Inject
 import android.R as AndroidR
 
 @AndroidEntryPoint
-class HelpActivity : LocaleAwareActivity() {
+class HelpActivity : BaseAppCompatActivity() {
     @Inject
     lateinit var accountStore: AccountStore
 
@@ -112,7 +112,7 @@ class HelpActivity : LocaleAwareActivity() {
                 showContactUs()
             }
 
-            if(BuildConfig.DEBUG && BuildConfig.ENABLE_DEBUG_SETTINGS) {
+            if (BuildConfig.DEBUG && BuildConfig.ENABLE_DEBUG_SETTINGS) {
                 enableDebugSettings()
             }
 
@@ -120,6 +120,10 @@ class HelpActivity : LocaleAwareActivity() {
             applicationVersion.text = getString(R.string.version_with_name_param, WordPress.versionName)
             logsButton.setOnClickListener { v ->
                 startActivity(Intent(v.context, AppLogViewerActivity::class.java))
+            }
+
+            feedbackButton.setOnClickListener {
+                ActivityLauncher.viewFeedbackForm(this@HelpActivity)
             }
 
             if (originFromExtras == Origin.JETPACK_MIGRATION_HELP) {
@@ -202,12 +206,14 @@ class HelpActivity : LocaleAwareActivity() {
     }
 
     private fun showFaq() {
+        @SuppressWarnings("UnsafeImplicitIntentLaunch")
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://apps.wordpress.com/mobile-app-support/"))
         startActivity(intent)
         AnalyticsTracker.track(Stat.SUPPORT_HELP_CENTER_VIEWED)
     }
 
     private fun showMigrationFaq() {
+        @SuppressWarnings("UnsafeImplicitIntentLaunch")
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://jetpack.com/support/switch-to-the-jetpack-app/"))
         startActivity(intent)
         AnalyticsTracker.track(Stat.SUPPORT_MIGRATION_FAQ_TAPPED)
@@ -394,7 +400,8 @@ class HelpActivity : LocaleAwareActivity() {
         JETPACK_INSTALL_FULL_PLUGIN_ONBOARDING("origin:jp-install-full-plugin-overlay"),
         JETPACK_INSTALL_FULL_PLUGIN_ERROR("origin:jp-install-full-plugin-error"),
         JETPACK_REMOTE_INSTALL_PLUGIN_ERROR("origin:jp-remote-install-plugin-error"),
-        ACCOUNT_CLOSURE_DIALOG("origin:account-closure-dialog");
+        ACCOUNT_CLOSURE_DIALOG("origin:account-closure-dialog"),
+        FEEDBACK_FORM("origin:feedback-form");
 
         override fun toString(): String {
             return stringValue

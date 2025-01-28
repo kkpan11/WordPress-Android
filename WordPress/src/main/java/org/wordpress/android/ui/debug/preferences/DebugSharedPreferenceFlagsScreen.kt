@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import org.wordpress.android.R
 import org.wordpress.android.ui.compose.components.MainTopAppBar
 import org.wordpress.android.ui.compose.components.NavigationIcons
-import org.wordpress.android.ui.domains.management.M3Theme
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 
 @Composable
 fun DebugSharedPreferenceFlagsScreen(
@@ -32,8 +31,6 @@ fun DebugSharedPreferenceFlagsScreen(
                 title = stringResource(R.string.debug_settings_debug_flags_screen),
                 navigationIcon = NavigationIcons.BackIcon,
                 onNavigationIconClick = onBackTapped,
-                backgroundColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface,
             )
         },
     ) { paddingValues ->
@@ -79,7 +76,7 @@ fun DebugFlagRow(
 @Preview
 @Composable
 fun DebugFlagsScreenPreview() {
-    M3Theme {
+    AppThemeM3 {
         DebugSharedPreferenceFlagsScreen(
             flags = mapOf(
                 "EXAMPLE_FEATURE_FLAG" to true,

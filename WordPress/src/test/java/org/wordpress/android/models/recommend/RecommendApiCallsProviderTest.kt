@@ -23,8 +23,8 @@ import org.wordpress.android.R
 import org.wordpress.android.models.recommend.RecommendApiCallsProvider.RecommendAppName.WordPress
 import org.wordpress.android.models.recommend.RecommendApiCallsProvider.RecommendCallResult.Failure
 import org.wordpress.android.networking.RestClientUtils
-import org.wordpress.android.util.LocaleManagerWrapper
 import org.wordpress.android.util.NetworkUtilsWrapper
+import org.wordpress.android.util.PerAppLocaleManager
 import org.wordpress.android.util.RestClientProvider
 import org.wordpress.android.util.analytics.AnalyticsUtils.RecommendAppSource.ME
 import org.wordpress.android.util.analytics.AnalyticsUtilsWrapper
@@ -51,7 +51,7 @@ class RecommendApiCallsProviderTest : BaseUnitTest() {
     lateinit var restClientUtils: RestClientUtils
 
     @Mock
-    lateinit var localeManagerWrapper: LocaleManagerWrapper
+    lateinit var perAppLocaleManager: PerAppLocaleManager
 
     @Mock
     lateinit var jsonObject: JSONObject
@@ -67,12 +67,12 @@ class RecommendApiCallsProviderTest : BaseUnitTest() {
             analyticsUtilsWrapper,
             networkUtilsWrapper,
             restClientProvider,
-            localeManagerWrapper
+            perAppLocaleManager
         )
         whenever(networkUtilsWrapper.isNetworkAvailable()).thenReturn(true)
         whenever(contextProvider.getContext()).thenReturn(context)
         whenever(restClientProvider.getRestClientUtilsV2()).thenReturn(restClientUtils)
-        whenever(localeManagerWrapper.getLanguage()).thenReturn("en")
+        whenever(perAppLocaleManager.getCurrentLocaleLanguageCode()).thenReturn("en")
         whenever(jsonObject.optString("name")).thenReturn("wordpress")
 
         listenerCaptor = argumentCaptor()
@@ -109,7 +109,13 @@ class RecommendApiCallsProviderTest : BaseUnitTest() {
         val error = "Invalid response received"
         whenever(jsonObject.toString()).thenReturn("{name:\"wordpress\",message=[]}")
         whenever(context.getString(R.string.recommend_app_bad_format_response)).thenReturn(error)
-        whenever(restClientUtils.get(anyString(), listenerCaptor.capture(), errorListenerCaptor.capture())).doAnswer {
+        whenever(
+            restClientUtils.getWithLocale(
+                anyString(),
+                listenerCaptor.capture(),
+                errorListenerCaptor.capture()
+            )
+        ).doAnswer {
             listenerCaptor.lastValue.onResponse(jsonObject)
             null
         }
@@ -127,7 +133,13 @@ class RecommendApiCallsProviderTest : BaseUnitTest() {
         val error = "Invalid response received"
         whenever(jsonObject.optString("name")).thenReturn("jetpack")
         whenever(context.getString(R.string.recommend_app_bad_format_response)).thenReturn(error)
-        whenever(restClientUtils.get(anyString(), listenerCaptor.capture(), errorListenerCaptor.capture())).doAnswer {
+        whenever(
+            restClientUtils.getWithLocale(
+                anyString(),
+                listenerCaptor.capture(),
+                errorListenerCaptor.capture()
+            )
+        ).doAnswer {
             listenerCaptor.lastValue.onResponse(jsonObject)
             null
         }
@@ -144,7 +156,13 @@ class RecommendApiCallsProviderTest : BaseUnitTest() {
     fun `error is tracked on null net response`() = test {
         val error = "No response received"
         whenever(context.getString(R.string.recommend_app_null_response)).thenReturn(error)
-        whenever(restClientUtils.get(anyString(), listenerCaptor.capture(), errorListenerCaptor.capture())).doAnswer {
+        whenever(
+            restClientUtils.getWithLocale(
+                anyString(),
+                listenerCaptor.capture(),
+                errorListenerCaptor.capture()
+            )
+        ).doAnswer {
             listenerCaptor.lastValue.onResponse(null)
             null
         }
@@ -161,7 +179,13 @@ class RecommendApiCallsProviderTest : BaseUnitTest() {
     fun `error is tracked on volley error`() = test {
         val error = "Unknown error fetching recommend app template"
         whenever(context.getString(R.string.recommend_app_generic_get_template_error)).thenReturn(error)
-        whenever(restClientUtils.get(anyString(), listenerCaptor.capture(), errorListenerCaptor.capture())).doAnswer {
+        whenever(
+            restClientUtils.getWithLocale(
+                anyString(),
+                listenerCaptor.capture(),
+                errorListenerCaptor.capture()
+            )
+        ).doAnswer {
             errorListenerCaptor.lastValue.onErrorResponse(mock())
             null
         }

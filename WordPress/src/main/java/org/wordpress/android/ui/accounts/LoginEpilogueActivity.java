@@ -12,7 +12,6 @@ import org.wordpress.android.R;
 import org.wordpress.android.fluxc.store.AccountStore;
 import org.wordpress.android.fluxc.store.SiteStore;
 import org.wordpress.android.ui.ActivityLauncher;
-import org.wordpress.android.ui.LocaleAwareActivity;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.accounts.LoginNavigationEvents.CloseWithResultOk;
 import org.wordpress.android.ui.accounts.LoginNavigationEvents.CreateNewSite;
@@ -24,7 +23,8 @@ import org.wordpress.android.ui.accounts.login.LoginEpilogueFragment;
 import org.wordpress.android.ui.accounts.login.LoginEpilogueListener;
 import org.wordpress.android.ui.accounts.login.jetpack.LoginNoSitesFragment;
 import org.wordpress.android.ui.jetpackoverlay.individualplugin.WPJetpackIndividualPluginFragment;
-import org.wordpress.android.ui.main.SitePickerActivity;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
+import org.wordpress.android.ui.main.ChooseSiteActivity;
 import org.wordpress.android.ui.mysite.SelectedSiteRepository;
 import org.wordpress.android.ui.sitecreation.misc.SiteCreationSource;
 
@@ -35,7 +35,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class LoginEpilogueActivity extends LocaleAwareActivity implements LoginEpilogueListener {
+public class LoginEpilogueActivity extends BaseAppCompatActivity implements LoginEpilogueListener {
     public static final String EXTRA_DO_LOGIN_UPDATE = "EXTRA_DO_LOGIN_UPDATE";
     public static final String EXTRA_SHOW_AND_RETURN = "EXTRA_SHOW_AND_RETURN";
     public static final String ARG_OLD_SITES_IDS = "ARG_OLD_SITES_IDS";
@@ -126,7 +126,7 @@ public class LoginEpilogueActivity extends LocaleAwareActivity implements LoginE
     }
 
     private void selectSite(int localId) {
-        setResult(RESULT_OK, new Intent().putExtra(SitePickerActivity.KEY_SITE_LOCAL_ID, localId));
+        setResult(RESULT_OK, new Intent().putExtra(ChooseSiteActivity.KEY_SITE_LOCAL_ID, localId));
         finish();
     }
 
@@ -167,16 +167,16 @@ public class LoginEpilogueActivity extends LocaleAwareActivity implements LoginE
             && data != null
         ) {
             int newSiteLocalID = data.getIntExtra(
-                    SitePickerActivity.KEY_SITE_LOCAL_ID,
+                    ChooseSiteActivity.KEY_SITE_LOCAL_ID,
                     SelectedSiteRepository.UNAVAILABLE
             );
             boolean isTitleTaskCompleted = data.getBooleanExtra(
-                    SitePickerActivity.KEY_SITE_TITLE_TASK_COMPLETED,
+                    ChooseSiteActivity.KEY_SITE_TITLE_TASK_COMPLETED,
                     false
             );
             setResult(RESULT_OK, new Intent()
-                    .putExtra(SitePickerActivity.KEY_SITE_LOCAL_ID, newSiteLocalID)
-                    .putExtra(SitePickerActivity.KEY_SITE_TITLE_TASK_COMPLETED, isTitleTaskCompleted)
+                    .putExtra(ChooseSiteActivity.KEY_SITE_LOCAL_ID, newSiteLocalID)
+                    .putExtra(ChooseSiteActivity.KEY_SITE_TITLE_TASK_COMPLETED, isTitleTaskCompleted)
                     .putExtra(KEY_SITE_CREATED_FROM_LOGIN_EPILOGUE, true)
             );
             finish();

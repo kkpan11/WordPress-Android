@@ -8,14 +8,12 @@ import org.wordpress.android.localcontentmigration.LocalContentEntityData.UserFl
 import org.wordpress.android.ui.prefs.AppPrefs.DeletablePrefKey
 import org.wordpress.android.ui.prefs.AppPrefs.UndeletablePrefKey
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
-import org.wordpress.android.util.LocaleManagerWrapper
 import org.wordpress.android.viewmodel.ContextProvider
 import javax.inject.Inject
 
 class UserFlagsProviderHelper @Inject constructor(
     private val appPrefsWrapper: AppPrefsWrapper,
     contextProvider: ContextProvider,
-    localeManagerWrapper: LocaleManagerWrapper
 ) : LocalDataProviderHelper {
     override fun getData(localEntityId: Int?): LocalContentEntityData =
         UserFlagsData(
@@ -66,15 +64,12 @@ class UserFlagsProviderHelper @Inject constructor(
         DeletablePrefKey.RECENTLY_PICKED_SITE_IDS.name,
         UndeletablePrefKey.THEME_IMAGE_SIZE_WIDTH.name,
         UndeletablePrefKey.BOOKMARKS_SAVED_LOCALLY_DIALOG_SHOWN.name,
-        UndeletablePrefKey.IMAGE_OPTIMIZE_PROMO_REQUIRED.name,
         UndeletablePrefKey.SWIPE_TO_NAVIGATE_NOTIFICATIONS.name,
         UndeletablePrefKey.SWIPE_TO_NAVIGATE_READER.name,
-        UndeletablePrefKey.SHOULD_SHOW_STORIES_INTRO.name,
         UndeletablePrefKey.SHOULD_SHOW_STORAGE_WARNING.name,
         UndeletablePrefKey.LAST_USED_USER_ID.name,
         contextProvider.getContext().getString(R.string.pref_key_app_theme),
         contextProvider.getContext().getString(R.string.pref_key_initial_screen),
         contextProvider.getContext().getString(R.string.pref_key_send_crash),
-        localeManagerWrapper.getLocalePrefKeyString()
     )
 }

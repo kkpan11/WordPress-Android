@@ -17,7 +17,8 @@ import org.wordpress.android.databinding.ReaderDiscoverFragmentLayoutBinding
 import org.wordpress.android.ui.ActivityLauncher
 import org.wordpress.android.ui.RequestCodes
 import org.wordpress.android.ui.ViewPagerFragment
-import org.wordpress.android.ui.main.SitePickerActivity
+import org.wordpress.android.ui.main.ChooseSiteActivity
+import org.wordpress.android.ui.main.WPMainActivity.OnScrollToTopListener
 import org.wordpress.android.ui.mysite.SelectedSiteRepository
 import org.wordpress.android.ui.pages.SnackbarMessageHolder
 import org.wordpress.android.ui.reader.ReaderActivityLauncher
@@ -46,15 +47,15 @@ import org.wordpress.android.ui.reader.utils.ReaderUtilsWrapper
 import org.wordpress.android.ui.reader.viewmodels.ReaderViewModel
 import org.wordpress.android.ui.utils.UiHelpers
 import org.wordpress.android.ui.utils.addItemDivider
+import org.wordpress.android.util.NetworkUtilsWrapper
 import org.wordpress.android.util.WPSwipeToRefreshHelper
-import org.wordpress.android.util.config.ReaderImprovementsFeatureConfig
 import org.wordpress.android.util.image.ImageManager
 import org.wordpress.android.viewmodel.observeEvent
 import org.wordpress.android.widgets.RecyclerItemDecoration
 import org.wordpress.android.widgets.WPSnackbar
 import javax.inject.Inject
 
-class ReaderDiscoverFragment : ViewPagerFragment(R.layout.reader_discover_fragment_layout) {
+class ReaderDiscoverFragment : ViewPagerFragment(R.layout.reader_discover_fragment_layout), OnScrollToTopListener {
     private var bookmarksSavedLocallyDialog: AlertDialog? = null
 
     @Inject
@@ -72,10 +73,11 @@ class ReaderDiscoverFragment : ViewPagerFragment(R.layout.reader_discover_fragme
 
     @Inject
     lateinit var readerTracker: ReaderTracker
-    private lateinit var parentViewModel: ReaderViewModel
 
     @Inject
-    lateinit var readerImprovementsFeatureConfig: ReaderImprovementsFeatureConfig
+    lateinit var networkUtilsWrapper: NetworkUtilsWrapper
+
+    private lateinit var parentViewModel: ReaderViewModel
 
     private var binding: ReaderDiscoverFragmentLayoutBinding? = null
 
@@ -90,31 +92,24 @@ class ReaderDiscoverFragment : ViewPagerFragment(R.layout.reader_discover_fragme
             recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             recyclerView.adapter =
                 ReaderDiscoverAdapter(
-                    uiHelpers, imageManager, readerTracker, readerImprovementsFeatureConfig.isEnabled()
+                    uiHelpers,
+                    imageManager,
+                    readerTracker,
+                    networkUtilsWrapper,
                 )
 
             // set the background color as we have different colors for the new and legacy designs that are not easy to
             // change via styles, because of the FeatureConfig logic
-            val backgroundColor = if (readerImprovementsFeatureConfig.isEnabled()) {
-                R.color.reader_post_list_background_new
-            } else {
-                R.color.reader_post_list_background
-            }
+            val backgroundColor = R.color.reader_post_list_background
             recyclerView.setBackgroundColor(ContextCompat.getColor(requireContext(), backgroundColor))
 
-            val spacingVerticalRes = if (readerImprovementsFeatureConfig.isEnabled()) {
-                R.dimen.reader_card_gutters_new
-            } else {
-                R.dimen.reader_card_gutters
-            }
+            val spacingVerticalRes = R.dimen.reader_card_gutters
             val spacingHorizontal = resources.getDimensionPixelSize(R.dimen.reader_card_margin)
             val spacingVertical = resources.getDimensionPixelSize(spacingVerticalRes)
             recyclerView.addItemDecoration(RecyclerItemDecoration(spacingHorizontal, spacingVertical, false))
 
             // add a proper item divider to the RecyclerView when Reader Improvements are enabled
-            if (readerImprovementsFeatureConfig.isEnabled()) {
-                recyclerView.addItemDivider(R.drawable.default_list_divider)
-            }
+            recyclerView.addItemDivider(R.drawable.default_list_divider)
 
             WPSwipeToRefreshHelper.buildSwipeToRefreshHelper(ptrLayout) { viewModel.swipeToRefresh() }
 
@@ -131,9 +126,6 @@ class ReaderDiscoverFragment : ViewPagerFragment(R.layout.reader_discover_fragme
             when (it) {
                 is DiscoverUiState.ContentUiState -> {
                     (recyclerView.adapter as ReaderDiscoverAdapter).update(it.cards)
-                    if (it.scrollToTop) {
-                        recyclerView.scrollToPosition(0)
-                    }
                 }
                 is DiscoverUiState.EmptyUiState -> {
                     uiHelpers.setTextOrHide(actionableEmptyView.title, it.titleResId)
@@ -153,9 +145,10 @@ class ReaderDiscoverFragment : ViewPagerFragment(R.layout.reader_discover_fragme
             ptrLayout.isEnabled = it.swipeToRefreshEnabled
             ptrLayout.isRefreshing = it.reloadProgressVisibility
         }
+        viewModel.scrollToTopEvent.observeEvent(viewLifecycleOwner) { recyclerView.scrollToPosition(0) }
         viewModel.navigationEvents.observeEvent(viewLifecycleOwner) { handleNavigation(it) }
-        viewModel.snackbarEvents.observeEvent(viewLifecycleOwner, { it.showSnackbar() })
-        viewModel.preloadPostEvents.observeEvent(viewLifecycleOwner, { it.addWebViewCachingFragment() })
+        viewModel.snackbarEvents.observeEvent(viewLifecycleOwner) { it.showSnackbar() }
+        viewModel.preloadPostEvents.observeEvent(viewLifecycleOwner) { it.addWebViewCachingFragment() }
         viewModel.start(parentViewModel)
     }
 
@@ -164,12 +157,14 @@ class ReaderDiscoverFragment : ViewPagerFragment(R.layout.reader_discover_fragme
         is ShowPostDetail -> ReaderActivityLauncher.showReaderPostDetail(context, event.post.blogId, event.post.postId)
         is SharePost -> ReaderActivityLauncher.sharePost(context, event.post)
         is OpenPost -> ReaderActivityLauncher.openPost(context, event.post)
-        is ShowReaderComments -> ReaderActivityLauncher.showReaderComments(
-            context,
-            event.blogId,
-            event.postId,
-            READER_POST_CARD.sourceDescription
-        )
+        is ShowReaderComments -> context?.let {
+            ReaderActivityLauncher.showReaderComments(
+                it,
+                event.blogId,
+                event.postId,
+                READER_POST_CARD.sourceDescription
+            )
+        }
         is ShowNoSitesToReblog -> ReaderActivityLauncher.showNoSiteToReblog(activity)
         is ShowSitePickerForResult -> ActivityLauncher.showSitePickerForResult(
             this@ReaderDiscoverFragment,
@@ -269,10 +264,14 @@ class ReaderDiscoverFragment : ViewPagerFragment(R.layout.reader_discover_fragme
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RequestCodes.SITE_PICKER && resultCode == Activity.RESULT_OK && data != null) {
             val siteLocalId = data.getIntExtra(
-                SitePickerActivity.KEY_SITE_LOCAL_ID,
+                ChooseSiteActivity.KEY_SITE_LOCAL_ID,
                 SelectedSiteRepository.UNAVAILABLE
             )
             viewModel.onReblogSiteSelected(siteLocalId)
         }
+    }
+
+    override fun onScrollToTop() {
+        binding?.recyclerView?.smoothScrollToPosition(0)
     }
 }

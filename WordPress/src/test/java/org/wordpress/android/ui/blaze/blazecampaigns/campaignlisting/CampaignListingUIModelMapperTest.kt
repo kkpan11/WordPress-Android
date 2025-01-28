@@ -4,9 +4,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.wordpress.android.BaseUnitTest
@@ -17,7 +15,6 @@ import org.wordpress.android.ui.stats.refresh.utils.StatsUtils
 import org.wordpress.android.ui.utils.UiString
 
 @ExperimentalCoroutinesApi
-@RunWith(MockitoJUnitRunner::class)
 class CampaignListingUIModelMapperTest : BaseUnitTest() {
     @Mock
     lateinit var statsUtils: StatsUtils
@@ -30,16 +27,18 @@ class CampaignListingUIModelMapperTest : BaseUnitTest() {
     }
 
     private val activeCampaign = BlazeCampaignModel(
-        campaignId = 1,
+        campaignId = "1",
         title = "title",
-        uiStatus = "active",
         imageUrl = "imageUrl",
-        impressions = 1L,
-        clicks = 1L,
-        budgetCents = 100,
-        createdAt = mock(),
-        endDate = mock(),
+        startTime = mock(),
+        durationInDays = 1,
+        uiStatus = "active",
+        impressions = 1,
+        clicks = 1,
         targetUrn = null,
+        totalBudget = 1.0,
+        spentBudget = 0.0,
+        isEndlessCampaign = false,
     )
 
     @Test
@@ -59,16 +58,18 @@ class CampaignListingUIModelMapperTest : BaseUnitTest() {
     }
 
     private val inActiveCampaign = BlazeCampaignModel(
-        campaignId = 1,
+        campaignId = "1",
         title = "title",
-        uiStatus = "canceled",
         imageUrl = "imageUrl",
+        startTime = mock(),
+        durationInDays = 1,
+        uiStatus = "canceled",
         impressions = 0,
         clicks = 0,
-        budgetCents = 100,
-        createdAt = mock(),
-        endDate = mock(),
         targetUrn = null,
+        totalBudget = 0.0,
+        spentBudget = 0.0,
+        isEndlessCampaign = false,
     )
 
     @Test

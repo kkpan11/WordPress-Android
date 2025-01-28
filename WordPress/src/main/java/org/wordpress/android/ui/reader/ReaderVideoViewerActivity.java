@@ -1,5 +1,6 @@
 package org.wordpress.android.ui.reader;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -10,18 +11,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.wordpress.android.R;
-import org.wordpress.android.WordPress;
-import org.wordpress.android.ui.LocaleAwareActivity;
+import org.wordpress.android.fluxc.network.UserAgent;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
 import org.wordpress.android.util.helpers.WebChromeClientWithVideoPoster;
 
+import javax.inject.Inject;
+
 /**
- * Full screen landscape video player for the reader
+ * Full screen video player for the reader
  */
-public class ReaderVideoViewerActivity extends LocaleAwareActivity {
+public class ReaderVideoViewerActivity extends BaseAppCompatActivity {
     private String mVideoUrl;
     private WebView mWebView;
     private ProgressBar mProgress;
 
+    @Inject UserAgent mUserAgent;
+
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +38,9 @@ public class ReaderVideoViewerActivity extends LocaleAwareActivity {
 
         mWebView.setBackgroundColor(Color.TRANSPARENT);
         mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.getSettings().setUserAgentString(WordPress.getUserAgent());
+        if (mUserAgent != null) {
+            mWebView.getSettings().setUserAgentString(mUserAgent.toString());
+        }
 
         mWebView.setWebChromeClient(new WebChromeClientWithVideoPoster(
                 mWebView,

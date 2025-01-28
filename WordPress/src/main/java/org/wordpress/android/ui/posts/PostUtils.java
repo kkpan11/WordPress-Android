@@ -29,7 +29,6 @@ import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppLog.T;
 import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.util.HtmlUtils;
-import org.wordpress.android.util.LocaleManager;
 import org.wordpress.android.util.SiteUtils;
 import org.wordpress.android.util.UrlUtils;
 import org.wordpress.android.util.analytics.AnalyticsUtils;
@@ -54,7 +53,6 @@ public class PostUtils {
     private static final HashSet<String> SHORTCODE_TABLE = new HashSet<>();
 
     private static final String GUTENBERG_BLOCK_START = "<!-- wp:";
-    public static final String WP_STORIES_GUTENBERG_BLOCK_START = "<!-- wp:jetpack/story";
 
     public static Map<String, Object> addPostTypeAndPostFormatToAnalyticsProperties(PostImmutableModel post,
                                                                                     Map<String, Object> properties) {
@@ -164,11 +162,9 @@ public class PostUtils {
                     AnalyticsUtils.trackWithSiteDetails(AnalyticsTracker.Stat.EDITOR_UPDATED_POST, site, properties);
                 } else {
                     properties.put("word_count", AnalyticsUtils.getWordCount(post.getContent()));
-                    properties.put("editor_source",
-                            contentContainsWPStoryGutenbergBlocks(post.getContent())
-                                    ? SiteUtils.WP_STORIES_CREATOR_NAME
-                                    : (shouldShowGutenbergEditor(post.isLocalDraft(), post.getContent(), site)
-                                        ? SiteUtils.GB_EDITOR_NAME : SiteUtils.AZTEC_EDITOR_NAME));
+                    properties.put("editor_source", (shouldShowGutenbergEditor(
+                            post.isLocalDraft(), post.getContent(), site) ? SiteUtils.GB_EDITOR_NAME
+                            : SiteUtils.AZTEC_EDITOR_NAME));
                     properties.put(AnalyticsUtils.HAS_GUTENBERG_BLOCKS_KEY,
                             PostUtils.contentContainsGutenbergBlocks(post.getContent()));
                     AnalyticsUtils.trackWithSiteDetails(AnalyticsTracker.Stat.EDITOR_SCHEDULED_POST, site,
@@ -305,10 +301,10 @@ public class PostUtils {
     }
 
     /**
-     * Removes the VideoPress block tag from the given string.
+     * Removes VideoPress references that occur in the VideoPress or video block from the given string.
      */
     public static String removeWPVideoPress(String str) {
-        return str.replaceAll("(?s)\\n?<!--\\swp:videopress/video?(.*?)wp:videopress/video\\s-->", "");
+        return str.replaceAll("(?s)\\n?<!--\\swp:video.*?(.*?)wp:video.*?\\s-->", "");
     }
 
     public static String getFormattedDate(PostModel post) {
@@ -397,7 +393,7 @@ public class PostUtils {
         return postsThatContainListedMedia;
     }
 
-    /*
+    /**
     Note the way we detect we're in presence of Gutenberg blocks logic is taken from
     https://github.com/WordPress/gutenberg/blob/5a6693589285363341bebad15bd56d9371cf8ecc/lib/register.php#L331-L345
 
@@ -406,11 +402,8 @@ public class PostUtils {
     * but not validating its structure. For strict accuracy, you should use the
     * block parser on post content.
     *
-    * @since 1.6.0
-    * @see gutenberg_parse_blocks()
-    *
-    * @param string $content Content to test.
-    * @return bool Whether the content contains blocks.
+    * @param postContent Content to test.
+    * @return whether the content contains blocks.
 
     function gutenberg_content_has_blocks( $content ) {
         return false !== strpos( $content, '<!-- wp:' );
@@ -433,7 +426,8 @@ public class PostUtils {
     }
 
     public static String replaceMediaFileWithUrlInGutenbergPost(@NonNull String postContent,
-                                                 String localMediaId, MediaFile mediaFile, String siteUrl) {
+                                                                @NonNull String localMediaId, MediaFile mediaFile,
+                                                                @NonNull String siteUrl) {
         if (mediaFile != null && contentContainsGutenbergBlocks(postContent)) {
             MediaUploadCompletionProcessor processor = new MediaUploadCompletionProcessor(localMediaId, mediaFile,
                     siteUrl);
@@ -494,9 +488,9 @@ public class PostUtils {
         String secondPart =
                 String.format(context.getString(R.string.dialog_confirm_load_remote_post_body_2),
                         getFormattedDateForLastModified(
-                                context, DateTimeUtils.timestampFromIso8601Millis(lastModified)),
+                                DateTimeUtils.timestampFromIso8601Millis(lastModified)),
                         getFormattedDateForLastModified(
-                                context, DateTimeUtils.timestampFromIso8601Millis(post.getRemoteLastModified())));
+                                DateTimeUtils.timestampFromIso8601Millis(post.getRemoteLastModified())));
         return firstPart + secondPart;
     }
 
@@ -510,24 +504,20 @@ public class PostUtils {
         String secondPart =
                 String.format(context.getString(R.string.dialog_confirm_autosave_body_second_part),
                         getFormattedDateForLastModified(
-                                context, DateTimeUtils.timestampFromIso8601Millis(lastModified)),
+                                DateTimeUtils.timestampFromIso8601Millis(lastModified)),
                         getFormattedDateForLastModified(
-                                context, DateTimeUtils.timestampFromIso8601Millis(post.getAutoSaveModified())));
+                                DateTimeUtils.timestampFromIso8601Millis(post.getAutoSaveModified())));
         return new UiStringText(firstPart + secondPart);
     }
 
     /**
      * E.g. Jul 2, 2013 @ 21:57
      */
-    public static String getFormattedDateForLastModified(Context context, long timeSinceLastModified) {
+    public static String getFormattedDateForLastModified(long timeSinceLastModified) {
         Date date = new Date(timeSinceLastModified);
 
-        DateFormat dateFormat = DateFormat.getDateInstance(
-                DateFormat.MEDIUM,
-                LocaleManager.getSafeLocale(context));
-        DateFormat timeFormat = DateFormat.getTimeInstance(
-                DateFormat.SHORT,
-                LocaleManager.getSafeLocale(context));
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
+        DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
 
         dateFormat.setTimeZone(Calendar.getInstance().getTimeZone());
         timeFormat.setTimeZone(Calendar.getInstance().getTimeZone());
@@ -583,10 +573,6 @@ public class PostUtils {
         return flag != null && post != null
                && post.getLocalSiteId() == flag.localSiteId
                && post.getId() == flag.postId;
-    }
-
-    public static boolean contentContainsWPStoryGutenbergBlocks(String postContent) {
-        return (postContent != null && postContent.contains(WP_STORIES_GUTENBERG_BLOCK_START));
     }
 
     public enum EntryPoint {

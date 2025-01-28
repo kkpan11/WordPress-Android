@@ -3,7 +3,6 @@ package org.wordpress.android.ui.domains.management.newdomainsearch
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
@@ -11,12 +10,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.wordpress.android.ui.ActivityNavigator
-import org.wordpress.android.ui.domains.management.M3Theme
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.domains.management.newdomainsearch.composable.NewDomainSearchScreen
+import org.wordpress.android.ui.main.BaseAppCompatActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NewDomainSearchActivity : AppCompatActivity() {
+class NewDomainSearchActivity : BaseAppCompatActivity() {
     private val viewModel: NewDomainSearchViewModel by viewModels()
 
     @Inject
@@ -25,7 +25,7 @@ class NewDomainSearchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            M3Theme {
+            AppThemeM3 {
                 val uiState by viewModel.uiStateFlow.collectAsState()
                 NewDomainSearchScreen(
                     uiState = uiState,

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -26,6 +27,7 @@ import org.wordpress.android.ui.WPWebViewActivity
 import org.wordpress.android.ui.accounts.HelpActivity
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.android.util.extensions.getSerializableCompat
+import org.wordpress.android.util.extensions.setWindowStatusBarColor
 import org.wordpress.android.widgets.WPSnackbar
 import java.util.UUID
 import javax.inject.Inject
@@ -54,7 +56,7 @@ class SupportWebViewActivity : WPWebViewActivity(), SupportWebViewClient.Support
 
         supportActionBar?.title = getString(R.string.help)
         supportActionBar?.subtitle = ""
-        window.navigationBarColor = getColor(R.color.docsbot_chat_container)
+        window.setWindowStatusBarColor(getColor(R.color.docsbot_chat_container))
 
         // Prevent AppBar scrolling away
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -145,6 +147,11 @@ class SupportWebViewActivity : WPWebViewActivity(), SupportWebViewClient.Support
             .addPathHandler("/assets/", AssetsPathHandler(this))
             .addPathHandler("/res/", ResourcesPathHandler(this))
             .build()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mWebView.settings.setAlgorithmicDarkeningAllowed(true)
+        }
+
         mWebView.webViewClient = SupportWebViewClient(this, assetLoader)
 
         // Setup debugging; See https://developers.google.com/web/tools/chrome-devtools/remote-debugging/webviews

@@ -1,19 +1,25 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    id "org.jetbrains.kotlin.jvm"
-    id "org.jetbrains.kotlin.kapt"
-    id "org.jetbrains.kotlinx.kover"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlinx.kover)
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+kotlin {
+    sourceCompatibility = JvmTarget.fromTarget(libs.versions.java.get()).target
+    targetCompatibility = JvmTarget.fromTarget(libs.versions.java.get()).target
+}
 
 dependencies {
     implementation project(":libs:annotations")
 
-    implementation "com.google.auto.service:auto-service:$googleAutoServiceVersion"
-    kapt "com.google.auto.service:auto-service:$googleAutoServiceVersion"
-    implementation "com.squareup:kotlinpoet:$squareupKotlinPoetVersion"
+    implementation(libs.squareup.kotlin.poet.main)
+    implementation(libs.squareup.kotlin.poet.ksp)
+    implementation(libs.ksp.api)
 
-    testImplementation "junit:junit:$junitVersion"
-    testImplementation "org.assertj:assertj-core:$assertjVersion"
+    testImplementation(libs.kotlin.compile.testing.main)
+    testImplementation(libs.kotlin.compile.testing.ksp)
+    testImplementation(libs.junit)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.kotlin.reflect)
 }

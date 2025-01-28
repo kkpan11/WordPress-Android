@@ -28,11 +28,11 @@ import org.wordpress.android.fluxc.store.CommentStore.FetchCommentsPayload;
 import org.wordpress.android.fluxc.store.CommentStore.OnCommentChanged;
 import org.wordpress.android.models.CommentList;
 import org.wordpress.android.ui.CollapseFullScreenDialogFragment;
-import org.wordpress.android.ui.LocaleAwareActivity;
 import org.wordpress.android.ui.ScrollableViewInitializedListener;
 import org.wordpress.android.ui.comments.unified.CommentConstants;
 import org.wordpress.android.ui.comments.unified.CommentsStoreAdapter;
 import org.wordpress.android.ui.comments.unified.OnLoadMoreListener;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
@@ -43,9 +43,9 @@ import org.wordpress.android.widgets.WPViewPagerTransformer;
 
 import javax.inject.Inject;
 
-import static org.wordpress.android.ui.comments.unified.CommentConstants.COMMENTS_PER_PAGE;
-
 import dagger.hilt.android.AndroidEntryPoint;
+
+import static org.wordpress.android.ui.comments.unified.CommentConstants.COMMENTS_PER_PAGE;
 
 /**
  * @deprecated
@@ -55,7 +55,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 @Deprecated
 @AndroidEntryPoint
 @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
-public class CommentsDetailActivity extends LocaleAwareActivity
+public class CommentsDetailActivity extends BaseAppCompatActivity
         implements OnLoadMoreListener,
         CommentActions.OnCommentActionListener, ScrollableViewInitializedListener {
     public static final String COMMENT_ID_EXTRA = "commentId";

@@ -44,6 +44,7 @@ class TodaysStatsCardViewHolder(
         uiHelpers.setTextOrHide(viewsCount, card.views)
         uiHelpers.setTextOrHide(visitorsCount, card.visitors)
         uiHelpers.setTextOrHide(likesCount, card.likes)
+        uiHelpers.setTextOrHide(commentsCount, card.comments)
         uiHelpers.setTextOrHide(getMoreViewsMessage, card.message?.text)
         card.message?.links?.let { getMoreViewsMessage.updateLink(it) }
         mySiteTodaysStatCard.setOnClickListener {
@@ -71,6 +72,8 @@ class TodaysStatsCardViewHolder(
     private fun MySiteCardToolbarBinding.update(card: TodaysStatsCardWithData) {
         uiHelpers.setTextOrHide(mySiteCardToolbarTitle, card.title)
         mySiteCardToolbarMore.visibility = View.VISIBLE
+        mySiteCardToolbarMore.contentDescription =
+            mySiteCardToolbarTitle.context.getString(R.string.more_content_description_today_stats)
         mySiteCardToolbarMore.setOnClickListener {
             showMoreMenu(
                 card.moreMenuOptions.onMoreMenuClick,

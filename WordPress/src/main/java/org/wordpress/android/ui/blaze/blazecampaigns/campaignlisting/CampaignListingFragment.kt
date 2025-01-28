@@ -1,6 +1,6 @@
 package org.wordpress.android.ui.blaze.blazecampaigns.campaignlisting
 
-import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,20 +17,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Button
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.SnackbarHost
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -51,10 +54,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.wordpress.android.R
 import org.wordpress.android.ui.ActivityNavigator
 import org.wordpress.android.ui.blaze.blazecampaigns.CampaignViewModel
-import org.wordpress.android.ui.compose.components.MainTopAppBar
-import org.wordpress.android.ui.compose.components.NavigationIcons
 import org.wordpress.android.ui.compose.theme.AppColor
-import org.wordpress.android.ui.compose.theme.AppTheme
+import org.wordpress.android.ui.compose.theme.AppThemeM3
+import org.wordpress.android.ui.compose.utils.isLightTheme
 import org.wordpress.android.ui.compose.utils.uiStringText
 import org.wordpress.android.ui.main.jetpack.migration.compose.state.LoadingState
 import org.wordpress.android.ui.utils.UiString
@@ -86,7 +88,7 @@ class CampaignListingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View = ComposeView(requireContext()).apply {
         setContent {
-            AppTheme {
+            AppThemeM3 {
                 val campaigns by viewModel.uiState.observeAsState()
                 CampaignListingPage(campaigns ?: CampaignListingUiState.Loading)
             }
@@ -118,6 +120,9 @@ class CampaignListingFragment : Fragment() {
                 }
             }
         }
+        viewModel.onSelectedSiteMissing.observe(viewLifecycleOwner) {
+            requireActivity().finish()
+        }
     }
 
     private fun getPageSource(): CampaignListingPageSource {
@@ -125,24 +130,28 @@ class CampaignListingFragment : Fragment() {
             ?: CampaignListingPageSource.UNKNOWN
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     fun CampaignListingPage(uiState: CampaignListingUiState) {
-        val scaffoldState = rememberScaffoldState()
+        val snackbarHostState = remember { SnackbarHostState() }
 
         Scaffold(
-            scaffoldState = scaffoldState,
-            snackbarHost = { snackbarHostState ->
-                // SnackbarHost needs to be provided to show Snackbars
-                SnackbarHost(hostState = snackbarHostState)
-            },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
-                MainTopAppBar(
-                    title = stringResource(R.string.blaze_campaigns_page_title),
-                    navigationIcon = NavigationIcons.BackIcon,
-                    onNavigationIconClick = {
-                        campaignViewModel.onNavigationUp()
-                    }
+                TopAppBar(
+                    title = {
+                        Text(text = stringResource(R.string.blaze_campaigns_page_title))
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { campaignViewModel.onNavigationUp() }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                stringResource(R.string.back)
+                            )
+                        }
+                    },
+                    actions = {
+                    },
                 )
             },
             floatingActionButton = {
@@ -152,12 +161,20 @@ class CampaignListingFragment : Fragment() {
                     )
                 }
             },
-        ) { CampaignListingContent(uiState) }
+        ) { contentPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+            ) {
+                CampaignListingContent(uiState)
+            }
+        }
 
         LaunchedEffect(viewModel.snackBar) {
             viewModel.snackBar.collect { message ->
                 if (message.isNotEmpty()) {
-                    scaffoldState.snackbarHostState.showSnackbar(message)
+                    snackbarHostState.showSnackbar(message)
                 }
             }
         }
@@ -174,11 +191,11 @@ class CampaignListingFragment : Fragment() {
         }
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun CampaignListingSuccess(uiState: CampaignListingUiState.Success) {
         val refreshState = viewModel.refresh.observeAsState()
-
+        val pullToRefreshState = rememberPullToRefreshState()
         val listState = rememberLazyListState()
 
         val isScrollToEnd by remember {
@@ -191,15 +208,19 @@ class CampaignListingFragment : Fragment() {
             uiState.pagingDetails.loadMoreFunction()
         }
 
-        val pullRefreshState = rememberPullRefreshState(
-            refreshing = refreshState.value ?: false,
-            onRefresh = viewModel::refreshCampaigns
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pullRefresh(pullRefreshState)
+        PullToRefreshBox(
+            modifier = Modifier.fillMaxSize(),
+            state = pullToRefreshState,
+            isRefreshing = refreshState.value ?: false,
+            onRefresh = viewModel::refreshCampaigns,
+            indicator = {
+                PullToRefreshDefaults.Indicator(
+                    state = pullToRefreshState,
+                    isRefreshing = refreshState.value ?: false,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                )
+            }
         ) {
             LazyColumn(
                 state = listState,
@@ -217,13 +238,6 @@ class CampaignListingFragment : Fragment() {
                     }
                 }
             }
-
-            PullRefreshIndicator(
-                refreshing = refreshState.value ?: false,
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
-                contentColor = MaterialTheme.colors.primaryVariant,
-            )
         }
     }
 }
@@ -240,11 +254,11 @@ fun CampaignListingError(error: CampaignListingUiState.Error) {
     ) {
         Text(
             text = uiStringText(uiString = error.title),
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.headlineSmall,
         )
         Text(
             text = uiStringText(uiString = error.description),
-            style = MaterialTheme.typography.body1,
+            style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -259,10 +273,30 @@ fun CampaignListingError(error: CampaignListingUiState.Error) {
     }
 }
 
+@Composable
+private fun CreateCampaignFloatingActionButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val isInDarkMode = !isLightTheme()
+    FloatingActionButton(
+        modifier = modifier,
+        onClick = onClick,
+        containerColor = if (isInDarkMode)
+            AppColor.Gray30
+        else MaterialTheme.colorScheme.onSurface
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Add,
+            contentDescription = stringResource(id = R.string.campaign_listing_page_create_campaign_fab_description),
+            tint = if (isInDarkMode) MaterialTheme.colorScheme.onSurface
+            else MaterialTheme.colorScheme.surface
+        )
+    }
+}
+
 @Preview
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun CampaignListingErrorPreview() {
-    AppTheme {
+    AppThemeM3 {
         CampaignListingError(CampaignListingUiState.Error(
             title = UiString.UiStringRes(R.string.campaign_listing_page_no_campaigns_message_title),
             description = UiString.UiStringRes(R.string.campaign_listing_page_no_campaigns_message_description),
@@ -273,23 +307,3 @@ fun CampaignListingErrorPreview() {
         ))
     }
 }
-
-@Composable
-private fun CreateCampaignFloatingActionButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    val isInDarkMode = !MaterialTheme.colors.isLight
-    FloatingActionButton(
-        modifier = modifier,
-        onClick = onClick,
-        containerColor = if (isInDarkMode)
-            AppColor.Gray30
-        else MaterialTheme.colors.onSurface
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Add,
-            contentDescription = stringResource(id = R.string.campaign_listing_page_create_campaign_fab_description),
-            tint = if (isInDarkMode) MaterialTheme.colors.onSurface
-            else MaterialTheme.colors.surface
-        )
-    }
-}
-

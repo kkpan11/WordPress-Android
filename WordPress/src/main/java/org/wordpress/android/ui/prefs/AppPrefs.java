@@ -47,7 +47,7 @@ public class AppPrefs {
     private static final int THEME_IMAGE_SIZE_WIDTH_DEFAULT = 400;
 
     // store twice as many recent sites as we show
-    private static final int MAX_RECENTLY_PICKED_SITES_TO_SHOW = 5;
+    private static final int MAX_RECENTLY_PICKED_SITES_TO_SHOW = 8;
     private static final int MAX_RECENTLY_PICKED_SITES_TO_SAVE = MAX_RECENTLY_PICKED_SITES_TO_SHOW * 2;
 
     private static final Gson GSON = new Gson();
@@ -70,6 +70,10 @@ public class AppPrefs {
         READER_TAG_NAME,
         READER_TAG_TYPE,
         READER_TAG_WAS_FOLLOWING,
+
+        READER_ANALYTICS_COUNT_TAGS_TIMESTAMP,
+
+        READER_ANALYTICS_COUNT_SITES_TIMESTAMP,
 
         // currently active tab on the main Reader screen when the user is in Reader
         READER_ACTIVE_TAB,
@@ -149,17 +153,19 @@ public class AppPrefs {
         READER_CARDS_ENDPOINT_PAGE_HANDLE,
         // used to tell the server to return a different set of data so the content on discover tab doesn't look static
         READER_CARDS_ENDPOINT_REFRESH_COUNTER,
-
         // Used to delete recommended tags saved as followed tags in tbl_tags
         // Need to be done just once for a logged out user
         READER_RECOMMENDED_TAGS_DELETED_FOR_LOGGED_OUT_USER,
+        // Selected Reader feed ID for persisting user preferred feed
+        READER_TOP_BAR_SELECTED_FEED_ITEM_ID,
         MANUAL_FEATURE_CONFIG,
+        EXPERIMENTAL_FEATURE_CONFIG,
         SITE_JETPACK_CAPABILITIES,
         REMOVED_QUICK_START_CARD_TYPE,
         PINNED_DYNAMIC_CARD,
-        // PUBLISHED_POST_COUNT will increase until it reaches ReviewViewModel.TARGET_COUNT_POST_PUBLISHED
+        // PUBLISHED_POST_COUNT will increase until it reaches AppReviewManager.TARGET_COUNT_POST_PUBLISHED
         PUBLISHED_POST_COUNT,
-        IN_APP_REVIEW_SHOWN,
+        IN_APP_REVIEWS_NOTIFICATION_COUNT,
         BLOGGING_REMINDERS_SHOWN,
         SHOULD_SCHEDULE_CREATE_SITE_NOTIFICATION,
         SHOULD_SHOW_WEEKLY_ROUNDUP_NOTIFICATION,
@@ -197,6 +203,9 @@ public class AppPrefs {
         SHOULD_HIDE_BLOGANUARY_NUDGE_CARD,
         SHOULD_HIDE_SOTW2023_NUDGE_CARD,
         SHOULD_HIDE_DYNAMIC_CARD,
+        PINNED_SITE_IDS,
+        READER_READING_PREFERENCES_JSON,
+        SHOULD_SHOW_READER_ANNOUNCEMENT_CARD,
     }
 
     /**
@@ -218,9 +227,6 @@ public class AppPrefs {
 
         BOOKMARKS_SAVED_LOCALLY_DIALOG_SHOWN,
 
-        // When we need to show the new image optimize promo dialog
-        IMAGE_OPTIMIZE_PROMO_REQUIRED,
-
         // When we need to show the snackbar indicating how notifications can be navigated through
         SWIPE_TO_NAVIGATE_NOTIFICATIONS,
 
@@ -240,6 +246,8 @@ public class AppPrefs {
         ASKED_PERMISSION_CAMERA,
 
         ASKED_PERMISSION_NOTIFICATIONS,
+
+        ASKED_PERMISSION_ACCESS_MEDIA_LOCATION,
 
         // Updated after WP.com themes have been fetched
         LAST_WP_COM_THEMES_SYNC,
@@ -268,9 +276,6 @@ public class AppPrefs {
 
         // last app version code feature announcement was shown for
         LAST_FEATURE_ANNOUNCEMENT_APP_VERSION_CODE,
-
-        // Used to indicate whether or not the stories intro screen must be shown
-        SHOULD_SHOW_STORIES_INTRO,
 
         // Used to indicate whether or not the device running out of storage warning should be shown
         SHOULD_SHOW_STORAGE_WARNING,
@@ -384,6 +389,10 @@ public class AppPrefs {
     public static boolean getBoolean(PrefKey key, boolean def) {
         String value = getString(key, Boolean.toString(def));
         return Boolean.parseBoolean(value);
+    }
+
+    public static boolean getRawBoolean(@NonNull final PrefKey key, boolean def) {
+        return prefs().getBoolean(key.name(), def);
     }
 
     public static void putBoolean(final PrefKey key, final boolean value) {
@@ -601,14 +610,6 @@ public class AppPrefs {
 
     public static void setBookmarksSavedLocallyDialogShown() {
         setBoolean(UndeletablePrefKey.BOOKMARKS_SAVED_LOCALLY_DIALOG_SHOWN, false);
-    }
-
-    public static boolean isImageOptimizePromoRequired() {
-        return getBoolean(UndeletablePrefKey.IMAGE_OPTIMIZE_PROMO_REQUIRED, true);
-    }
-
-    public static void setImageOptimizePromoRequired(boolean required) {
-        setBoolean(UndeletablePrefKey.IMAGE_OPTIMIZE_PROMO_REQUIRED, required);
     }
 
     /**
@@ -894,7 +895,15 @@ public class AppPrefs {
     }
 
     public static String getSupportEmail() {
-        return getString(DeletablePrefKey.SUPPORT_EMAIL);
+        String email = getString(DeletablePrefKey.SUPPORT_EMAIL);
+        // Zendesk can't create support tickets for Automattic email addresses
+        // with a staff member role (admin, agent, etc.), so insert an "+testing"
+        // alias into the email to make it work
+        if ((email.contains("@automattic.com") || email.contains("@a8c.com")) && !email.contains("+")) {
+            return email.replace("@", "+testing@");
+        } else {
+            return email;
+        }
     }
 
     public static void removeSupportEmail() {
@@ -1172,6 +1181,22 @@ public class AppPrefs {
         setLong(DeletablePrefKey.READER_TAGS_UPDATE_TIMESTAMP, timestamp);
     }
 
+    public static long getReaderAnalyticsCountTagsTimestamp() {
+        return getLong(DeletablePrefKey.READER_ANALYTICS_COUNT_TAGS_TIMESTAMP, -1);
+    }
+
+    public static void setReaderAnalyticsCountTagsTimestamp(long timestamp) {
+        setLong(DeletablePrefKey.READER_ANALYTICS_COUNT_TAGS_TIMESTAMP, timestamp);
+    }
+
+    public static long getReaderAnalyticsCountSitesTimestamp() {
+        return getLong(DeletablePrefKey.READER_ANALYTICS_COUNT_SITES_TIMESTAMP, -1);
+    }
+
+    public static void setReaderAnalyticsCountSitesTimestamp(long timestamp) {
+        setLong(DeletablePrefKey.READER_ANALYTICS_COUNT_SITES_TIMESTAMP, timestamp);
+    }
+
     public static long getReaderCssUpdatedTimestamp() {
         return getLong(DeletablePrefKey.READER_CSS_UPDATED_TIMESTAMP, 0);
     }
@@ -1204,12 +1229,17 @@ public class AppPrefs {
         setBoolean(DeletablePrefKey.READER_RECOMMENDED_TAGS_DELETED_FOR_LOGGED_OUT_USER, deleted);
     }
 
-    public static void setShouldShowStoriesIntro(boolean shouldShow) {
-        setBoolean(UndeletablePrefKey.SHOULD_SHOW_STORIES_INTRO, shouldShow);
+    @Nullable
+    public static String getReaderTopBarSelectedFeedItemId() {
+        return getString(DeletablePrefKey.READER_TOP_BAR_SELECTED_FEED_ITEM_ID, null);
     }
 
-    public static boolean shouldShowStoriesIntro() {
-        return getBoolean(UndeletablePrefKey.SHOULD_SHOW_STORIES_INTRO, true);
+    public static void setReaderTopBarSelectedFeedItemId(@Nullable String selectedFeedItemId) {
+        if (selectedFeedItemId == null) {
+            remove(DeletablePrefKey.READER_TOP_BAR_SELECTED_FEED_ITEM_ID);
+        } else {
+            setString(DeletablePrefKey.READER_TOP_BAR_SELECTED_FEED_ITEM_ID, selectedFeedItemId);
+        }
     }
 
     public static void setShouldShowStorageWarning(boolean shouldShow) {
@@ -1280,20 +1310,40 @@ public class AppPrefs {
         return DeletablePrefKey.MANUAL_FEATURE_CONFIG.name() + featureKey;
     }
 
+    public static void setExperimentalFeatureConfig(boolean isEnabled, @NonNull String featureKey) {
+        prefs().edit().putBoolean(getExperimentalFeatureConfigKey(featureKey), isEnabled).apply();
+    }
+
+    public static boolean getExperimentalFeatureConfig(@NonNull String featureKey) {
+        return prefs().getBoolean(getExperimentalFeatureConfigKey(featureKey), false);
+    }
+
+    @NonNull private static String getExperimentalFeatureConfigKey(@NonNull String featureKey) {
+        return DeletablePrefKey.EXPERIMENTAL_FEATURE_CONFIG.name() + featureKey;
+    }
+
     public static void incrementPublishedPostCount() {
         putInt(DeletablePrefKey.PUBLISHED_POST_COUNT, getPublishedPostCount() + 1);
+    }
+
+    public static void resetPublishedPostCount() {
+        remove(DeletablePrefKey.PUBLISHED_POST_COUNT);
     }
 
     public static int getPublishedPostCount() {
         return prefs().getInt(DeletablePrefKey.PUBLISHED_POST_COUNT.name(), 0);
     }
 
-    public static void setInAppReviewsShown() {
-        putBoolean(DeletablePrefKey.IN_APP_REVIEW_SHOWN, true);
+    public static void incrementInAppReviewsNotificationCount() {
+        putInt(DeletablePrefKey.IN_APP_REVIEWS_NOTIFICATION_COUNT, getInAppReviewsNotificationCount() + 1);
     }
 
-    public static boolean isInAppReviewsShown() {
-        return prefs().getBoolean(DeletablePrefKey.IN_APP_REVIEW_SHOWN.name(), false);
+    public static int getInAppReviewsNotificationCount() {
+        return prefs().getInt(DeletablePrefKey.IN_APP_REVIEWS_NOTIFICATION_COUNT.name(), 0);
+    }
+
+    public static void resetInAppReviewsNotificationCount() {
+        remove(DeletablePrefKey.IN_APP_REVIEWS_NOTIFICATION_COUNT);
     }
 
     public static void setBloggingRemindersShown(int siteId) {
@@ -1756,5 +1806,34 @@ public class AppPrefs {
 
     public static boolean getShouldHideDynamicCard(@NonNull final String id) {
         return prefs().getBoolean(DeletablePrefKey.SHOULD_HIDE_DYNAMIC_CARD.name() + id, false);
+    }
+
+    @NonNull public static String getPinnedSiteLocalIds() {
+        return getString(DeletablePrefKey.PINNED_SITE_IDS, "[]");
+    }
+
+    public static void setPinnedSiteLocalIds(@NonNull final String ids) {
+        setString(DeletablePrefKey.PINNED_SITE_IDS, ids);
+    }
+
+    public static boolean getShouldShowReaderAnnouncementCard() {
+        return prefs().getBoolean(DeletablePrefKey.SHOULD_SHOW_READER_ANNOUNCEMENT_CARD.name(), true);
+    }
+
+    public static void setShouldShowReaderAnnouncementCard(final boolean shouldShow) {
+        prefs().edit().putBoolean(DeletablePrefKey.SHOULD_SHOW_READER_ANNOUNCEMENT_CARD.name(), shouldShow).apply();
+    }
+
+    @Nullable
+    public static String getReaderReadingPreferencesJson() {
+        return getString(DeletablePrefKey.READER_READING_PREFERENCES_JSON, null);
+    }
+
+    public static void setReaderReadingPreferencesJson(@Nullable String json) {
+        if (json == null) {
+            remove(DeletablePrefKey.READER_READING_PREFERENCES_JSON);
+        } else {
+            setString(DeletablePrefKey.READER_READING_PREFERENCES_JSON, json);
+        }
     }
 }

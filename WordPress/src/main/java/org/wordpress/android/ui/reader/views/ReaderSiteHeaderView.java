@@ -3,6 +3,8 @@ package org.wordpress.android.ui.reader.views;
 import android.content.Context;
 import android.icu.text.CompactDecimalFormat;
 import android.icu.text.NumberFormat;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,16 +22,18 @@ import org.wordpress.android.ui.reader.actions.ReaderActions;
 import org.wordpress.android.ui.reader.actions.ReaderBlogActions;
 import org.wordpress.android.ui.reader.tracker.ReaderTracker;
 import org.wordpress.android.ui.reader.utils.ReaderUtils;
-import org.wordpress.android.util.LocaleManager;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.PhotonUtils;
 import org.wordpress.android.util.PhotonUtils.Quality;
 import org.wordpress.android.util.SiteUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.UrlUtils;
-import org.wordpress.android.util.config.ReaderImprovementsFeatureConfig;
 import org.wordpress.android.util.image.BlavatarShape;
 import org.wordpress.android.util.image.ImageManager;
+
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -55,10 +59,12 @@ public class ReaderSiteHeaderView extends LinearLayout {
     private OnBlogInfoLoadedListener mBlogInfoListener;
     private OnFollowListener mFollowListener;
 
+    private final ExecutorService mExecutorService = Executors.newSingleThreadExecutor();
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+
     @Inject AccountStore mAccountStore;
     @Inject ImageManager mImageManager;
     @Inject ReaderTracker mReaderTracker;
-    @Inject ReaderImprovementsFeatureConfig mReaderImprovementsFeatureConfig;
 
     public ReaderSiteHeaderView(Context context) {
         this(context, null);
@@ -76,13 +82,7 @@ public class ReaderSiteHeaderView extends LinearLayout {
     }
 
     private void initView(Context context) {
-        final int layoutRes;
-        if (mReaderImprovementsFeatureConfig.isEnabled()) {
-            layoutRes = R.layout.reader_site_header_view_new;
-        } else {
-            layoutRes = R.layout.reader_site_header_view;
-        }
-        final View view = inflate(context, layoutRes, this);
+        final View view = inflate(context, R.layout.reader_site_header_view, this);
         mFollowButton = view.findViewById(R.id.follow_button);
         view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
     }
@@ -103,41 +103,42 @@ public class ReaderSiteHeaderView extends LinearLayout {
         mBlogId = blogId;
         mFeedId = feedId;
 
-        final ReaderBlog localBlogInfo;
         if (blogId == 0 && feedId == 0) {
-            ToastUtils.showToast(getContext(), R.string.reader_toast_err_get_blog_info);
+            ToastUtils.showToast(getContext(), R.string.reader_toast_err_show_blog);
             return;
         }
 
         mIsFeed = ReaderUtils.isExternalFeed(mBlogId, mFeedId);
 
-        if (mIsFeed) {
-            localBlogInfo = ReaderBlogTable.getFeedInfo(mFeedId);
-        } else {
-            localBlogInfo = ReaderBlogTable.getBlogInfo(mBlogId);
-        }
+        // run in background to avoid ANR
+        mExecutorService.execute(() -> {
+            final ReaderBlog localBlogInfo;
+            if (mIsFeed) {
+                localBlogInfo = ReaderBlogTable.getFeedInfo(mFeedId);
+            } else {
+                localBlogInfo = ReaderBlogTable.getBlogInfo(mBlogId);
+            }
 
-        if (localBlogInfo != null) {
-            showBlogInfo(localBlogInfo, source);
-        }
+            mMainHandler.post(() -> {
+                if (localBlogInfo != null) {
+                    showBlogInfo(localBlogInfo, source);
+                }
+                // then get from server if doesn't exist locally or is time to update it
+                if (localBlogInfo == null || ReaderBlogTable.isTimeToUpdateBlogInfo(localBlogInfo)) {
+                    ReaderActions.UpdateBlogInfoListener listener = serverBlogInfo -> {
+                        if (isAttachedToWindow()) {
+                            showBlogInfo(serverBlogInfo, source);
+                        }
+                    };
 
-        // then get from server if doesn't exist locally or is time to update it
-        if (localBlogInfo == null || ReaderBlogTable.isTimeToUpdateBlogInfo(localBlogInfo)) {
-            ReaderActions.UpdateBlogInfoListener listener = new ReaderActions.UpdateBlogInfoListener() {
-                @Override
-                public void onResult(ReaderBlog serverBlogInfo) {
-                    if (isAttachedToWindow()) {
-                        showBlogInfo(serverBlogInfo, source);
+                    if (mIsFeed) {
+                        ReaderBlogActions.updateFeedInfo(mFeedId, null, listener);
+                    } else {
+                        ReaderBlogActions.updateBlogInfo(mBlogId, null, listener);
                     }
                 }
-            };
-
-            if (mIsFeed) {
-                ReaderBlogActions.updateFeedInfo(mFeedId, null, listener);
-            } else {
-                ReaderBlogActions.updateBlogInfo(mBlogId, null, listener);
-            }
-        }
+            });
+        });
     }
 
     private void showBlogInfo(ReaderBlog blogInfo, String source) {
@@ -158,7 +159,11 @@ public class ReaderSiteHeaderView extends LinearLayout {
         if (blogInfo.hasName()) {
             txtBlogName.setText(blogInfo.getName());
         } else {
-            txtBlogName.setText(R.string.reader_untitled_post);
+            if (blogInfo.getUrl() != null) {
+                txtBlogName.setText(UrlUtils.getHost(blogInfo.getUrl()));
+            } else {
+                txtBlogName.setText(R.string.reader_untitled_post);
+            }
         }
 
         if (blogInfo.hasUrl()) {
@@ -175,15 +180,11 @@ public class ReaderSiteHeaderView extends LinearLayout {
             txtDescription.setVisibility(View.GONE);
         }
 
-        if (mReaderImprovementsFeatureConfig.isEnabled()) {
-            final String imageUrl = blogInfo.getImageUrl();
-            if (imageUrl != null && !imageUrl.isEmpty()) {
-                showBlavatarImage(blogInfo, blavatarImg);
-            } else {
-                blavatarImg.setVisibility(View.GONE);
-            }
-        } else {
+        final String imageUrl = blogInfo.getImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
             showBlavatarImage(blogInfo, blavatarImg);
+        } else {
+            blavatarImg.setVisibility(View.GONE);
         }
 
         loadFollowCount(blogInfo, txtFollowCount);
@@ -211,35 +212,29 @@ public class ReaderSiteHeaderView extends LinearLayout {
     }
 
     private void loadFollowCount(ReaderBlog blogInfo, TextView txtFollowCount) {
-        if (mReaderImprovementsFeatureConfig.isEnabled()) {
-            final CompactDecimalFormat compactDecimalFormat =
-                    CompactDecimalFormat.getInstance(LocaleManager.getSafeLocale(getContext()),
-                            CompactDecimalFormat.CompactStyle.SHORT);
+        final CompactDecimalFormat compactDecimalFormat =
+                CompactDecimalFormat.getInstance(
+                        Locale.getDefault(),
+                        CompactDecimalFormat.CompactStyle.SHORT
+                );
 
-            final int followersStringRes;
-            if (blogInfo.numSubscribers == 1) {
-                followersStringRes = R.string.reader_label_followers_count_single;
-            } else {
-                followersStringRes = R.string.reader_label_followers_count;
-            }
-
-            final String formattedNumberSubscribers;
-            // Reference: pcdRpT-3BI-p2#comment-5978
-            if (blogInfo.numSubscribers >= MINIMUM_NUMBER_FOLLOWERS_FORMAT) {
-                formattedNumberSubscribers = compactDecimalFormat.format(blogInfo.numSubscribers);
-            } else {
-                formattedNumberSubscribers = NumberFormat.getInstance().format(blogInfo.numSubscribers);
-            }
-            txtFollowCount.setText(String.format(
-                    LocaleManager.getSafeLocale(getContext()),
-                    getContext().getString(followersStringRes), formattedNumberSubscribers)
-            );
+        final int followersStringRes;
+        if (blogInfo.numSubscribers == 1) {
+            followersStringRes = R.string.reader_label_subscribers_count_single;
         } else {
-            txtFollowCount.setText(String.format(
-                    LocaleManager.getSafeLocale(getContext()),
-                    getContext().getString(R.string.reader_label_follow_count),
-                    blogInfo.numSubscribers));
+            followersStringRes = R.string.reader_label_subscribers_count;
         }
+
+        final String formattedNumberSubscribers;
+        // Reference: pcdRpT-3BI-p2#comment-5978
+        if (blogInfo.numSubscribers >= MINIMUM_NUMBER_FOLLOWERS_FORMAT) {
+            formattedNumberSubscribers = compactDecimalFormat.format(blogInfo.numSubscribers);
+        } else {
+            formattedNumberSubscribers = NumberFormat.getInstance().format(blogInfo.numSubscribers);
+        }
+        txtFollowCount.setText(String.format(
+                getContext().getString(followersStringRes), formattedNumberSubscribers)
+        );
     }
 
     private void showBlavatarImage(ReaderBlog blogInfo, ImageView blavatarImg) {
@@ -283,8 +278,8 @@ public class ReaderSiteHeaderView extends LinearLayout {
             }
             mFollowButton.setEnabled(true);
             if (!succeeded) {
-                int errResId = isAskingToFollow ? R.string.reader_toast_err_follow_blog
-                        : R.string.reader_toast_err_unfollow_blog;
+                int errResId = isAskingToFollow ? R.string.reader_toast_err_unable_to_follow_blog
+                        : R.string.reader_toast_err_unable_to_unfollow_blog;
                 ToastUtils.showToast(getContext(), errResId);
                 mFollowButton.setIsFollowed(!isAskingToFollow);
             }

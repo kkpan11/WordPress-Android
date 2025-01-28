@@ -1,11 +1,11 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json
+---
+
 # This pipeline is meant to be run via the Buildkite API, and is
 # only used for beta builds
 
-# Nodes with values to reuse in the pipeline.
-common_params:
-  # Common plugin settings to use with the `plugins` key.
-  - &common_plugins
-    - automattic/a8c-ci-toolkit#2.17.0
+agents:
+  queue: "android"
 
 steps:
   #################
@@ -13,8 +13,9 @@ steps:
   #################
   - label: "Gradle Wrapper Validation"
     command: |
+      .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
       validate_gradle_wrapper
-    plugins: *common_plugins
+    plugins: [$CI_TOOLKIT]
 
   # Wait for Gradle Wrapper to be validated before running any other jobs
   - wait
@@ -27,13 +28,19 @@ steps:
 
       - label: "🕵️ Lint WordPress"
         key: wplint
-        command: ".buildkite/commands/lint.sh wordpress"
+        command: |
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/lint.sh wordpress
+        plugins: [$CI_TOOLKIT]
         artifact_paths:
           - "**/build/reports/lint-results*.*"
 
       - label: "🕵️ Lint Jetpack"
         key: jplint
-        command: ".buildkite/commands/lint.sh jetpack"
+        command: |
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/lint.sh jetpack
+        plugins: [$CI_TOOLKIT]
         artifact_paths:
           - "**/build/reports/lint-results*.*"
 
@@ -45,19 +52,35 @@ steps:
 
       - label: ":wordpress: :android: Beta Build"
         key: wpbuild
-        command: ".buildkite/commands/beta-build.sh wordpress"
+        command: |
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/beta-build.sh wordpress
         depends_on: wplint
-        plugins: *common_plugins
+        plugins: [$CI_TOOLKIT]
         notify:
           - slack: "#build-and-ship"
+        retry:
+          manual:
+            # If those jobs fail, one should always prefer re-triggering a new build from ReleaseV2 rather than retrying the individual job from Buildkite
+            allowed: false
+        artifact_paths:
+          - "**/build/build.log"
 
       - label: ":jetpack: :android: Beta Build"
         key: jpbuild
-        command: ".buildkite/commands/beta-build.sh jetpack"
+        command: |
+          .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+          .buildkite/commands/beta-build.sh jetpack
         depends_on: jplint
-        plugins: *common_plugins
+        plugins: [$CI_TOOLKIT]
         notify:
           - slack: "#build-and-ship"
+        retry:
+          manual:
+            # If those jobs fail, one should always prefer re-triggering a new build from ReleaseV2 rather than retrying the individual job from Buildkite
+            allowed: false
+        artifact_paths:
+          - "**/build/build.log"
 
   #################
   # GitHub Release
@@ -66,5 +89,7 @@ steps:
     depends_on:
       - wpbuild
       - jpbuild
-    command: ".buildkite/commands/create-github-release.sh"
-    plugins: *common_plugins
+    command: |
+      .buildkite/commands/checkout-release-branch.sh "$RELEASE_VERSION"
+      .buildkite/commands/create-github-release.sh
+    plugins: [$CI_TOOLKIT]

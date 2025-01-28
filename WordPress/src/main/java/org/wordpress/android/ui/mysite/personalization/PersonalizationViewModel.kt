@@ -18,13 +18,16 @@ class PersonalizationViewModel @Inject constructor(
     @param:Named(BG_THREAD) private val bgDispatcher: CoroutineDispatcher,
     private val selectedSiteRepository: SelectedSiteRepository,
     private val shortcutsPersonalizationViewModelSlice: ShortcutsPersonalizationViewModelSlice,
-    private val dashboardCardPersonalizationViewModelSlice: DashboardCardPersonalizationViewModelSlice
+    private val dashboardCardPersonalizationViewModelSlice: DashboardCardPersonalizationViewModelSlice,
 ) : ScopedViewModel(bgDispatcher) {
     val uiState = dashboardCardPersonalizationViewModelSlice.uiState
     val shortcutsState = shortcutsPersonalizationViewModelSlice.uiState
 
     private val _onSelectedSiteMissing = MutableLiveData<Unit>()
     val onSelectedSiteMissing = _onSelectedSiteMissing as LiveData<Unit>
+
+    private val _appLanguage = MutableLiveData<String>()
+    val appLanguage = _appLanguage as LiveData<String>
 
     init {
         shortcutsPersonalizationViewModelSlice.initialize(viewModelScope)

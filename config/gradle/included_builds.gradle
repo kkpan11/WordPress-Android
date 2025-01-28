@@ -1,17 +1,16 @@
-gradle.ext.fluxCBinaryPath = "org.wordpress:fluxc"
 gradle.ext.wputilsBinaryPath = "org.wordpress:utils"
-gradle.ext.gutenbergMobileBinaryPath = "org.wordpress-mobile.gutenberg-mobile:react-native-gutenberg-bridge"
+gradle.ext.gutenbergMobileBinaryPath = "org.wordpress.gutenberg-mobile:react-native-gutenberg-bridge"
 gradle.ext.includedBuildGutenbergMobilePath = null
-gradle.ext.loginFlowBinaryPath = "org.wordpress:login"
-gradle.ext.storiesAndroidPath = "com.automattic:stories"
-gradle.ext.storiesAndroidMp4ComposePath = "com.automattic.stories:mp4compose"
-gradle.ext.storiesAndroidPhotoEditorPath = "com.automattic.stories:photoeditor"
+gradle.ext.gutenbergKitBinaryPath = "org.wordpress.gutenbergkit:android"
+gradle.ext.includedBuildGutenbergKitPath = null
 gradle.ext.aztecAndroidAztecPath = "org.wordpress:aztec"
 gradle.ext.aztecAndroidWordPressShortcodesPath = "org.wordpress.aztec:wordpress-shortcodes"
 gradle.ext.aztecAndroidWordPressCommentsPath = "org.wordpress.aztec:wordpress-comments"
 gradle.ext.aztecAndroidGlideLoaderPath = "org.wordpress.aztec:glide-loader"
 gradle.ext.aztecAndroidPicassoLoaderPath = "org.wordpress.aztec:picasso-loader"
 gradle.ext.aboutAutomatticBinaryPath = "com.automattic:about"
+gradle.ext.gravatarBinaryPath = "com.gravatar:gravatar"
+gradle.ext.gravatarQuickEditorBinaryPath = "com.gravatar:gravatar-quickeditor"
 
 def localBuilds = new File("${rootDir}/local-builds.gradle")
 if (localBuilds.exists()) {
@@ -27,15 +26,6 @@ if (localBuilds.exists()) {
     Note that `project` dependencies are resolved in the context of the included build.
     https://docs.gradle.org/current/javadoc/org/gradle/api/initialization/ConfigurableIncludedBuild.html#dependencySubstitution-org.gradle.api.Action-
     */
-
-    if (ext.has("localFluxCPath")) {
-        includeBuild(ext.localFluxCPath) {
-            dependencySubstitution {
-                println "Substituting fluxc with the local build"
-                substitute module("$gradle.ext.fluxCBinaryPath") using project(':fluxc')
-            }
-        }
-    }
 
     if (ext.has("localWPUtilsPath")) {
         includeBuild(ext.localWPUtilsPath) {
@@ -56,11 +46,12 @@ if (localBuilds.exists()) {
         }
     }
 
-    if (ext.has("localLoginFlowPath")) {
-        includeBuild(ext.localLoginFlowPath) {
+    if (ext.has("localGutenbergKitPath")) {
+        gradle.ext.includedBuildGutenbergKitPath = ext.localGutenbergKitPath
+        includeBuild("$ext.localGutenbergKitPath/android") {
             dependencySubstitution {
-                println "Substituting login-flow with the local build"
-                substitute module("$gradle.ext.loginFlowBinaryPath") using project(':WordPressLoginFlow')
+                println "Substituting GutenbergKit with the local build"
+                substitute module("$gradle.ext.gutenbergKitBinaryPath") using project(':Gutenberg')
             }
         }
     }
@@ -94,6 +85,15 @@ if (localBuilds.exists()) {
             dependencySubstitution {
                 println "Substituting about-automattic with the local build"
                 substitute module("$gradle.ext.aboutAutomatticBinaryPath") using project(':library')
+            }
+        }
+    }
+
+    if (ext.has("localGravatarAndroidPath")) {
+        includeBuild(ext.localGravatarAndroidPath) {
+            dependencySubstitution {
+                println "Substituting Gravatar-Android with the local build"
+                substitute module("$gradle.ext.gravatarBinaryPath") using project(':gravatar')
             }
         }
     }

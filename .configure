@@ -1,11 +1,11 @@
 {
   "project_name": "WordPress-Android",
   "branch": "trunk",
-  "pinned_hash": "715a5a119a334ec1ef16b5a6bd77c52094144813",
+  "pinned_hash": "1c83426e3f9175a6d561f4af53c69a1e2097a6ef",
   "files_to_copy": [
     {
-      "file": "android/WPAndroid/gradle.properties",
-      "destination": "gradle.properties",
+      "file": "android/WPAndroid/secrets.properties",
+      "destination": "~/.configure/wordpress-android/secrets/secrets.properties",
       "encrypt": true
     },
     {
@@ -27,11 +27,6 @@
       "file": "android/debug.keystore",
       "destination": "~/.configure/wordpress-android/secrets/debug_a8c.keystore",
       "encrypt": true
-    },
-    {
-      "file": "android/automattic.jks",
-      "destination": "WordPress/release.jks",
-      "encrypt": false
     },
     {
       "file": "android/WPAndroid/google-upload-credentials.json",

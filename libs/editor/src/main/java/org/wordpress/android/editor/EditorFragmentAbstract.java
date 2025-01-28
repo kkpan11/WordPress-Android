@@ -14,10 +14,15 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 
 import com.android.volley.toolbox.ImageLoader;
+import com.automattic.android.tracks.crashlogging.JsException;
+import com.automattic.android.tracks.crashlogging.JsExceptionCallback;
 
 import org.wordpress.android.editor.gutenberg.DialogVisibilityProvider;
 import org.wordpress.android.util.helpers.MediaFile;
 import org.wordpress.android.util.helpers.MediaGallery;
+import org.wordpress.gutenberg.GutenbergView.ContentChangeListener;
+import org.wordpress.gutenberg.GutenbergView.HistoryChangeListener;
+import org.wordpress.gutenberg.GutenbergView.OpenMediaLibraryListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +41,9 @@ public abstract class EditorFragmentAbstract extends Fragment {
     public abstract void showContentInfo() throws EditorFragmentNotAddedException;
     public abstract Pair<CharSequence, CharSequence> getTitleAndContent(CharSequence originalContent) throws
             EditorFragmentNotAddedException;
+    public abstract void onEditorContentChanged(ContentChangeListener listener);
+    public abstract void onEditorHistoryChanged(HistoryChangeListener listener);
+    public abstract void onOpenMediaLibrary(OpenMediaLibraryListener listener);
     public abstract LiveData<Editable> getTitleOrContentChanged();
     public abstract void appendMediaFile(MediaFile mediaFile, String imageUrl, ImageLoader imageLoader);
     public abstract void appendMediaFiles(Map<String, MediaFile> mediaList);
@@ -55,6 +63,7 @@ public abstract class EditorFragmentAbstract extends Fragment {
     public abstract void onUndoPressed();
 
     public abstract void onRedoPressed();
+    public abstract void updateContent(CharSequence text);
 
 
     public enum MediaType {
@@ -220,12 +229,6 @@ public abstract class EditorFragmentAbstract extends Fragment {
         boolean onGutenbergEditorRequestFocalPointPickerTooltipShown();
         String getErrorMessageFromMedia(int mediaId);
         void showJetpackSettings();
-        void onStoryComposerLoadRequested(ArrayList<Object> mediaFiles, String blockId);
-        void onRetryUploadForMediaCollection(ArrayList<Object> mediaFiles);
-        void onCancelUploadForMediaCollection(ArrayList<Object> mediaFiles);
-        void onCancelSaveForMediaCollection(ArrayList<Object> mediaFiles);
-        void onReplaceStoryEditedBlockActionSent();
-        void onReplaceStoryEditedBlockActionReceived();
         boolean showPreview();
         Map<String, Double> onRequestBlockTypeImpressions();
         void onSetBlockTypeImpressions(Map<String, Double> impressions);
@@ -238,6 +241,8 @@ public abstract class EditorFragmentAbstract extends Fragment {
         void onToggleRedo(boolean isDisabled);
 
         void onBackHandlerButton();
+
+        void onLogJsException(JsException jsException, JsExceptionCallback onSendJsException);
     }
 
     /**

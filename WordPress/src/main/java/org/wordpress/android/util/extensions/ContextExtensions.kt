@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.util.TypedValue
+import android.view.View
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -12,7 +13,6 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.os.ConfigurationCompat
-import androidx.core.view.ViewCompat
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import org.wordpress.android.util.AppLog
@@ -44,6 +44,17 @@ fun Context.getColorStateListFromAttribute(@AttrRes attribute: Int): ColorStateL
     getColorResIdFromAttribute(attribute).let {
         AppCompatResources.getColorStateList(this, it)
     }
+
+fun Context.getColorFromAttributeOrRes(resId: Int): Int {
+    val typedValue = TypedValue()
+    val isAttr = theme.resolveAttribute(resId, typedValue, true)
+
+    return if (isAttr) {
+        ContextCompat.getColor(this, typedValue.resourceId)
+    } else {
+        ContextCompat.getColor(this, resId)
+    }
+}
 
 fun Context.getColorStateListFromAttributeOrRes(resId: Int): ColorStateList {
     val typedValue = TypedValue()
@@ -107,4 +118,4 @@ inline fun <reified T : Any> Context.parseJsonFromAsset(assetFilename: String, m
         }
     }
 
-fun Context.isRtl(): Boolean = resources.configuration.layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL
+fun Context.isRtl(): Boolean = resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL

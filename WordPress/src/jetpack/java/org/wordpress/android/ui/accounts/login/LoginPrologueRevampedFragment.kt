@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -20,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,15 +28,14 @@ import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.isActive
 import org.wordpress.android.R
-import org.wordpress.android.ui.accounts.login.components.WordpressJetpackLogo
 import org.wordpress.android.ui.accounts.login.components.LoopingTextWithBackground
 import org.wordpress.android.ui.accounts.login.components.PrimaryButton
 import org.wordpress.android.ui.accounts.login.components.SecondaryButton
 import org.wordpress.android.ui.accounts.login.components.TopLinearGradient
+import org.wordpress.android.ui.accounts.login.components.WordpressJetpackLogo
 import org.wordpress.android.ui.compose.TestTags
 import org.wordpress.android.ui.compose.components.ColumnWithFrostedGlassBackground
-import org.wordpress.android.ui.compose.theme.AppTheme
-import org.wordpress.android.util.extensions.setEdgeToEdgeContentDisplay
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 
 val LocalPosition = compositionLocalOf { 0f }
 
@@ -51,12 +50,12 @@ class LoginPrologueRevampedFragment : Fragment() {
         savedInstanceState: Bundle?
     ) = ComposeView(requireContext()).apply {
         setContent {
-            AppTheme {
+            AppThemeM3 {
                 PositionProvider(viewModel) {
                     LoginScreenRevamped(
                         onWpComLoginClicked = {
                             viewModel.onWpComLoginClicked()
-                            loginPrologueListener.showEmailLoginScreen()
+                            loginPrologueListener.showWPcomLoginScreen(this.context)
                         },
                         onSiteAddressLoginClicked = {
                             viewModel.onSiteAddressLoginClicked()
@@ -72,16 +71,6 @@ class LoginPrologueRevampedFragment : Fragment() {
         super.onAttach(context)
         check(context is LoginPrologueListener) { "$context must implement LoginPrologueListener" }
         loginPrologueListener = context
-    }
-
-    override fun onResume() {
-        super.onResume()
-        requireActivity().window.setEdgeToEdgeContentDisplay(true)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        requireActivity().window.setEdgeToEdgeContentDisplay(false)
     }
 
     companion object {
@@ -128,7 +117,7 @@ private fun LoginScreenRevamped(
         TopLinearGradient()
         WordpressJetpackLogo(
             modifier = Modifier
-                .padding(top = 135.dp)
+                .padding(top = dimensionResource(id = R.dimen.login_prologue_logo_top_padding))
                 .width(132.dp)
                 .align(Alignment.TopCenter)
         )
@@ -149,10 +138,9 @@ private fun LoginScreenRevamped(
 
 @Preview(showBackground = true, device = Devices.PIXEL_4_XL)
 @Preview(showBackground = true, device = Devices.PIXEL_4_XL, uiMode = UI_MODE_NIGHT_YES)
-@Preview(showBackground = true, device = Devices.TABLET)
 @Composable
 fun PreviewLoginScreenRevamped() {
-    AppTheme {
+    AppThemeM3 {
         LoginScreenRevamped(
             onWpComLoginClicked = {},
             onSiteAddressLoginClicked = {}

@@ -92,6 +92,7 @@ class SiteItemsBuilder @Inject constructor(
         params: SiteItemsBuilderParams
     ): List<MySiteCardAndItem> {
         val manageSiteItems = buildManageSiteItems(params)
+        val siteMonitoring = buildSiteMonitoringOptionsIfNeeded(params)
 
         val emptyHeaderItem1 = CategoryEmptyHeaderItem(UiString.UiStringText(""))
         val jetpackConfiguration = buildJetpackDependantConfigurationItemsIfNeeded(params)
@@ -102,6 +103,7 @@ class SiteItemsBuilder @Inject constructor(
         val admin = siteListItemBuilder.buildAdminItemIfAvailable(params.site, params.onClick)
         return listOf(manageHeader) +
                 manageSiteItems +
+                siteMonitoring +
                 emptyHeaderItem1 +
                 jetpackConfiguration +
                 lookAndFeel +
@@ -126,6 +128,12 @@ class SiteItemsBuilder @Inject constructor(
         )
     }
 
+    private fun buildSiteMonitoringOptionsIfNeeded(params: SiteItemsBuilderParams): List<MySiteCardAndItem> {
+        return listOfNotNull(
+            siteListItemBuilder.buildSiteMonitoringItemIfAvailable(params.site, params.onClick)
+        )
+    }
+
     private fun buildManageSiteItems(params: SiteItemsBuilderParams): List<MySiteCardAndItem>{
         if(jetpackFeatureRemovalOverlayUtil.shouldHideJetpackFeatures())
             return emptyList()
@@ -143,6 +151,7 @@ class SiteItemsBuilder @Inject constructor(
         return if (!jetpackFeatureRemovalOverlayUtil.shouldHideJetpackFeatures()) {
             listOfNotNull(
                     siteListItemBuilder.buildPeopleItemIfAvailable(params.site, params.onClick),
+                    siteListItemBuilder.buildSelfHostedUserListItemIfAvailable(params.site, params.onClick),
                     siteListItemBuilder.buildPluginItemIfAvailable(params.site, params.onClick),
                     siteListItemBuilder.buildShareItemIfAvailable(
                             params.site,

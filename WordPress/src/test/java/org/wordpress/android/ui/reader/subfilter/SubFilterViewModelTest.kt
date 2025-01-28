@@ -16,22 +16,27 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.wordpress.android.BaseUnitTest
+import org.wordpress.android.analytics.AnalyticsTracker
+import org.wordpress.android.datasets.ReaderBlogTableWrapper
+import org.wordpress.android.datasets.wrappers.ReaderTagTableWrapper
 import org.wordpress.android.fluxc.model.AccountModel
 import org.wordpress.android.fluxc.store.AccountStore
+import org.wordpress.android.getOrAwaitValue
+import org.wordpress.android.models.ReaderBlog
 import org.wordpress.android.models.ReaderTag
+import org.wordpress.android.models.ReaderTagList
 import org.wordpress.android.models.ReaderTagType.BOOKMARKED
+import org.wordpress.android.models.ReaderTagType.TAGS
+import org.wordpress.android.ui.Organization
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
 import org.wordpress.android.ui.reader.ReaderSubsActivity
 import org.wordpress.android.ui.reader.ReaderTypes.ReaderPostListType
-import org.wordpress.android.ui.reader.services.update.ReaderUpdateLogic
 import org.wordpress.android.ui.reader.services.update.ReaderUpdateLogic.UpdateTask
 import org.wordpress.android.ui.reader.subfilter.ActionType.OpenLoginPage
 import org.wordpress.android.ui.reader.subfilter.ActionType.OpenSubsAtPage
 import org.wordpress.android.ui.reader.subfilter.BottomSheetUiState.BottomSheetHidden
 import org.wordpress.android.ui.reader.subfilter.BottomSheetUiState.BottomSheetVisible
 import org.wordpress.android.ui.reader.subfilter.SubFilterViewModel.Companion
-import org.wordpress.android.ui.reader.subfilter.SubfilterCategory.SITES
-import org.wordpress.android.ui.reader.subfilter.SubfilterCategory.TAGS
 import org.wordpress.android.ui.reader.subfilter.SubfilterListItem.ItemType.SITE
 import org.wordpress.android.ui.reader.subfilter.SubfilterListItem.ItemType.SITE_ALL
 import org.wordpress.android.ui.reader.subfilter.SubfilterListItem.ItemType.TAG
@@ -76,13 +81,15 @@ class SubFilterViewModelTest : BaseUnitTest() {
     private lateinit var savedState: Bundle
 
     @Mock
-    private lateinit var filter: SubfilterListItem
+    private lateinit var readerTagTableWrapper: ReaderTagTableWrapper
+
+    @Mock
+    private lateinit var readerBlogTableWrapper: ReaderBlogTableWrapper
 
     private lateinit var viewModel: SubFilterViewModel
 
     @Before
     fun setUp() {
-        whenever(initialTag.label).thenReturn("tag-label")
         whenever(savedTag.label).thenReturn("tag-label")
 
         viewModel = SubFilterViewModel(
@@ -92,7 +99,9 @@ class SubFilterViewModelTest : BaseUnitTest() {
             subfilterListItemMapper,
             eventBusWrapper,
             accountStore,
-            readerTracker
+            readerTracker,
+            readerTagTableWrapper,
+            readerBlogTableWrapper,
         )
 
         viewModel.start(initialTag, savedTag, savedState)
@@ -101,6 +110,10 @@ class SubFilterViewModelTest : BaseUnitTest() {
     @Test
     fun `current subfilter is set back when we have a previous intance state`() {
         val json = "{\"blogId\":0,\"feedId\":0,\"tagSlug\":\"news\",\"tagType\":1,\"type\":4}"
+        val filter = Site(
+            blog = ReaderBlog(),
+            onClickAction = mock(),
+        )
 
         whenever(savedState.getString(SubFilterViewModel.ARG_CURRENT_SUBFILTER_JSON)).thenReturn(json)
         whenever(subfilterListItemMapper.fromJson(eq(json), any(), any())).thenReturn(filter)
@@ -112,7 +125,9 @@ class SubFilterViewModelTest : BaseUnitTest() {
             subfilterListItemMapper,
             eventBusWrapper,
             accountStore,
-            readerTracker
+            readerTracker,
+            readerTagTableWrapper,
+            readerBlogTableWrapper,
         )
 
         viewModel.start(initialTag, savedTag, savedState)
@@ -139,7 +154,7 @@ class SubFilterViewModelTest : BaseUnitTest() {
 
     @Test
     fun `view model doesn't start tracking subfiltered list if filter is a not tracked item`() {
-        viewModel.setDefaultSubfilter()
+        viewModel.setDefaultSubfilter(false)
 
         // this is done to focus this unit test only on effects of initSubfiltersTracking
         // usually it's not considered great to use this function but here it seemed
@@ -174,7 +189,7 @@ class SubFilterViewModelTest : BaseUnitTest() {
     @Test
     fun `view model is able to set default subfilter`() {
         var item: SubfilterListItem? = null
-        viewModel.setDefaultSubfilter()
+        viewModel.setDefaultSubfilter(false)
 
         viewModel.currentSubFilter.observeForever { item = it }
 
@@ -182,33 +197,22 @@ class SubFilterViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `view model updates count of matched sites and tags`() {
-        val data = hashMapOf(SITES to 3, TAGS to 25)
-
-        for (testStep in data.keys) {
-            viewModel.onSubfilterPageUpdated(testStep, data.getOrDefault(testStep, 0))
-        }
-
-        assertThat(viewModel.filtersMatchCount.value).isEqualTo(data)
-    }
-
-    @Test
-    fun `when WPCOM user taps empty bottom sheet SITES cta the subs activity is opened on followed blogs page`() {
+    fun `when WPCOM user taps bottom sheet SITES cta the subs activity is opened on followed blogs page`() {
         val action = OpenSubsAtPage(ReaderSubsActivity.TAB_IDX_FOLLOWED_BLOGS)
         viewModel.onBottomSheetActionClicked(action)
 
         assertThat(viewModel.bottomSheetUiState.value!!.peekContent()).isEqualTo(BottomSheetHidden)
-        assertThat(viewModel.bottomSheetEmptyViewAction.value!!.peekContent())
+        assertThat(viewModel.bottomSheetAction.value!!.peekContent())
             .isEqualTo(action)
     }
 
     @Test
-    fun `when WPCOM user taps empty bottom sheet TAGS cta the subs activity is opened on followed tags page`() {
+    fun `when WPCOM user taps bottom sheet TAGS cta the subs activity is opened on followed tags page`() {
         val action = OpenSubsAtPage(ReaderSubsActivity.TAB_IDX_FOLLOWED_TAGS)
         viewModel.onBottomSheetActionClicked(action)
 
         assertThat(viewModel.bottomSheetUiState.value!!.peekContent()).isEqualTo(BottomSheetHidden)
-        assertThat(viewModel.bottomSheetEmptyViewAction.value!!.peekContent())
+        assertThat(viewModel.bottomSheetAction.value!!.peekContent())
             .isEqualTo(action)
     }
 
@@ -218,7 +222,7 @@ class SubFilterViewModelTest : BaseUnitTest() {
         viewModel.onBottomSheetActionClicked(action)
 
         assertThat(viewModel.bottomSheetUiState.value!!.peekContent()).isEqualTo(BottomSheetHidden)
-        assertThat(viewModel.bottomSheetEmptyViewAction.value!!.peekContent())
+        assertThat(viewModel.bottomSheetAction.value!!.peekContent())
             .isEqualTo(action)
     }
 
@@ -237,7 +241,7 @@ class SubFilterViewModelTest : BaseUnitTest() {
         verify(appPrefsWrapper, times(0)).setLastReaderKnownAccessTokenStatus(any())
 
         assertThat(viewModel.updateTagsAndSites.value!!.peekContent()).isEqualTo(
-            EnumSet.of(UpdateTask.TAGS)
+            EnumSet.of(UpdateTask.TAGS, UpdateTask.FOLLOWED_BLOGS)
         )
 
         assertThat(viewModel.currentSubFilter.value).isInstanceOf(SiteAll::class.java)
@@ -255,7 +259,7 @@ class SubFilterViewModelTest : BaseUnitTest() {
         verify(appPrefsWrapper, times(1)).setLastReaderKnownAccessTokenStatus(any())
 
         assertThat(viewModel.updateTagsAndSites.value!!.peekContent()).isEqualTo(
-            EnumSet.of(UpdateTask.TAGS)
+            EnumSet.of(UpdateTask.TAGS, UpdateTask.FOLLOWED_BLOGS)
         )
 
         assertThat(viewModel.currentSubFilter.value).isInstanceOf(SiteAll::class.java)
@@ -298,13 +302,13 @@ class SubFilterViewModelTest : BaseUnitTest() {
 
     @Test
     fun `view model updates the tags and sites and asks to show the bottom sheet when filters button is tapped`() {
-        var updateTasks: EnumSet<ReaderUpdateLogic.UpdateTask>? = null
-        var uiState: BottomSheetUiState? = null
+        mockReaderTableEmpty()
+
+        var updateTasks: EnumSet<UpdateTask>? = null
 
         viewModel.updateTagsAndSites.observeForever { updateTasks = it.peekContent() }
-        viewModel.bottomSheetUiState.observeForever { uiState = it.peekContent() }
 
-        viewModel.onSubFiltersListButtonClicked()
+        viewModel.onSubFiltersListButtonClicked(SubfilterCategory.SITES)
 
         assertThat(updateTasks).isEqualTo(
             EnumSet.of(
@@ -312,8 +316,46 @@ class SubFilterViewModelTest : BaseUnitTest() {
                 UpdateTask.FOLLOWED_BLOGS
             )
         )
+    }
+
+    @Test
+    fun `view model asks to show the bottom sheet when filters button is tapped`() {
+        mockReaderTableEmpty()
+
+        var uiState: BottomSheetUiState? = null
+
+        viewModel.bottomSheetUiState.observeForever { uiState = it.peekContent() }
+
+        viewModel.onSubFiltersListButtonClicked(SubfilterCategory.SITES)
 
         assertThat(uiState).isInstanceOf(BottomSheetVisible::class.java)
+    }
+
+    @Test
+    fun `view model updates subfilters when filters button is tapped`() {
+        whenever(initialTag.organization).thenReturn(Organization.NO_ORGANIZATION)
+        whenever(accountStore.hasAccessToken()).thenReturn(true)
+        whenever(readerTagTableWrapper.getFollowedTags()).thenReturn(
+            ReaderTagList().apply {
+                add(ReaderTag("a", "a", "a", "endpoint-a", TAGS))
+                add(ReaderTag("b", "b", "b", "endpoint-b", TAGS))
+                add(ReaderTag("c", "c", "c", "endpoint-c", TAGS))
+            }
+        )
+
+        whenever(readerBlogTableWrapper.getFollowedBlogs()).thenReturn(
+            List(2) {
+                ReaderBlog().apply { organizationId = Organization.NO_ORGANIZATION.orgId }
+            }
+        )
+
+        var subFilters: List<SubfilterListItem>? = null
+
+        viewModel.subFilters.observeForever { subFilters = it }
+
+        viewModel.onSubFiltersListButtonClicked(SubfilterCategory.SITES)
+
+        assertThat(subFilters).hasSize(5)
     }
 
     @Test
@@ -330,7 +372,11 @@ class SubFilterViewModelTest : BaseUnitTest() {
     @Test
     fun `bottom sheet is hidden when a filter is tapped on`() {
         var uiState: BottomSheetUiState? = null
-        val filter: SubfilterListItem = mock()
+        val filter: SubfilterListItem = Site(
+            isSelected = false,
+            onClickAction = mock(),
+            blog = ReaderBlog(),
+        )
 
         viewModel.setSubfilterFromTag(savedTag)
 
@@ -437,5 +483,71 @@ class SubFilterViewModelTest : BaseUnitTest() {
             assertThat(it.listType).isEqualTo(ReaderPostListType.TAG_FOLLOWED)
             assertThat(it.isFiltered).isEqualTo(true)
         }
+    }
+
+    @Test
+    fun `Should NOT track READER_FILTER_SHEET_ITEM_SELECTED if SiteAll when onSubfilterSelected is called`() {
+        val filter = SiteAll(
+            onClickAction = {},
+        )
+        viewModel.onSubfilterSelected(filter)
+        verify(readerTracker, times(0)).track(AnalyticsTracker.Stat.READER_FILTER_SHEET_ITEM_SELECTED)
+    }
+
+    @Test
+    fun `Should NOT track READER_FILTER_SHEET_ITEM_SELECTED if Divider when onSubfilterSelected is called`() {
+        val filter = SubfilterListItem.Divider
+        viewModel.onSubfilterSelected(filter)
+        verify(readerTracker, times(0)).track(AnalyticsTracker.Stat.READER_FILTER_SHEET_ITEM_SELECTED)
+    }
+
+    @Test
+    fun `Should NOT track READER_FILTER_SHEET_ITEM_SELECTED if SectionTitle when onSubfilterSelected is called`() {
+        val filter = SubfilterListItem.SectionTitle(UiStringText("test"))
+        viewModel.onSubfilterSelected(filter)
+        verify(readerTracker, times(0)).track(AnalyticsTracker.Stat.READER_FILTER_SHEET_ITEM_SELECTED)
+    }
+
+    @Test
+    fun `Should track READER_FILTER_SHEET_ITEM_SELECTED with parameters if type is SITE`() {
+        val siteFilter = Site(
+            blog = ReaderBlog(),
+            onClickAction = {},
+        )
+        viewModel.onSubfilterSelected(siteFilter)
+        verify(readerTracker).track(
+            stat = AnalyticsTracker.Stat.READER_FILTER_SHEET_ITEM_SELECTED,
+            properties = mutableMapOf("type" to "site"),
+        )
+    }
+
+    @Test
+    fun `Should track READER_FILTER_SHEET_ITEM_SELECTED with parameters if type is TAG`() {
+        val tagFilter = Tag(
+            tag = ReaderTag(
+                "", "", "", "", TAGS
+            ),
+            onClickAction = {},
+        )
+        viewModel.onSubfilterSelected(tagFilter)
+        verify(readerTracker).track(
+            stat = AnalyticsTracker.Stat.READER_FILTER_SHEET_ITEM_SELECTED,
+            properties = mutableMapOf("type" to "topic"),
+        )
+    }
+
+    @Test
+    fun `Should propagate title container visibility state properly`() {
+        listOf(true, false).forEach { isTitleContainerVisible ->
+            viewModel.setTitleContainerVisibility(isTitleContainerVisible)
+            assertThat(viewModel.isTitleContainerVisible.getOrAwaitValue()).isEqualTo(isTitleContainerVisible)
+        }
+    }
+
+    private fun mockReaderTableEmpty() {
+        whenever(initialTag.organization).thenReturn(Organization.NO_ORGANIZATION)
+        whenever(accountStore.hasAccessToken()).thenReturn(true)
+        whenever(readerTagTableWrapper.getFollowedTags()).thenReturn(ReaderTagList())
+        whenever(readerBlogTableWrapper.getFollowedBlogs()).thenReturn(emptyList())
     }
 }

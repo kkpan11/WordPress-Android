@@ -9,17 +9,15 @@ import androidx.fragment.app.commit
 import dagger.hilt.android.AndroidEntryPoint
 import org.wordpress.android.R
 import org.wordpress.android.WordPress
-import org.wordpress.android.analytics.AnalyticsTracker.Stat
 import org.wordpress.android.databinding.StatsDetailActivityBinding
 import org.wordpress.android.fluxc.model.SiteModel
 import org.wordpress.android.fluxc.network.utils.StatsGranularity
-import org.wordpress.android.ui.LocaleAwareActivity
+import org.wordpress.android.ui.main.BaseAppCompatActivity
 import org.wordpress.android.ui.stats.StatsViewType
 import org.wordpress.android.ui.stats.refresh.StatsViewAllFragment
 import org.wordpress.android.ui.stats.refresh.lists.StatsListFragment
 import org.wordpress.android.ui.stats.refresh.lists.StatsListViewModel.StatsSection
 import org.wordpress.android.ui.stats.refresh.lists.sections.granular.SelectedDateProvider.SelectedDate
-import org.wordpress.android.util.analytics.AnalyticsUtils
 import org.wordpress.android.util.extensions.getSerializableCompat
 import java.io.Serializable
 import android.R as AndroidR
@@ -30,7 +28,7 @@ const val POST_TITLE = "POST_TITLE"
 const val POST_URL = "POST_URL"
 
 @AndroidEntryPoint
-class StatsDetailActivity : LocaleAwareActivity() {
+class StatsDetailActivity : BaseAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = StatsDetailActivityBinding.inflate(layoutInflater)
@@ -79,10 +77,6 @@ class StatsDetailActivity : LocaleAwareActivity() {
             if (postUrl != null) {
                 statsPostViewIntent.putExtra(POST_URL, postUrl)
             }
-            AnalyticsUtils.trackWithSiteId(
-                Stat.STATS_SINGLE_POST_ACCESSED,
-                site.siteId
-            )
             context.startActivity(statsPostViewIntent)
         }
 

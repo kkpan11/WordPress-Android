@@ -18,6 +18,7 @@ import org.wordpress.android.ui.mysite.items.listitem.ListItemAction.PEOPLE
 import org.wordpress.android.ui.mysite.items.listitem.ListItemAction.PLAN
 import org.wordpress.android.ui.mysite.items.listitem.ListItemAction.PLUGINS
 import org.wordpress.android.ui.mysite.items.listitem.ListItemAction.SCAN
+import org.wordpress.android.ui.mysite.items.listitem.ListItemAction.SELF_HOSTED_USERS
 import org.wordpress.android.ui.mysite.items.listitem.ListItemAction.SHARING
 import org.wordpress.android.ui.mysite.items.listitem.ListItemAction.SITE_SETTINGS
 import org.wordpress.android.ui.mysite.items.listitem.ListItemAction.THEMES
@@ -29,6 +30,8 @@ import org.wordpress.android.ui.utils.UiString.UiStringText
 import org.wordpress.android.util.BuildConfigWrapper
 import org.wordpress.android.util.DateTimeUtils
 import org.wordpress.android.util.SiteUtilsWrapper
+import org.wordpress.android.util.config.SelfHostedUsersFeatureConfig
+import org.wordpress.android.util.config.SiteMonitoringFeatureConfig
 import java.util.GregorianCalendar
 import java.util.TimeZone
 import javax.inject.Inject
@@ -39,7 +42,9 @@ class SiteListItemBuilder @Inject constructor(
     private val siteUtilsWrapper: SiteUtilsWrapper,
     private val buildConfigWrapper: BuildConfigWrapper,
     private val themeBrowserUtils: ThemeBrowserUtils,
-    private val jetpackFeatureRemovalPhaseHelper: JetpackFeatureRemovalPhaseHelper
+    private val jetpackFeatureRemovalPhaseHelper: JetpackFeatureRemovalPhaseHelper,
+    private val siteMonitoringFeatureConfig: SiteMonitoringFeatureConfig,
+    private val selfHostedUsersFeatureConfig: SelfHostedUsersFeatureConfig,
 ) {
     fun buildActivityLogItemIfAvailable(site: SiteModel, onClick: (ListItemAction) -> Unit): ListItem? {
         val isWpComOrJetpack = siteUtilsWrapper.isAccessedViaWPComRest(
@@ -135,6 +140,20 @@ class SiteListItemBuilder @Inject constructor(
                 UiStringRes(R.string.people),
                 onClick = ListItemInteraction.create(PEOPLE, onClick),
                 listItemAction = PEOPLE
+            )
+        } else {
+            null
+        }
+    }
+
+    fun buildSelfHostedUserListItemIfAvailable(site: SiteModel, onClick: (ListItemAction) -> Unit): ListItem? {
+        // TODO Should this excluded JetPack users?
+        return if (selfHostedUsersFeatureConfig.isEnabled() && site.selfHostedSiteId > 0) {
+            ListItem(
+                R.drawable.ic_user_white_24dp,
+                UiStringRes(R.string.users),
+                onClick = ListItemInteraction.create(SELF_HOSTED_USERS, onClick),
+                listItemAction = SELF_HOSTED_USERS
             )
         } else null
     }
@@ -241,6 +260,22 @@ class SiteListItemBuilder @Inject constructor(
                 UiStringRes(R.string.themes),
                 onClick = ListItemInteraction.create(THEMES, onClick),
                 listItemAction = THEMES
+            )
+        } else null
+    }
+
+    @Suppress("ComplexCondition")
+    fun buildSiteMonitoringItemIfAvailable(site: SiteModel, onClick: (ListItemAction) -> Unit): MySiteCardAndItem? {
+        return if (buildConfigWrapper.isJetpackApp
+            && site.isWPComAtomic
+            && site.isAdmin
+            && siteMonitoringFeatureConfig.isEnabled()
+        ) {
+            ListItem(
+                R.drawable.gb_ic_tool,
+                UiStringRes(R.string.site_monitoring),
+                onClick = ListItemInteraction.create(ListItemAction.SITE_MONITORING, onClick),
+                listItemAction = ListItemAction.SITE_MONITORING
             )
         } else null
     }

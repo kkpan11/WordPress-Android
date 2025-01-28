@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,9 +19,12 @@ import org.wordpress.android.fluxc.store.AccountStore;
 import org.wordpress.android.fluxc.store.SiteStore;
 import org.wordpress.android.ui.ShareIntentReceiverFragment.ShareAction;
 import org.wordpress.android.ui.ShareIntentReceiverFragment.ShareIntentFragmentListener;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
 import org.wordpress.android.ui.main.WPMainActivity;
 import org.wordpress.android.ui.media.MediaBrowserActivity;
 import org.wordpress.android.ui.media.MediaBrowserType;
+import org.wordpress.android.util.AppLog;
+import org.wordpress.android.util.AppLog.T;
 import org.wordpress.android.util.FluxCUtils;
 import org.wordpress.android.util.MediaUtils;
 import org.wordpress.android.util.ToastUtils;
@@ -40,7 +44,7 @@ import javax.inject.Inject;
  * Moreover it lists what actions the user can perform and redirects the user to the activity,
  * along with the content passed in the intent.
  */
-public class ShareIntentReceiverActivity extends LocaleAwareActivity implements ShareIntentFragmentListener {
+public class ShareIntentReceiverActivity extends BaseAppCompatActivity implements ShareIntentFragmentListener {
     private static final String SHARE_LAST_USED_BLOG_ID_KEY = "wp-settings-share-last-used-text-blogid";
     private static final String KEY_SELECTED_SITE_LOCAL_ID = "KEY_SELECTED_SITE_LOCAL_ID";
     private static final String KEY_SHARE_ACTION_ID = "KEY_SHARE_ACTION_ID";
@@ -94,23 +98,33 @@ public class ShareIntentReceiverActivity extends LocaleAwareActivity implements 
     }
 
     private void downloadExternalMedia() {
-        if (Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction())) {
-            ArrayList<Uri> externalUris = getIntent().getParcelableArrayListExtra((Intent.EXTRA_STREAM));
-            for (Uri uri : externalUris) {
-                if (isAllowedMediaType(uri)) {
-                    mLocalMediaUris.add(MediaUtils.downloadExternalMedia(this, uri));
+        try {
+            if (Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction())) {
+                ArrayList<Uri> externalUris = getIntent().getParcelableArrayListExtra((Intent.EXTRA_STREAM));
+                for (Uri uri : externalUris) {
+                    if (uri != null && isAllowedMediaType(uri)) {
+                        mLocalMediaUris.add(MediaUtils.downloadExternalMedia(this, uri));
+                    }
+                }
+            } else if (Intent.ACTION_SEND.equals(getIntent().getAction())) {
+                Uri externalUri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+                if (externalUri != null && isAllowedMediaType(externalUri)) {
+                    mLocalMediaUris.add(MediaUtils.downloadExternalMedia(this, externalUri));
                 }
             }
-        } else if (Intent.ACTION_SEND.equals(getIntent().getAction())) {
-            Uri externalUri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-            if (isAllowedMediaType(externalUri)) {
-                mLocalMediaUris.add(MediaUtils.downloadExternalMedia(this, externalUri));
-            }
+        } catch (Exception e) {
+            ToastUtils.showToast(this,
+                    R.string.error_media_could_not_share_media_from_device, ToastUtils.Duration.LONG);
+            AppLog.e(T.MEDIA, "ShareIntentReceiver failed to download media ", e);
         }
     }
 
     private boolean isAllowedMediaType(@NonNull Uri uri) {
         String filePath = MediaUtils.getRealPathFromURI(this, uri);
+        // For cases when getRealPathFromURI returns an empty string
+        if (TextUtils.isEmpty(filePath)) {
+            filePath = String.valueOf(uri);
+        }
         return MediaUtils.isValidImage(filePath) || MediaUtils.isVideo(filePath);
     }
 
@@ -182,7 +196,7 @@ public class ShareIntentReceiverActivity extends LocaleAwareActivity implements 
 
         if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
             intent.putExtra(Intent.EXTRA_STREAM, mLocalMediaUris);
-        } else if (Intent.ACTION_SEND.equals(action)) {
+        } else if (Intent.ACTION_SEND.equals(action) && !mLocalMediaUris.isEmpty()) {
             intent.putExtra(Intent.EXTRA_STREAM, mLocalMediaUris.get(0));
         }
 

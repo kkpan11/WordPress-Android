@@ -15,30 +15,30 @@ import org.wordpress.android.login.LoginMode
 import org.wordpress.android.ui.ActivityLauncher
 import org.wordpress.android.ui.JetpackConnectionSource
 import org.wordpress.android.ui.JetpackConnectionWebViewActivity
-import org.wordpress.android.ui.LocaleAwareActivity
 import org.wordpress.android.ui.RequestCodes
 import org.wordpress.android.ui.accounts.HelpActivity
 import org.wordpress.android.ui.accounts.LoginActivity
-import org.wordpress.android.ui.compose.theme.AppTheme
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.jetpackplugininstall.install.UiState
 import org.wordpress.android.ui.jetpackplugininstall.install.compose.JetpackPluginInstallScreen
 import org.wordpress.android.ui.jetpackplugininstall.remoteplugin.JetpackRemoteInstallViewModel.JetpackResultActionData.Action.CONNECT
 import org.wordpress.android.ui.jetpackplugininstall.remoteplugin.JetpackRemoteInstallViewModel.JetpackResultActionData.Action.CONTACT_SUPPORT
 import org.wordpress.android.ui.jetpackplugininstall.remoteplugin.JetpackRemoteInstallViewModel.JetpackResultActionData.Action.LOGIN
 import org.wordpress.android.ui.jetpackplugininstall.remoteplugin.JetpackRemoteInstallViewModel.JetpackResultActionData.Action.MANUAL_INSTALL
+import org.wordpress.android.ui.main.BaseAppCompatActivity
 import org.wordpress.android.util.extensions.getSerializableCompat
 import org.wordpress.android.util.extensions.getSerializableExtraCompat
 import org.wordpress.android.util.extensions.onBackPressedCompat
 import org.wordpress.android.util.extensions.setContent
 
 @AndroidEntryPoint
-class JetpackRemoteInstallActivity : LocaleAwareActivity() {
+class JetpackRemoteInstallActivity : BaseAppCompatActivity() {
     private val viewModel: JetpackRemoteInstallViewModel by viewModels()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AppTheme {
+            AppThemeM3 {
                 val uiState by viewModel.liveViewState.observeAsState()
                 JetpackPluginInstallScreen(
                     uiState = uiState ?: UiState.Initial(R.string.jetpack_plugin_install_initial_button),

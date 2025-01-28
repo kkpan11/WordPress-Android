@@ -106,6 +106,9 @@ import org.wordpress.aztec.toolbar.AztecToolbar;
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener;
 import org.wordpress.aztec.util.AztecLog;
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder;
+import org.wordpress.gutenberg.GutenbergView.ContentChangeListener;
+import org.wordpress.gutenberg.GutenbergView.HistoryChangeListener;
+import org.wordpress.gutenberg.GutenbergView.OpenMediaLibraryListener;
 import org.xml.sax.Attributes;
 
 import java.util.ArrayList;
@@ -704,6 +707,15 @@ public class AztecEditorFragment extends EditorFragmentAbstract implements
     public Pair<CharSequence, CharSequence> getTitleAndContent(CharSequence originalContent) throws
             EditorFragmentNotAddedException {
         return new Pair<>(getTitle(), getContent(originalContent));
+    }
+
+    @Override public void onEditorContentChanged(@Nullable ContentChangeListener listener) {
+    }
+
+    @Override public void onEditorHistoryChanged(@Nullable HistoryChangeListener listener) {
+    }
+
+    @Override public void onOpenMediaLibrary(@Nullable OpenMediaLibraryListener listener) {
     }
 
     @Override
@@ -1690,6 +1702,11 @@ public class AztecEditorFragment extends EditorFragmentAbstract implements
     @Override public void onRedoPressed() {
     }
 
+    @Override
+    public void updateContent(@Nullable CharSequence text) {
+        // not implemented for Aztec
+    }
+
     private void onMediaTapped(@NonNull final AztecAttributes attrs, int naturalWidth, int naturalHeight,
                                final MediaType mediaType) {
         if (mediaType == null || !isAdded()) {
@@ -1810,6 +1827,7 @@ public class AztecEditorFragment extends EditorFragmentAbstract implements
                         // Open the video preview in the default browser for now.
                         // TODO open the preview activity already available in media?
                         final String videoURL = meta.getString(ATTR_SRC);
+                        @SuppressWarnings("UnsafeImplicitIntentLaunch")
                         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
                         startActivity(browserIntent);
                     } catch (JSONException e) {
@@ -2127,7 +2145,7 @@ public class AztecEditorFragment extends EditorFragmentAbstract implements
     }
 
     public static String replaceMediaFileWithUrl(Context context, @NonNull String postContent,
-                                                 String localMediaId, MediaFile mediaFile) {
+                                                 @NonNull String localMediaId, MediaFile mediaFile) {
         if (mediaFile != null) {
             String remoteUrl = StringUtils.notNullStr(Utils.escapeQuotes(mediaFile.getFileURL()));
             // fill in Aztec with the post's content

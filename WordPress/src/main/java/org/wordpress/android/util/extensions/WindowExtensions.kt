@@ -1,60 +1,43 @@
 package org.wordpress.android.util.extensions
 
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-import android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-import android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+import android.os.Build
 import android.view.Window
-import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
-import android.R as AndroidR
-import com.google.android.material.R as MaterialR
+import androidx.core.view.WindowInsetsControllerCompat
+import org.wordpress.android.util.ColorUtils
 
-@Suppress("DEPRECATION")
-fun Window.setLightStatusBar(showInLightMode: Boolean) {
-    if (isLightTheme()) {
-        decorView.systemUiVisibility = decorView.systemUiVisibility.let {
-            if (showInLightMode) {
-                it or SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            } else {
-                it and SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-            }
-        }
+/**
+ * Note these are skipped on SDK 35+ because they conflict with API 15's edge-to-edge insets
+ */
+fun Window.setWindowStatusBarColor(color: Int) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        setWindowBarColor(color, InsetsType.STATUS_BAR)
     }
 }
 
-@Suppress("DEPRECATION")
-fun Window.setLightNavigationBar(showInLightMode: Boolean, applyDefaultColors: Boolean = false) {
-    if (isLightTheme() && VERSION.SDK_INT >= VERSION_CODES.O) {
-        decorView.systemUiVisibility = decorView.systemUiVisibility.let {
-            if (showInLightMode) {
-                it or SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-            } else {
-                it and SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
-            }
-        }
-        if (applyDefaultColors) {
-            navigationBarColor = if (showInLightMode) {
-                context.getColorFromAttribute(MaterialR.attr.colorSurface)
-            } else {
-                ContextCompat.getColor(context, AndroidR.color.black)
-            }
-        }
+fun Window.setWindowNavigationBarColor(color: Int) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        setWindowBarColor(color, InsetsType.NAVIGATION_BAR)
     }
 }
 
-fun Window.setEdgeToEdgeContentDisplay(isEnabled: Boolean) {
-    val decorFitsSystemWindows = !isEnabled
-    WindowCompat.setDecorFitsSystemWindows(this, decorFitsSystemWindows)
-}
-
+/**
+ * Sets the status bar or navigation bar color
+ */
 @Suppress("DEPRECATION")
-fun Window.showFullScreen() {
-    decorView.systemUiVisibility = decorView.systemUiVisibility.let {
-        it or SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or SYSTEM_UI_FLAG_LAYOUT_STABLE
+private fun Window.setWindowBarColor(color: Int, insetsType: InsetsType) {
+    when (insetsType) {
+        InsetsType.STATUS_BAR -> statusBarColor = color
+        InsetsType.NAVIGATION_BAR -> navigationBarColor = color
     }
+    val windowInsetsController = WindowInsetsControllerCompat(this, decorView)
+    if (insetsType == InsetsType.STATUS_BAR) {
+        windowInsetsController.isAppearanceLightStatusBars = ColorUtils.isColorLight(statusBarColor)
+    }
+    windowInsetsController.isAppearanceLightNavigationBars =
+        ColorUtils.isColorLight(navigationBarColor)
 }
 
-private fun Window.isLightTheme() = !context.resources.configuration.isDarkTheme()
+private enum class InsetsType {
+    STATUS_BAR,
+    NAVIGATION_BAR
+}

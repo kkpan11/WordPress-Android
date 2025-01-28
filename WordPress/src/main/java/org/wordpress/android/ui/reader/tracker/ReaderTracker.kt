@@ -3,10 +3,12 @@ package org.wordpress.android.ui.reader.tracker
 import android.net.Uri
 import androidx.annotation.MainThread
 import org.wordpress.android.analytics.AnalyticsTracker
+import org.wordpress.android.analytics.AnalyticsTracker.Stat
 import org.wordpress.android.models.ReaderPost
 import org.wordpress.android.models.ReaderTag
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
 import org.wordpress.android.ui.reader.ReaderTypes.ReaderPostListType
+import org.wordpress.android.ui.reader.models.ReaderReadingPreferences
 import org.wordpress.android.ui.reader.utils.DateProvider
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.DateTimeUtils
@@ -22,7 +24,8 @@ class ReaderTracker @Inject constructor(
     private val dateProvider: DateProvider,
     private val appPrefsWrapper: AppPrefsWrapper,
     private val analyticsTrackerWrapper: AnalyticsTrackerWrapper,
-    private val analyticsUtilsWrapper: AnalyticsUtilsWrapper
+    private val analyticsUtilsWrapper: AnalyticsUtilsWrapper,
+    private val readingPreferencesTracker: ReaderReadingPreferencesTracker,
 ) {
     // TODO: evaluate to use something like Dispatchers.Main.Immediate in the fun(s)
     // to sync the access to trackers; so to remove the @MainThread and make the
@@ -85,6 +88,7 @@ class ReaderTracker @Inject constructor(
                 ReaderTab.A8C -> analyticsTrackerWrapper.track(AnalyticsTracker.Stat.READER_A8C_SHOWN)
                 ReaderTab.P2 -> analyticsTrackerWrapper.track(AnalyticsTracker.Stat.READER_P2_SHOWN)
                 ReaderTab.CUSTOM -> analyticsTrackerWrapper.track(AnalyticsTracker.Stat.READER_CUSTOM_TAB_SHOWN)
+                ReaderTab.TAGS_FEED -> analyticsTrackerWrapper.track(AnalyticsTracker.Stat.READER_TAGS_FEED_SHOWN)
             }
             appPrefsWrapper.setReaderActiveTab(readerTab)
         }
@@ -297,6 +301,18 @@ class ReaderTracker @Inject constructor(
     fun trackPost(
         stat: AnalyticsTracker.Stat,
         post: ReaderPost?,
+        readingPreferences: ReaderReadingPreferences,
+    ) {
+        trackPost(
+            stat,
+            post,
+            readingPreferencesTracker.getPropertiesForPreferences(readingPreferences, READING_PREFERENCES_KEYS_PREFIX)
+        )
+    }
+
+    fun trackPost(
+        stat: AnalyticsTracker.Stat,
+        post: ReaderPost?,
         source: String
     ) {
         val properties = mutableMapOf<String, Any>(
@@ -376,6 +392,44 @@ class ReaderTracker @Inject constructor(
         analyticsUtilsWrapper.trackRailcarRender(railcarJson)
     }
 
+    fun trackDropdownMenuOpened() {
+        analyticsTrackerWrapper.track(AnalyticsTracker.Stat.READER_DROPDOWN_MENU_OPENED)
+    }
+
+    fun trackDropdownMenuItemTapped(readerTag: ReaderTag) {
+        when {
+            readerTag.isDiscover -> "discover"
+            readerTag.isFollowedSites -> "following"
+            readerTag.isBookmarked -> "saved"
+            readerTag.isPostsILike -> "liked"
+            readerTag.isA8C -> "a8c"
+            readerTag.isListTopic -> "list"
+            readerTag.isP2 -> "p2"
+            readerTag.isTags -> "tags"
+            else -> null
+        }?.let { trackingId ->
+            analyticsTrackerWrapper.track(
+                stat = AnalyticsTracker.Stat.READER_DROPDOWN_MENU_ITEM_TAPPED,
+                properties = mapOf("id" to trackingId)
+            )
+        }
+    }
+
+    private fun trackFollowedCount(type: String, numberOfItems: Int) {
+        val props: MutableMap<String, String> = HashMap()
+        props["type"] = type
+        props["count"] = numberOfItems.toString()
+        AnalyticsTracker.track(Stat.READER_FOLLOWING_FETCHED, props)
+    }
+
+    fun trackFollowedTagsCount(numberOfItems: Int) {
+        trackFollowedCount("tags", numberOfItems)
+    }
+
+    fun trackSubscribedSitesCount(numberOfItems: Int) {
+        trackFollowedCount("sites", numberOfItems)
+    }
+
     /* HELPER */
 
     @JvmOverloads
@@ -401,6 +455,7 @@ class ReaderTracker @Inject constructor(
         private const val QUANTITY_KEY = "quantity"
         private const val INTERCEPTED_URI_KEY = "intercepted_uri"
         private const val QUERY_KEY = "query"
+        private const val READING_PREFERENCES_KEYS_PREFIX = "reading_preferences"
 
         private const val SOURCE_KEY = "source"
         const val SOURCE_FOLLOWING = "following"
@@ -414,6 +469,7 @@ class ReaderTracker @Inject constructor(
         const val SOURCE_SEARCH = "search"
         const val SOURCE_SITE_PREVIEW = "site_preview"
         const val SOURCE_TAG_PREVIEW = "tag_preview"
+        const val SOURCE_TAGS_FEED = "tags_feed"
         const val SOURCE_POST_DETAIL = "post_detail"
         const val SOURCE_POST_DETAIL_TOOLBAR = "post_detail_toolbar"
         const val SOURCE_POST_DETAIL_COMMENT_SNIPPET = "post_detail_comment_snippet"
@@ -461,7 +517,8 @@ enum class ReaderTab(
     SAVED(4, ReaderTracker.SOURCE_SAVED),
     CUSTOM(5, ReaderTracker.SOURCE_CUSTOM),
     A8C(6, ReaderTracker.SOURCE_A8C),
-    P2(7, ReaderTracker.SOURCE_P2);
+    P2(7, ReaderTracker.SOURCE_P2),
+    TAGS_FEED(8, ReaderTracker.SOURCE_TAGS_FEED);
 
     companion object {
         fun fromId(id: Int): ReaderTab {
@@ -473,6 +530,7 @@ enum class ReaderTab(
                 A8C.id -> A8C
                 P2.id -> P2
                 CUSTOM.id -> CUSTOM
+                TAGS_FEED.id -> TAGS_FEED
                 else -> throw RuntimeException("Unexpected ReaderTab id")
             }
         }
@@ -486,6 +544,7 @@ enum class ReaderTab(
                 readerTag.isDiscover -> DISCOVER
                 readerTag.isA8C -> A8C
                 readerTag.isP2 -> P2
+                readerTag.isTags -> TAGS_FEED
                 else -> CUSTOM
             }
         }

@@ -1,10 +1,11 @@
 package org.wordpress.android.ui.reader
 
+import android.content.Intent
 import android.os.Bundle
 import dagger.hilt.android.AndroidEntryPoint
 import org.wordpress.android.R
 import org.wordpress.android.WordPress
-import org.wordpress.android.ui.LocaleAwareActivity
+import org.wordpress.android.ui.main.BaseAppCompatActivity
 import org.wordpress.android.ui.reader.tracker.ReaderTracker
 import org.wordpress.android.ui.reader.tracker.ReaderTrackerType.MAIN_READER
 import org.wordpress.android.util.JetpackBrandingUtils
@@ -16,7 +17,7 @@ import javax.inject.Inject
  * into new tested classes without requiring us to change the search behavior.
  */
 @AndroidEntryPoint
-class ReaderSearchActivity : LocaleAwareActivity() {
+class ReaderSearchActivity : BaseAppCompatActivity() {
     @Inject
     lateinit var readerTracker: ReaderTracker
 
@@ -45,5 +46,16 @@ class ReaderSearchActivity : LocaleAwareActivity() {
     override fun onPause() {
         super.onPause()
         readerTracker.stop(MAIN_READER)
+    }
+
+    fun finishWithRefreshSubscriptionsResult() {
+        val data = Intent()
+        data.putExtra(ReaderSubsActivity.RESULT_SHOULD_REFRESH_SUBSCRIPTIONS, true)
+        setResult(RESULT_OK, data)
+        finish()
+    }
+
+    companion object {
+        const val RESULT_SHOULD_REFRESH_SUBSCRIPTIONS = "should_refresh_subscriptions"
     }
 }

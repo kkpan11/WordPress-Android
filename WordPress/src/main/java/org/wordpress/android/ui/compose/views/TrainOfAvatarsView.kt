@@ -7,6 +7,7 @@ import androidx.annotation.DimenRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -20,9 +21,9 @@ import org.wordpress.android.R
 import org.wordpress.android.ui.avatars.TrainOfAvatarsItem.AvatarItem
 import org.wordpress.android.ui.compose.components.TrainOfIcons
 import org.wordpress.android.ui.compose.components.TrainOfIconsModel
-import org.wordpress.android.ui.compose.theme.AppTheme
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.util.DisplayUtils
-import org.wordpress.android.util.GravatarUtils
+import org.wordpress.android.util.WPAvatarUtils
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class TrainOfAvatarsView @JvmOverloads constructor(
@@ -33,13 +34,13 @@ class TrainOfAvatarsView @JvmOverloads constructor(
     private val avatarsState: MutableState<List<AvatarItem>> = mutableStateOf(emptyList())
 
     // icon size in DP used by the Composable
-    private val iconSizeState: MutableState<Int> = mutableStateOf(DEFAULT_ICON_SIZE_DP)
+    private val iconSizeState: MutableState<Int> = mutableIntStateOf(DEFAULT_ICON_SIZE_DP)
 
     // icon border width in DP used by the Composable
-    private val iconBorderWidthState: MutableState<Int> = mutableStateOf(DEFAULT_ICON_BORDER_WIDTH_DP)
+    private val iconBorderWidthState: MutableState<Int> = mutableIntStateOf(DEFAULT_ICON_BORDER_WIDTH_DP)
 
     // placeholder drawable/color resource to be used by the Composable
-    private val placeholderResState: MutableState<Int> = mutableStateOf(R.color.placeholder)
+    private val placeholderResState: MutableState<Int> = mutableIntStateOf(R.color.placeholder)
 
     var avatars: List<AvatarItem>
         get() = avatarsState.value
@@ -91,7 +92,7 @@ class TrainOfAvatarsView @JvmOverloads constructor(
     override fun Content() {
         if (avatarsState.value.isEmpty()) return
 
-        AppTheme {
+        AppThemeM3 {
             TrainOfIcons(
                 iconModels = avatarModels(),
                 iconSize = iconSizeState.value.dp,
@@ -113,7 +114,7 @@ class TrainOfAvatarsView @JvmOverloads constructor(
 
     // returning null for a model will cause the Composable to render a placeholder
     private fun avatarModels(): List<TrainOfIconsModel> = avatarsState.value
-        .map { GravatarUtils.fixGravatarUrl(it.userAvatarUrl, iconSize) }
+        .map { WPAvatarUtils.rewriteAvatarUrl(it.userAvatarUrl, iconSize) }
         .map {
             TrainOfIconsModel(
                 it.takeIf { gravatarUrl -> gravatarUrl.isNotEmpty() }

@@ -12,14 +12,16 @@ import org.wordpress.android.databinding.ReaderCardviewPostNewBinding
 import org.wordpress.android.datasets.ReaderThumbnailTable
 import org.wordpress.android.ui.reader.adapters.ReaderMenuAdapter
 import org.wordpress.android.ui.reader.discover.ReaderCardUiState
-import org.wordpress.android.ui.reader.discover.ReaderCardUiState.ReaderPostNewUiState
+import org.wordpress.android.ui.reader.discover.ReaderCardUiState.ReaderPostUiState
 import org.wordpress.android.ui.reader.discover.ReaderPostCardAction
 import org.wordpress.android.ui.reader.discover.ReaderPostCardAction.PrimaryAction
+import org.wordpress.android.ui.reader.discover.ReaderPostCardActionType
 import org.wordpress.android.ui.reader.tracker.ReaderTracker
 import org.wordpress.android.ui.reader.utils.ReaderUtils
 import org.wordpress.android.ui.reader.utils.ReaderVideoUtils
 import org.wordpress.android.ui.reader.utils.ReaderVideoUtils.VideoThumbnailUrlListener
 import org.wordpress.android.ui.utils.UiHelpers
+import org.wordpress.android.util.NetworkUtilsWrapper
 import org.wordpress.android.util.extensions.expandTouchTargetArea
 import org.wordpress.android.util.extensions.viewBinding
 import org.wordpress.android.util.image.ImageManager
@@ -31,6 +33,7 @@ class ReaderPostNewViewHolder(
     private val uiHelpers: UiHelpers,
     private val imageManager: ImageManager,
     private val readerTracker: ReaderTracker,
+    private val networkUtilsWrapper: NetworkUtilsWrapper,
     parentView: ViewGroup
 ) : ReaderViewHolder<ReaderCardviewPostNewBinding>(parentView.viewBinding(ReaderCardviewPostNewBinding::inflate)) {
     init {
@@ -40,7 +43,7 @@ class ReaderPostNewViewHolder(
     }
 
     override fun onBind(uiState: ReaderCardUiState) = with(binding) {
-        val state = uiState as ReaderPostNewUiState
+        val state = uiState as ReaderPostUiState
 
         // Blog section
         updateBlogSection(state)
@@ -88,7 +91,7 @@ class ReaderPostNewViewHolder(
         state.onItemRendered.invoke(uiState)
     }
 
-    private fun updateInteractionCountsSection(state: ReaderPostNewUiState) = with(binding) {
+    private fun updateInteractionCountsSection(state: ReaderPostUiState) = with(binding) {
         val likeCount = state.interactionSection.likeCount
         val commentCount = state.interactionSection.commentCount
 
@@ -100,7 +103,7 @@ class ReaderPostNewViewHolder(
         readerCardDotSeparator.isVisible = likeLabel != null && commentLabel != null
     }
 
-    private fun updateBlogSection(state: ReaderPostNewUiState) = with(binding.layoutBlogSection) {
+    private fun updateBlogSection(state: ReaderPostUiState) = with(binding.layoutBlogSection) {
         updateAvatarOrBlavatar(state)
         uiHelpers.setTextOrHide(blogSectionTextBlogName, state.blogSection.blogName)
         uiHelpers.setTextOrHide(blogSectionTextDateline, state.blogSection.dateLine)
@@ -115,7 +118,7 @@ class ReaderPostNewViewHolder(
         }
     }
 
-    private fun updateAvatarOrBlavatar(state: ReaderPostNewUiState) = with(binding.layoutBlogSection) {
+    private fun updateAvatarOrBlavatar(state: ReaderPostUiState) = with(binding.layoutBlogSection) {
         var isShowingAnyAvatar = false
 
         uiHelpers.updateVisibility(blogSectionImageBlogAvatar, state.blogSection.avatarOrBlavatarUrl != null)
@@ -146,7 +149,7 @@ class ReaderPostNewViewHolder(
         blogSectionAvatarContainer.isVisible = isShowingAnyAvatar
     }
 
-    private fun updateFeaturedImage(state: ReaderPostNewUiState) = with(binding) {
+    private fun updateFeaturedImage(state: ReaderPostUiState) = with(binding) {
         uiHelpers.updateVisibility(imageFeatured, state.featuredImageVisibility)
         if (state.featuredImageUrl == null) {
             imageManager.cancelRequestAndClearImageView(imageFeatured)
@@ -164,10 +167,17 @@ class ReaderPostNewViewHolder(
         view.isVisible = state.isEnabled
         view.isSelected = state.isSelected
         view.contentDescription = state.contentDescription?.let { uiHelpers.getTextOfUiString(view.context, it) }
-        view.setOnClickListener { state.onClicked?.invoke(postId, blogId, state.type) }
+        view.setOnClickListener {
+            // If it's a like action, we want to update the UI right away. If there's an error, we'll revert
+            // the UI change.
+            if (state.type == ReaderPostCardActionType.LIKE && networkUtilsWrapper.isNetworkAvailable()) {
+                view.isSelected = !view.isSelected
+            }
+            state.onClicked?.invoke(postId, blogId, state.type)
+        }
     }
 
-    private fun loadVideoThumbnail(state: ReaderPostNewUiState) = with(binding) {
+    private fun loadVideoThumbnail(state: ReaderPostUiState) = with(binding) {
         /* TODO ideally, we'd be passing just a thumbnail url in the UiState. However, the code for retrieving
             thumbnail from full video URL needs to be fully refactored. */
         state.fullVideoUrl?.let { videoUrl ->
@@ -192,7 +202,7 @@ class ReaderPostNewViewHolder(
         }
     }
 
-    private fun renderMoreMenu(uiState: ReaderPostNewUiState, actions: List<ReaderPostCardAction>, v: View) {
+    private fun renderMoreMenu(uiState: ReaderPostUiState, actions: List<ReaderPostCardAction>, v: View) {
         readerTracker.track(AnalyticsTracker.Stat.POST_CARD_MORE_TAPPED)
         val listPopup = ListPopupWindow(v.context)
         listPopup.width = v.context.resources.getDimensionPixelSize(R.dimen.menu_item_width)

@@ -40,21 +40,17 @@ import org.wordpress.android.ui.main.jetpack.migration.JetpackMigrationViewModel
 import org.wordpress.android.ui.main.jetpack.migration.JetpackMigrationViewModel.UiState.Loading
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
 import org.wordpress.android.ui.utils.UiString.UiStringRes
-import org.wordpress.android.util.GravatarUtilsWrapper
-import org.wordpress.android.util.JetpackMigrationLanguageUtil
-import org.wordpress.android.util.LocaleManagerWrapper
+import org.wordpress.android.util.WPAvatarUtilsWrapper
 import org.wordpress.android.util.SiteUtilsWrapper
 import org.wordpress.android.util.config.PreventDuplicateNotifsFeatureConfig
 import org.wordpress.android.viewmodel.ContextProvider
-import java.util.Locale
 
 @ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
 class JetpackMigrationViewModelTest : BaseUnitTest() {
     private val refreshAppThemeObserver: Observer<Unit> = mock()
-    private val refreshAppLanguageObserver: Observer<String> = mock()
     private val siteUtilsWrapper: SiteUtilsWrapper = mock()
-    private val gravatarUtilsWrapper: GravatarUtilsWrapper = mock()
+    private val avatarUtilsWrapper: WPAvatarUtilsWrapper = mock()
     private val appPrefsWrapper: AppPrefsWrapper = mock()
     private val localMigrationOrchestrator: LocalMigrationOrchestrator = mock()
     private val migrationEmailHelper: MigrationEmailHelper = mock()
@@ -63,21 +59,18 @@ class JetpackMigrationViewModelTest : BaseUnitTest() {
     private val contextProvider: ContextProvider = mock()
     private val accountStore: AccountStore = mock()
     private val siteStore: SiteStore = mock()
-    private val localeManagerWrapper: LocaleManagerWrapper = mock()
-    private val jetpackMigrationLanguageUtil: JetpackMigrationLanguageUtil = mock()
     private val dispatcher: Dispatcher = mock()
 
     private lateinit var classToTest: JetpackMigrationViewModel
 
     @Before
     fun setUp() {
-        whenever(gravatarUtilsWrapper.fixGravatarUrlWithResource(any(), any())).thenReturn("")
-        whenever(localeManagerWrapper.getLanguage()).thenReturn("")
+        whenever(avatarUtilsWrapper.rewriteAvatarUrlWithResource(any(), any())).thenReturn("")
         classToTest = JetpackMigrationViewModel(
             mainDispatcher = testDispatcher(),
             dispatcher = dispatcher,
             siteUtilsWrapper = siteUtilsWrapper,
-            gravatarUtilsWrapper = gravatarUtilsWrapper,
+            avatarUtilsWrapper = avatarUtilsWrapper,
             contextProvider = contextProvider,
             preventDuplicateNotifsFeatureConfig = preventDuplicateNotifsFeatureConfig,
             appPrefsWrapper = appPrefsWrapper,
@@ -86,48 +79,14 @@ class JetpackMigrationViewModelTest : BaseUnitTest() {
             migrationAnalyticsTracker = contentMigrationAnalyticsTracker,
             accountStore = accountStore,
             siteStore = siteStore,
-            localeManagerWrapper = localeManagerWrapper,
-            jetpackMigrationLanguageUtil = jetpackMigrationLanguageUtil,
         )
         classToTest.refreshAppTheme.observeForever(refreshAppThemeObserver)
-        classToTest.refreshAppLanguage.observeForever(refreshAppLanguageObserver)
     }
 
     // region ViewModel
     @Test
     fun `Should init Loading UiState as default`() = test {
         assertThat(classToTest.uiState.first()).isInstanceOf(Loading::class.java)
-    }
-
-    @Test
-    fun `Should emit event to refresh the language when welcome screen is shown with language data to apply`() {
-        val (languagePrefKey, languagePrefValue) = "it" to "language-pref"
-        val welcomeScreenData = WelcomeScreenData(flags = mapOf(languagePrefKey to languagePrefValue))
-        whenever(localeManagerWrapper.getLocalePrefKeyString()).thenReturn(languagePrefKey)
-        whenever(localeManagerWrapper.isSameLanguage(languagePrefValue)).thenReturn(false)
-
-        classToTest.initWelcomeScreenUi(welcomeScreenData, false)
-
-        verify(refreshAppLanguageObserver).onChanged(languagePrefValue)
-    }
-
-    @Test
-    fun `Should emit event to refresh the language when delete wp app screen is shown and language is not applied`() {
-        val language = "it"
-        whenever(localeManagerWrapper.getLanguage()).thenReturn(language)
-        whenever(localeManagerWrapper.isSameLanguage(language)).thenReturn(false)
-
-        classToTest.initPleaseDeleteWordPressAppScreenUi()
-
-        verify(refreshAppLanguageObserver).onChanged(language)
-    }
-
-    @Test
-    fun `Should delegate language change to util`() {
-        val locale = Locale.US
-        classToTest.setAppLanguage(locale)
-
-        verify(jetpackMigrationLanguageUtil).applyLanguage(locale.language)
     }
 
     @Test

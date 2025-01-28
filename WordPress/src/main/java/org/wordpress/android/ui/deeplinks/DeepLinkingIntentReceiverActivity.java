@@ -11,12 +11,12 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import org.wordpress.android.ui.ActivityLauncherWrapper;
-import org.wordpress.android.ui.LocaleAwareActivity;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureFullScreenOverlayFragment;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureFullScreenOverlayViewModel;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureOverlayActions.ForwardToJetpack;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalOverlayUtil.JetpackFeatureCollectionOverlaySource;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
 import org.wordpress.android.ui.sitecreation.misc.SiteCreationSource;
 import org.wordpress.android.ui.utils.JetpackAppMigrationFlowUtils;
 import org.wordpress.android.ui.utils.PreMigrationDeepLinkData;
@@ -27,10 +27,10 @@ import org.wordpress.android.util.extensions.CompatExtensionsKt;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 import static org.wordpress.android.WordPress.getContext;
 import static org.wordpress.android.ui.main.WPMainActivity.ARG_BYPASS_MIGRATION;
-
-import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * An activity to handle deep linking and intercepting links like:
@@ -40,7 +40,7 @@ import dagger.hilt.android.AndroidEntryPoint;
  * Redirects users to the reader activity along with IDs passed in the intent
  */
 @AndroidEntryPoint
-public class DeepLinkingIntentReceiverActivity extends LocaleAwareActivity {
+public class DeepLinkingIntentReceiverActivity extends BaseAppCompatActivity {
     @Inject DeepLinkNavigator mDeeplinkNavigator;
     @Inject DeepLinkUriUtils mDeepLinkUriUtils;
     @Inject ViewModelProvider.Factory mViewModelFactory;

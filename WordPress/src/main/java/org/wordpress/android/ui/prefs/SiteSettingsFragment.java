@@ -113,9 +113,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import static org.wordpress.android.ui.prefs.WPComSiteSettings.supportsJetpackSiteAcceleratorSettings;
-
 import kotlin.Triple;
+
+import static org.wordpress.android.ui.prefs.WPComSiteSettings.supportsJetpackSiteAcceleratorSettings;
 
 /**
  * Allows interfacing with WordPress site settings. Works with WP.com and WP.org v4.5+ (pending).
@@ -277,10 +277,6 @@ public class SiteSettingsFragment extends PreferenceFragment
     private WPSwitchPreference mJpSsoPref;
     private WPSwitchPreference mJpMatchEmailPref;
     private WPSwitchPreference mJpUseTwoFactorPref;
-
-    // Speed up settings
-    private WPSwitchPreference mLazyLoadImages;
-    private WPSwitchPreference mLazyLoadImagesNested;
 
     // Jetpack media settings
     private WPSwitchPreference mAdFreeVideoHosting;
@@ -720,8 +716,6 @@ public class SiteSettingsFragment extends PreferenceFragment
         } else if (preference == mJpUseTwoFactorPref) {
             mJpUseTwoFactorPref.setChecked((Boolean) newValue);
             mSiteSettings.enableJetpackSsoTwoFactor((Boolean) newValue);
-        } else if (preference == mLazyLoadImages || preference == mLazyLoadImagesNested) {
-            setLazyLoadImagesChecked((Boolean) newValue);
         } else if (preference == mAdFreeVideoHosting || preference == mAdFreeVideoHostingNested) {
             setAdFreeHostingChecked((Boolean) newValue);
         } else if (preference == mImprovedSearch) {
@@ -807,7 +801,7 @@ public class SiteSettingsFragment extends PreferenceFragment
             mSiteSettings.setDefaultCategory(Integer.parseInt(newValue.toString()));
             setDetailListPreferenceValue(mCategoryPref,
                     newValue.toString(),
-                    mSiteSettings.getDefaultCategoryForDisplay());
+                    mSiteSettings.getDefaultCategoryForDisplay().replace("%", "%%"));
         } else if (preference == mFormatPref) {
             mSiteSettings.setDefaultFormat(newValue.toString());
             setDetailListPreferenceValue(mFormatPref,
@@ -1044,9 +1038,6 @@ public class SiteSettingsFragment extends PreferenceFragment
                 (WPSwitchPreference) getChangePref(R.string.pref_key_serve_static_files_from_our_servers);
         mServeStaticFilesFromOurServersNested =
                 (WPSwitchPreference) getChangePref(R.string.pref_key_serve_static_files_from_our_servers_nested);
-
-        mLazyLoadImages = (WPSwitchPreference) getChangePref(R.string.pref_key_lazy_load_images);
-        mLazyLoadImagesNested = (WPSwitchPreference) getChangePref(R.string.pref_key_lazy_load_images_nested);
 
         mAdFreeVideoHosting = (WPSwitchPreference) getChangePref(R.string.pref_key_ad_free_video_hosting);
         mAdFreeVideoHostingNested = (WPSwitchPreference) getChangePref(R.string.pref_key_ad_free_video_hosting_nested);
@@ -1301,7 +1292,7 @@ public class SiteSettingsFragment extends PreferenceFragment
     }
 
     private void setupBloggingRemindersBottomSheet() {
-        if (mBloggingRemindersPref == null || !isAdded()) {
+        if (mBloggingRemindersPref == null || !isAdded() || mSite == null || mBloggingRemindersViewModel == null) {
             return;
         }
         mBloggingRemindersViewModel.onBlogSettingsItemClicked(mSite.getId());
@@ -1499,7 +1490,6 @@ public class SiteSettingsFragment extends PreferenceFragment
         mWeekStartPref.setValue(mSiteSettings.getStartOfWeek());
         mWeekStartPref.setSummary(mWeekStartPref.getEntry());
         mGutenbergDefaultForNewPosts.setChecked(SiteUtils.isBlockEditorDefaultForNewPost(mSite));
-        setLazyLoadImagesChecked(mSiteSettings.isLazyLoadImagesEnabled());
         setAdFreeHostingChecked(mSiteSettings.isAdFreeHostingEnabled());
         boolean checked = mSiteSettings.isImprovedSearchEnabled() || mSiteSettings.getJetpackSearchEnabled();
         mImprovedSearch.setChecked(checked);
@@ -1558,12 +1548,6 @@ public class SiteSettingsFragment extends PreferenceFragment
     private void setSiteAcceleratorChecked(boolean checked) {
         mSiteAccelerator.setChecked(checked);
         mSiteAcceleratorNested.setChecked(checked);
-    }
-
-    private void setLazyLoadImagesChecked(boolean checked) {
-        mSiteSettings.enableLazyLoadImages(checked);
-        mLazyLoadImages.setChecked(checked);
-        mLazyLoadImagesNested.setChecked(checked);
     }
 
     private void setAdFreeHostingChecked(boolean checked) {
@@ -1652,7 +1636,7 @@ public class SiteSettingsFragment extends PreferenceFragment
         mCategoryPref.setEntries(entries);
         mCategoryPref.setEntryValues(values);
         mCategoryPref.setValue(String.valueOf(mSiteSettings.getDefaultCategory()));
-        mCategoryPref.setSummary(mSiteSettings.getDefaultCategoryForDisplay());
+        mCategoryPref.setSummary(mSiteSettings.getDefaultCategoryForDisplay().replace("%", "%%"));
     }
 
     private void setPostFormats() {

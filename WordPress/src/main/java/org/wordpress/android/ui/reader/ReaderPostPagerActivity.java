@@ -40,7 +40,6 @@ import org.wordpress.android.fluxc.store.SiteStore;
 import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.ReaderTag;
 import org.wordpress.android.ui.ActivityLauncher;
-import org.wordpress.android.ui.LocaleAwareActivity;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.WPLaunchActivity;
 import org.wordpress.android.ui.deeplinks.DeepLinkNavigator.NavigateAction.OpenInReader;
@@ -51,9 +50,11 @@ import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureFullScreenOverlayVi
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureOverlayActions.ForwardToJetpack;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalOverlayUtil.JetpackFeatureCollectionOverlaySource;
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalPhaseHelper;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
 import org.wordpress.android.ui.main.WPMainActivity;
 import org.wordpress.android.ui.mysite.SelectedSiteRepository;
 import org.wordpress.android.ui.posts.EditPostActivity;
+import org.wordpress.android.ui.posts.EditPostActivityConstants;
 import org.wordpress.android.ui.prefs.AppPrefs;
 import org.wordpress.android.ui.reader.ReaderTypes.ReaderPostListType;
 import org.wordpress.android.ui.reader.actions.ReaderActions;
@@ -63,6 +64,7 @@ import org.wordpress.android.ui.reader.models.ReaderBlogIdPostIdList;
 import org.wordpress.android.ui.reader.services.post.ReaderPostServiceStarter;
 import org.wordpress.android.ui.reader.tracker.ReaderTracker;
 import org.wordpress.android.ui.reader.tracker.ReaderTrackerType;
+import org.wordpress.android.ui.reader.usecases.ReaderGetReadingPreferencesSyncUseCase;
 import org.wordpress.android.ui.reader.utils.ReaderPostSeenStatusWrapper;
 import org.wordpress.android.ui.sitecreation.misc.SiteCreationSource;
 import org.wordpress.android.ui.uploads.UploadActionUseCase;
@@ -115,7 +117,7 @@ import static org.wordpress.android.ui.main.WPMainActivity.ARG_READER;
  * Will also handle jumping to the comments section, liking a commend and liking a post directly
  */
 @AndroidEntryPoint
-public class ReaderPostPagerActivity extends LocaleAwareActivity {
+public class ReaderPostPagerActivity extends BaseAppCompatActivity {
     /**
      * Type of URL intercepted
      */
@@ -175,6 +177,7 @@ public class ReaderPostPagerActivity extends LocaleAwareActivity {
     private JetpackFeatureFullScreenOverlayViewModel mJetpackFullScreenViewModel;
     @Inject AccountStore mAccountStore;
     @Inject JetpackFeatureRemovalPhaseHelper mJetpackFeatureRemovalPhaseHelper;
+    @Inject ReaderGetReadingPreferencesSyncUseCase mGetReadingPreferencesSyncUseCase;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -765,7 +768,8 @@ public class ReaderPostPagerActivity extends LocaleAwareActivity {
         // analytics tracking
         mReaderTracker.trackPost(
                 AnalyticsTracker.Stat.READER_ARTICLE_OPENED,
-                mReaderPostTableWrapper.getBlogPost(blogId, postId, true)
+                mReaderPostTableWrapper.getBlogPost(blogId, postId, true),
+                mGetReadingPreferencesSyncUseCase.invoke()
         );
     }
 
@@ -1075,22 +1079,23 @@ public class ReaderPostPagerActivity extends LocaleAwareActivity {
                 if (resultCode != Activity.RESULT_OK || data == null || isFinishing()) {
                     return;
                 }
-                int localId = data.getIntExtra(EditPostActivity.EXTRA_POST_LOCAL_ID, 0);
+                int localId = data.getIntExtra(EditPostActivityConstants.EXTRA_POST_LOCAL_ID, 0);
                 final SiteModel site = (SiteModel) data.getSerializableExtra(WordPress.SITE);
                 final PostModel post = mPostStore.getPostByLocalPostId(localId);
 
                 if (EditPostActivity.checkToRestart(data)) {
                     ActivityLauncher.editPostOrPageForResult(data, ReaderPostPagerActivity.this, site,
-                            data.getIntExtra(EditPostActivity.EXTRA_POST_LOCAL_ID, 0));
+                            data.getIntExtra(EditPostActivityConstants.EXTRA_POST_LOCAL_ID, 0));
 
                     // a restart will happen so, no need to continue here
                     break;
                 }
 
-                if (site != null && post != null) {
+                View snackbarAttachView = findViewById(R.id.coordinator);
+                if (site != null && post != null && snackbarAttachView != null) {
                     mUploadUtilsWrapper.handleEditPostResultSnackbars(
                             this,
-                            findViewById(R.id.coordinator),
+                            snackbarAttachView,
                             data,
                             post,
                             site,
@@ -1115,10 +1120,11 @@ public class ReaderPostPagerActivity extends LocaleAwareActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPostUploaded(OnPostUploaded event) {
         SiteModel site = mSiteStore.getSiteByLocalId(mSelectedSiteRepository.getSelectedSiteLocalId());
-        if (site != null && event.post != null) {
+        View snackbarAttachView = findViewById(R.id.coordinator);
+        if (site != null && event.post != null && snackbarAttachView != null) {
             mUploadUtilsWrapper.onPostUploadedSnackbarHandler(
                     this,
-                    findViewById(R.id.coordinator),
+                    snackbarAttachView,
                     event.isError(),
                     event.isFirstTimePublish,
                     event.post,

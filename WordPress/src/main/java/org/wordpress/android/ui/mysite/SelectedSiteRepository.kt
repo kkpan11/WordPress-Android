@@ -11,7 +11,6 @@ import org.wordpress.android.fluxc.store.EditorThemeStore
 import org.wordpress.android.ui.prefs.AppPrefs
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
 import org.wordpress.android.ui.prefs.SiteSettingsInterfaceWrapper
-import org.wordpress.android.util.config.GlobalStyleSupportFeatureConfig
 import org.wordpress.android.util.mapSafe
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,14 +20,23 @@ class SelectedSiteRepository @Inject constructor(
     private val dispatcher: Dispatcher,
     private val siteSettingsInterfaceFactory: SiteSettingsInterfaceWrapper.Factory,
     private val appPrefsWrapper: AppPrefsWrapper,
-    private val globalStyleSupportFeatureConfig: GlobalStyleSupportFeatureConfig,
 ) {
     private var siteSettings: SiteSettingsInterfaceWrapper? = null
+
     private val _selectedSiteChange = MutableLiveData<SiteModel?>(null)
-    private val _showSiteIconProgressBar = MutableLiveData<Boolean>()
     val selectedSiteChange = _selectedSiteChange as LiveData<SiteModel?>
-    val siteSelected = _selectedSiteChange.mapSafe { it?.id }.distinctUntilChanged()
+
+    private val _showSiteIconProgressBar = MutableLiveData<Boolean>()
     val showSiteIconProgressBar = _showSiteIconProgressBar as LiveData<Boolean>
+
+    val siteSelected = _selectedSiteChange.mapSafe { it?.id }.distinctUntilChanged()
+
+    fun refresh() {
+        updateSiteSettingsIfNecessary()
+        _selectedSiteChange.value?.let {
+            dispatcher.dispatch(SiteActionBuilder.newFetchSiteAction(it))
+        }
+    }
 
     fun updateSite(selectedSite: SiteModel) {
         if (getSelectedSite()?.iconUrl != selectedSite.iconUrl) {
@@ -85,7 +93,7 @@ class SelectedSiteRepository @Inject constructor(
     }
 
     private fun fetchEditorTheme(site: SiteModel) {
-        EditorThemeStore.FetchEditorThemePayload(site, globalStyleSupportFeatureConfig.isEnabled()).let {
+        EditorThemeStore.FetchEditorThemePayload(site, gssEnabled = true).let {
             dispatcher.dispatch(EditorThemeActionBuilder.newFetchEditorThemeAction(it))
         }
     }

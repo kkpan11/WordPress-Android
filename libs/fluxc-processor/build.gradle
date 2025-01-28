@@ -1,0 +1,17 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    id "java"
+}
+
+java {
+    sourceCompatibility = JvmTarget.fromTarget(libs.versions.java.get()).target
+    targetCompatibility = JvmTarget.fromTarget(libs.versions.java.get()).target
+}
+
+dependencies {
+    implementation project(':libs:fluxc-annotations')
+    implementation libs.google.autoservice
+    annotationProcessor libs.google.autoservice
+    implementation libs.squareup.java.poet
+}

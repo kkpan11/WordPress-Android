@@ -8,10 +8,12 @@ import org.wordpress.android.WordPress
 import org.wordpress.android.databinding.PagesActivityBinding
 import org.wordpress.android.push.NotificationType
 import org.wordpress.android.push.NotificationsProcessingService.ARG_NOTIFICATION_TYPE
-import org.wordpress.android.ui.LocaleAwareActivity
+import org.wordpress.android.ui.main.BaseAppCompatActivity
 import org.wordpress.android.ui.notifications.SystemNotificationsTracker
 import org.wordpress.android.ui.posts.BasicFragmentDialog.BasicDialogNegativeClickInterface
 import org.wordpress.android.ui.posts.BasicFragmentDialog.BasicDialogPositiveClickInterface
+import org.wordpress.android.ui.posts.PostResolutionOverlayActionEvent
+import org.wordpress.android.ui.posts.PostResolutionOverlayListener
 import org.wordpress.android.util.extensions.getSerializableExtraCompat
 import org.wordpress.android.viewmodel.pages.PageListViewModel
 import javax.inject.Inject
@@ -21,9 +23,10 @@ const val EXTRA_PAGE_REMOTE_ID_KEY = "extra_page_remote_id_key"
 const val EXTRA_PAGE_PARENT_ID_KEY = "extra_page_parent_id_key"
 const val EXTRA_PAGE_LIST_TYPE_KEY = "extra_page_list_type_key"
 
-class PagesActivity : LocaleAwareActivity(),
+class PagesActivity : BaseAppCompatActivity(),
     BasicDialogPositiveClickInterface,
-    BasicDialogNegativeClickInterface {
+    BasicDialogNegativeClickInterface,
+    PostResolutionOverlayListener {
     @Inject
     internal lateinit var systemNotificationTracker: SystemNotificationsTracker
 
@@ -89,6 +92,16 @@ class PagesActivity : LocaleAwareActivity(),
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (fragment is PagesFragment) {
             fragment.onNegativeClickedForBasicDialog(instanceTag)
+        } else {
+            throw IllegalStateException("PagesFragment is required to consume this event.")
+        }
+    }
+
+    @Suppress("UseCheckOrError")
+    override fun onPostResolutionConfirmed(event: PostResolutionOverlayActionEvent.PostResolutionConfirmationEvent) {
+        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        if (fragment is PagesFragment) {
+            fragment.onPostResolutionConfirmed(event)
         } else {
             throw IllegalStateException("PagesFragment is required to consume this event.")
         }

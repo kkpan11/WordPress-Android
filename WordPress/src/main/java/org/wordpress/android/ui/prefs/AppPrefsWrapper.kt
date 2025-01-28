@@ -1,5 +1,6 @@
 package org.wordpress.android.ui.prefs
 
+import com.google.gson.Gson
 import org.wordpress.android.fluxc.model.JetpackCapability
 import org.wordpress.android.fluxc.store.QuickStartStore.QuickStartTask
 import org.wordpress.android.models.ReaderTag
@@ -18,6 +19,7 @@ import org.wordpress.android.ui.stats.refresh.lists.widget.configuration.StatsDa
 import org.wordpress.android.ui.stats.refresh.lists.widget.configuration.StatsDataTypeSelectionViewModel.DataType.VIEWS
 import org.wordpress.android.ui.stats.refresh.lists.widget.configuration.StatsDataTypeSelectionViewModel.DataType.VISITORS
 import org.wordpress.android.usecase.social.JetpackSocialFlow
+import org.wordpress.android.util.BuildConfigWrapper
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,7 +32,7 @@ import javax.inject.Singleton
  *
  */
 @Singleton
-class AppPrefsWrapper @Inject constructor() {
+class AppPrefsWrapper @Inject constructor(val buildConfigWrapper: BuildConfigWrapper) {
     var featureAnnouncementShownVersion: Int
         get() = AppPrefs.getFeatureAnnouncementShownVersion()
         set(version) = AppPrefs.setFeatureAnnouncementShownVersion(version)
@@ -63,6 +65,10 @@ class AppPrefsWrapper @Inject constructor() {
         get() = AppPrefs.getReaderTagsUpdatedTimestamp()
         set(timestamp) = AppPrefs.setReaderTagsUpdatedTimestamp(timestamp)
 
+    var readerAnalyticsCountTagsTimestamp: Long
+        get() = AppPrefs.getReaderAnalyticsCountTagsTimestamp()
+        set(timestamp) = AppPrefs.setReaderAnalyticsCountTagsTimestamp(timestamp)
+
     var readerCssUpdatedTimestamp: Long
         get() = AppPrefs.getReaderCssUpdatedTimestamp()
         set(timestamp) = AppPrefs.setReaderCssUpdatedTimestamp(timestamp)
@@ -71,9 +77,9 @@ class AppPrefsWrapper @Inject constructor() {
         get() = AppPrefs.getReaderCardsPageHandle()
         set(pageHandle) = AppPrefs.setReaderCardsPageHandle(pageHandle)
 
-    var shouldShowStoriesIntro: Boolean
-        get() = AppPrefs.shouldShowStoriesIntro()
-        set(shouldShow) = AppPrefs.setShouldShowStoriesIntro(shouldShow)
+    var readerTopBarSelectedFeedItemId: String?
+        get() = AppPrefs.getReaderTopBarSelectedFeedItemId()
+        set(selectedFeedItemId) = AppPrefs.setReaderTopBarSelectedFeedItemId(selectedFeedItemId)
 
     var shouldScheduleCreateSiteNotification: Boolean
         get() = AppPrefs.shouldScheduleCreateSiteNotification()
@@ -89,6 +95,10 @@ class AppPrefsWrapper @Inject constructor() {
     var notificationPermissionsWarningDismissed: Boolean
         get() = AppPrefs.getNotificationsPermissionsWarningDismissed()
         set(dismissed) = AppPrefs.setNotificationsPermissionWarningDismissed(dismissed)
+
+    var readerReadingPreferencesJson: String?
+        get() = AppPrefs.getReaderReadingPreferencesJson()
+        set(json) = AppPrefs.setReaderReadingPreferencesJson(json)
 
     fun getAppWidgetSiteId(appWidgetId: Int) = AppPrefs.getStatsWidgetSelectedSiteId(appWidgetId)
     fun setAppWidgetSiteId(siteId: Long, appWidgetId: Int) = AppPrefs.setStatsWidgetSelectedSiteId(siteId, appWidgetId)
@@ -183,20 +193,19 @@ class AppPrefsWrapper @Inject constructor() {
         return AppPrefs.getManualFeatureConfig(featureKey)
     }
 
+    fun getExperimentalFeatureConfig(featureKey: String): Boolean {
+        return AppPrefs.getExperimentalFeatureConfig(featureKey)
+    }
+
     fun incrementPublishedPostCount() {
         AppPrefs.incrementPublishedPostCount()
+    }
+    fun resetPublishedPostCount() {
+        AppPrefs.resetPublishedPostCount()
     }
 
     fun getPublishedPostCount(): Int {
         return AppPrefs.getPublishedPostCount()
-    }
-
-    fun setInAppReviewsShown() {
-        AppPrefs.setInAppReviewsShown()
-    }
-
-    fun isInAppReviewsShown(): Boolean {
-        return AppPrefs.isInAppReviewsShown()
     }
 
     fun setBloggingRemindersShown(siteId: Int) {
@@ -395,7 +404,7 @@ class AppPrefsWrapper @Inject constructor() {
         isHidden: Boolean
     ) = AppPrefs.setShouldHidePostDashboardCard(siteId, postCardType, isHidden)
 
-    fun getShouldHidePostDashboardCard(siteId: Long, postCardType: String,): Boolean =
+    fun getShouldHidePostDashboardCard(siteId: Long, postCardType: String): Boolean =
         AppPrefs.getShouldHidePostDashboardCard(siteId, postCardType)
 
     fun setShouldHideNextStepsDashboardCard(siteId: Long, isHidden: Boolean) =
@@ -437,10 +446,30 @@ class AppPrefsWrapper @Inject constructor() {
     fun setShouldHideDynamicCard(id: String, isHidden: Boolean): Unit =
         AppPrefs.setShouldHideDynamicCard(id, isHidden)
 
-    fun getShouldHideDynamicCard(id: String, ): Boolean =
+    fun getShouldHideDynamicCard(id: String): Boolean =
         AppPrefs.getShouldHideDynamicCard(id)
 
+    fun shouldUpdateBookmarkPostsPseudoIds(tag: ReaderTag?): Boolean = AppPrefs.shouldUpdateBookmarkPostsPseudoIds(tag)
+
+    fun setBookmarkPostsPseudoIdsUpdated() = AppPrefs.setBookmarkPostsPseudoIdsUpdated()
+
+    fun shouldShowReaderAnnouncementCard(): Boolean = AppPrefs.getShouldShowReaderAnnouncementCard()
+
+    fun setShouldShowReaderAnnouncementCard(shouldShow: Boolean) =
+        AppPrefs.setShouldShowReaderAnnouncementCard(shouldShow)
+
     fun getAllPrefs(): Map<String, Any?> = AppPrefs.getAllPrefs()
+
+    fun getPrefString(key: String, defValue: String): String? {
+        return AppPrefs.prefs().getString(key, defValue)
+    }
+
+    fun removePref(key: String) {
+        AppPrefs.prefs().edit().remove(key).apply()
+    }
+
+    fun getDebugBooleanPref(key: String, default: Boolean = false) =
+        buildConfigWrapper.isDebug() && AppPrefs.getRawBoolean({ key }, default)
 
     fun setString(prefKey: PrefKey, value: String) {
         AppPrefs.setString(prefKey, value)
@@ -465,6 +494,19 @@ class AppPrefsWrapper @Inject constructor() {
     var savedPrivacyBannerSettings: Boolean
         get() = getBoolean(AppPrefs.DeletablePrefKey.HAS_SAVED_PRIVACY_SETTINGS, false)
         set(value) = AppPrefs.setBoolean(AppPrefs.DeletablePrefKey.HAS_SAVED_PRIVACY_SETTINGS, value)
+
+    var pinnedSiteLocalIds: MutableSet<Int>
+        get() = Gson().fromJson(AppPrefs.getPinnedSiteLocalIds(), Array<Int>::class.java).toMutableSet()
+        set(value) = AppPrefs.setPinnedSiteLocalIds(Gson().toJson(value))
+
+    fun getRecentSiteLocalIds(): MutableSet<Int> = AppPrefs.getRecentlyPickedSiteIds().toMutableSet()
+    fun addRecentSiteLocalId(siteLocalId: Int) {
+        AppPrefs.addRecentlyPickedSiteId(siteLocalId)
+    }
+
+    var supportEmail: String
+        get() = AppPrefs.getSupportEmail()
+        set(value) = AppPrefs.setSupportEmail(value)
 
     companion object {
         private const val LIGHT_MODE_ID = 0

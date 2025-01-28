@@ -29,7 +29,7 @@ UPLOAD_TO_PLAY_STORE_JSON_KEY = File.join(Dir.home, '.configure', 'wordpress-and
 
 PROTOTYPE_BUILD_FLAVOR = 'Jalapeno'
 PROTOTYPE_BUILD_TYPE = 'Debug'
-PROTOTYPE_BUILD_DOMAIN = 'https://d2twmm2nzpx3bg.cloudfront.net'
+PROTOTYPE_BUILD_DOMAIN = 'https://cdn.a8c-ci.services'
 
 PROJECT_ROOT_FOLDER = File.dirname(File.expand_path(__dir__))
 FASTLANE_FOLDER = File.join(PROJECT_ROOT_FOLDER, 'fastlane')
@@ -156,13 +156,11 @@ end
 ########################################################################
 # Import domain-specific lanes
 ########################################################################
-import 'helpers/github.rb'
 import 'lanes/build.rb'
 import 'lanes/localization.rb'
 import 'lanes/release.rb'
 import 'lanes/screenshots.rb'
 import 'lanes/test.rb'
-import 'lanes/release_management_in_ci.rb'
 
 default_platform(:android)
 

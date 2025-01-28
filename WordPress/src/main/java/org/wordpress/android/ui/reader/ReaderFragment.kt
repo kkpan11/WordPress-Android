@@ -1,22 +1,22 @@
 package org.wordpress.android.ui.reader
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.MenuProvider
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -24,38 +24,56 @@ import org.greenrobot.eventbus.ThreadMode.MAIN
 import org.wordpress.android.R
 import org.wordpress.android.databinding.ReaderFragmentLayoutBinding
 import org.wordpress.android.models.JetpackPoweredScreen
-import org.wordpress.android.models.ReaderTagList
+import org.wordpress.android.models.ReaderTag
 import org.wordpress.android.ui.ScrollableViewInitializedListener
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureFullScreenOverlayFragment
 import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalOverlayUtil.JetpackFeatureOverlayScreenType
+import org.wordpress.android.ui.main.WPMainActivity.OnScrollToTopListener
 import org.wordpress.android.ui.main.WPMainNavigationView.PageType.READER
 import org.wordpress.android.ui.mysite.jetpackbadge.JetpackPoweredBottomSheetFragment
 import org.wordpress.android.ui.pages.SnackbarMessageHolder
 import org.wordpress.android.ui.quickstart.QuickStartEvent
-import org.wordpress.android.ui.reader.ReaderTypes.ReaderPostListType
+import org.wordpress.android.ui.reader.SubfilterBottomSheetFragment.Companion.newInstance
 import org.wordpress.android.ui.reader.discover.ReaderDiscoverFragment
 import org.wordpress.android.ui.reader.discover.interests.ReaderInterestsFragment
+import org.wordpress.android.ui.reader.services.update.ReaderUpdateLogic.UpdateTask
 import org.wordpress.android.ui.reader.services.update.ReaderUpdateLogic.UpdateTask.FOLLOWED_BLOGS
 import org.wordpress.android.ui.reader.services.update.ReaderUpdateLogic.UpdateTask.TAGS
 import org.wordpress.android.ui.reader.services.update.ReaderUpdateServiceStarter
+import org.wordpress.android.ui.reader.subfilter.ActionType
+import org.wordpress.android.ui.reader.subfilter.ActionType.OpenLoginPage
+import org.wordpress.android.ui.reader.subfilter.ActionType.OpenSearchPage
+import org.wordpress.android.ui.reader.subfilter.ActionType.OpenSubsAtPage
+import org.wordpress.android.ui.reader.subfilter.ActionType.OpenSuggestedTagsPage
+import org.wordpress.android.ui.reader.subfilter.BottomSheetUiState
+import org.wordpress.android.ui.reader.subfilter.BottomSheetUiState.BottomSheetVisible
+import org.wordpress.android.ui.reader.subfilter.SubFilterViewModel
+import org.wordpress.android.ui.reader.subfilter.SubFilterViewModelProvider
+import org.wordpress.android.ui.reader.subfilter.SubfilterCategory
+import org.wordpress.android.ui.reader.subfilter.SubfilterListItem
 import org.wordpress.android.ui.reader.viewmodels.ReaderViewModel
 import org.wordpress.android.ui.reader.viewmodels.ReaderViewModel.ReaderUiState.ContentUiState
-import org.wordpress.android.ui.reader.viewmodels.ReaderViewModel.ReaderUiState.ContentUiState.TabUiState
+import org.wordpress.android.ui.reader.views.compose.ReaderTopAppBar
+import org.wordpress.android.ui.reader.views.compose.filter.ReaderFilterType
 import org.wordpress.android.ui.utils.UiHelpers
 import org.wordpress.android.ui.utils.UiString.UiStringText
 import org.wordpress.android.util.JetpackBrandingUtils
+import org.wordpress.android.util.NetworkUtils
 import org.wordpress.android.util.QuickStartUtilsWrapper
 import org.wordpress.android.util.SnackbarItem
 import org.wordpress.android.util.SnackbarItem.Action
 import org.wordpress.android.util.SnackbarItem.Info
 import org.wordpress.android.util.SnackbarSequencer
+import org.wordpress.android.viewmodel.Event
+import org.wordpress.android.viewmodel.main.WPMainActivityViewModel
 import org.wordpress.android.viewmodel.observeEvent
-import org.wordpress.android.widgets.QuickStartFocusPoint
 import java.util.EnumSet
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ReaderFragment : Fragment(R.layout.reader_fragment_layout), MenuProvider, ScrollableViewInitializedListener {
+class ReaderFragment : Fragment(R.layout.reader_fragment_layout), ScrollableViewInitializedListener,
+    OnScrollToTopListener, SubFilterViewModelProvider {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -70,40 +88,104 @@ class ReaderFragment : Fragment(R.layout.reader_fragment_layout), MenuProvider, 
 
     @Inject
     lateinit var snackbarSequencer: SnackbarSequencer
-    private lateinit var viewModel: ReaderViewModel
 
-    private var searchMenuItem: MenuItem? = null
-    private var settingsMenuItem: MenuItem? = null
-    private var settingsMenuItemFocusPoint: QuickStartFocusPoint? = null
+    private lateinit var viewModel: ReaderViewModel
 
     private var binding: ReaderFragmentLayoutBinding? = null
 
-    private val viewPagerCallback = object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageSelected(position: Int) {
-            super.onPageSelected(position)
-            viewModel.uiState.value?.let {
-                if (it is ContentUiState) {
-                    val selectedTag = it.readerTagList[position]
-                    viewModel.onTagChanged(selectedTag)
-                }
+    private var readerSearchResultLauncher: ActivityResultLauncher<Intent>? = null
+
+    private var readerSubsActivityResultLauncher: ActivityResultLauncher<Intent>? = null
+
+    private val wpMainActivityViewModel by lazy {
+        ViewModelProvider(
+            requireActivity(),
+            viewModelFactory
+        )[WPMainActivityViewModel::class.java]
+    }
+
+    // region SubgroupFilterViewModel Observers
+    // we need a reference to the observers so they are properly handled by the lifecycle and ViewModel owners, avoiding
+    // duplication, and ensuring they are properly removed when the Fragment is destroyed
+    private val currentSubfilterObserver = Observer<SubfilterListItem> { subfilterListItem ->
+        viewModel.onSubFilterItemSelected(subfilterListItem)
+    }
+
+    private val updateTagsAndSitesObserver = Observer<Event<EnumSet<UpdateTask>>> { event ->
+        event.applyIfNotHandled {
+            if (NetworkUtils.isNetworkAvailable(activity)) {
+                ReaderUpdateServiceStarter.startService(activity, this)
             }
         }
     }
 
+    private val subFiltersObserver = Observer<List<SubfilterListItem>> { subFilters ->
+        val selectedTag = (viewModel.uiState.value as? ContentUiState)?.selectedReaderTag ?: return@Observer
+        viewModel.showTopBarFilterGroup(
+            selectedTag,
+            subFilters
+        )
+    }
+
+    private val bottomSheetUiStateObserver = Observer<Event<BottomSheetUiState>> { event ->
+        event.applyIfNotHandled {
+            val selectedTag = (viewModel.uiState.value as? ContentUiState)?.selectedReaderTag
+                ?: return@applyIfNotHandled
+            val viewModelKey = SubFilterViewModel.getViewModelKeyForTag(selectedTag)
+
+            val fm = childFragmentManager
+            var bottomSheet = fm.findFragmentByTag(SUBFILTER_BOTTOM_SHEET_TAG) as SubfilterBottomSheetFragment?
+            if (isVisible && bottomSheet == null) {
+                val (title, category) = this as BottomSheetVisible
+                bottomSheet = newInstance(
+                    viewModelKey,
+                    category,
+                    uiHelpers.getTextOfUiString(requireContext(), title)
+                )
+                bottomSheet.show(childFragmentManager, SUBFILTER_BOTTOM_SHEET_TAG)
+            } else if (!isVisible && bottomSheet != null) {
+                bottomSheet.dismiss()
+            }
+        }
+    }
+
+    private val bottomSheetActionObserver = Observer<Event<ActionType>> { event ->
+        event.applyIfNotHandled {
+            when (this) {
+                is OpenSubsAtPage -> {
+                    readerSubsActivityResultLauncher?.launch(
+                        ReaderActivityLauncher.createIntentShowReaderSubs(
+                            requireActivity(),
+                            tabIndex
+                        )
+                    )
+                }
+
+                is OpenLoginPage -> {
+                    wpMainActivityViewModel.onOpenLoginPage()
+                }
+
+                is OpenSearchPage -> {
+                    ReaderActivityLauncher.showReaderSearch(requireActivity())
+                }
+
+                is OpenSuggestedTagsPage -> {
+                    ReaderActivityLauncher.showReaderInterests(requireActivity())
+                }
+            }
+        }
+    }
+    // endregion
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivity().addMenuProvider(this, viewLifecycleOwner)
         binding = ReaderFragmentLayoutBinding.bind(view).apply {
-            initToolbar()
-            initViewPager()
+            initTopAppBar()
             initViewModel(savedInstanceState)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        searchMenuItem = null
-        settingsMenuItem = null
-        settingsMenuItemFocusPoint = null
         binding = null
     }
 
@@ -117,78 +199,88 @@ class ReaderFragment : Fragment(R.layout.reader_fragment_layout), MenuProvider, 
         activity?.let { viewModel.onScreenInBackground(it.isChangingConfigurations) }
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.reader_home, menu)
-        menu.findItem(R.id.menu_search).apply {
-            searchMenuItem = this
-            this.isVisible = viewModel.uiState.value?.searchMenuItemUiState?.isVisible ?: false
-        }
-        menu.findItem(R.id.menu_settings).apply {
-            settingsMenuItem = this
-            settingsMenuItemFocusPoint = this.actionView?.findViewById(R.id.menu_quick_start_focus_point)
-            this.isVisible = viewModel.uiState.value?.settingsMenuItemUiState?.isVisible ?: false
-            settingsMenuItemFocusPoint?.isVisible =
-                viewModel.uiState.value?.settingsMenuItemUiState?.showQuickStartFocusPoint ?: false
-            this.actionView?.setOnClickListener { viewModel.onSettingsActionClicked() }
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        initReaderSearchActivityResultLauncher()
+        initReaderSubsActivityResultLauncher()
+    }
+
+    private fun initReaderSearchActivityResultLauncher() {
+        readerSearchResultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                if (data != null) {
+                    val shouldRefreshSubscriptions =
+                        data.getBooleanExtra(ReaderSearchActivity.RESULT_SHOULD_REFRESH_SUBSCRIPTIONS, false)
+                    if (shouldRefreshSubscriptions) {
+                        getSubFilterViewModel()?.loadSubFilters()
+                    }
+                }
+            }
         }
     }
 
-    override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
-        R.id.menu_search -> {
-            viewModel.onSearchActionClicked()
-            true
+    private fun initReaderSubsActivityResultLauncher() {
+        readerSubsActivityResultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                if (data != null) {
+                    val shouldRefreshSubscriptions = data.getBooleanExtra(
+                        ReaderSubsActivity.RESULT_SHOULD_REFRESH_SUBSCRIPTIONS,
+                        false
+                    )
+                    if (shouldRefreshSubscriptions) {
+                        getSubFilterViewModel()?.loadSubFilters()
+                    }
+                }
+            }
         }
-        R.id.menu_settings -> {
-            viewModel.onSettingsActionClicked()
-            true
-        }
-        else -> false
     }
 
-    private fun ReaderFragmentLayoutBinding.initToolbar() {
-        toolbar.title = getString(R.string.reader_screen_title)
-        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
-    }
+    private fun ReaderFragmentLayoutBinding.initTopAppBar() {
+        readerTopBarComposeView.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                val topAppBarState by viewModel.topBarUiState.observeAsState()
+                val state = topAppBarState ?: return@setContent
 
-    private fun ReaderFragmentLayoutBinding.initViewPager() {
-        viewPager.registerOnPageChangeCallback(viewPagerCallback)
+                AppThemeM3 {
+                    ReaderTopAppBar(
+                        topBarUiState = state,
+                        onMenuItemClick = viewModel::onTopBarMenuItemClick,
+                        onFilterClick = ::tryOpenFilterList,
+                        onClearFilterClick = ::clearFilter,
+                        isSearchVisible = state.isSearchActionVisible,
+                        onSearchClick = viewModel::onSearchActionClicked,
+                    )
+                }
+            }
+        }
     }
 
     private fun ReaderFragmentLayoutBinding.initViewModel(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this@ReaderFragment, viewModelFactory).get(ReaderViewModel::class.java)
-        startObserving(savedInstanceState)
+        viewModel = ViewModelProvider(this@ReaderFragment, viewModelFactory)[ReaderViewModel::class.java]
+        startReaderViewModel(savedInstanceState)
     }
 
-    private fun ReaderFragmentLayoutBinding.startObserving(savedInstanceState: Bundle?) {
+    private fun ReaderFragmentLayoutBinding.startReaderViewModel(savedInstanceState: Bundle?) {
         viewModel.uiState.observe(viewLifecycleOwner) { uiState ->
-            uiState?.let {
-                when (it) {
-                    is ContentUiState -> {
-                        updateTabs(it)
-                    }
-                }
-                uiHelpers.updateVisibility(tabLayout, uiState.tabLayoutVisible)
-                searchMenuItem?.isVisible = uiState.searchMenuItemUiState.isVisible
-                settingsMenuItem?.isVisible = uiState.settingsMenuItemUiState.isVisible
-                settingsMenuItemFocusPoint?.isVisible =
-                    viewModel.uiState.value?.settingsMenuItemUiState?.showQuickStartFocusPoint ?: false
-            }
+            uiState?.let { updateUiState(it) }
         }
 
         viewModel.updateTags.observeEvent(viewLifecycleOwner) {
             ReaderUpdateServiceStarter.startService(context, EnumSet.of(TAGS, FOLLOWED_BLOGS))
         }
 
-        viewModel.selectTab.observeEvent(viewLifecycleOwner) { navTarget ->
-            viewPager.setCurrentItem(navTarget.position, navTarget.smoothAnimation)
-        }
-
         viewModel.showSearch.observeEvent(viewLifecycleOwner) {
-            ReaderActivityLauncher.showReaderSearch(context)
-        }
-
-        viewModel.showSettings.observeEvent(viewLifecycleOwner) {
-            ReaderActivityLauncher.showReaderSubs(context)
+            context?.let {
+                val intent = ReaderActivityLauncher.createReaderSearchIntent(it)
+                readerSearchResultLauncher?.launch(intent)
+            }
         }
 
         viewModel.showReaderInterests.observeEvent(viewLifecycleOwner) {
@@ -226,7 +318,52 @@ class ReaderFragment : Fragment(R.layout.reader_fragment_layout), MenuProvider, 
 
         observeJetpackOverlayEvent(savedInstanceState)
 
-        viewModel.start()
+        viewModel.start(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::viewModel.isInitialized) {
+            viewModel.onSaveInstanceState(outState)
+        }
+    }
+
+    private fun updateUiState(uiState: ReaderViewModel.ReaderUiState) {
+        when (uiState) {
+            is ContentUiState -> {
+                binding?.readerTopBarComposeView?.isVisible = true
+                initContentContainer(uiState)
+            }
+        }
+    }
+
+    private fun initContentContainer(uiState: ContentUiState) {
+        // only initialize the fragment if there's one selected and it's not already initialized
+        val currentFragmentTag = childFragmentManager.findFragmentById(R.id.container)?.tag
+        if (uiState.selectedReaderTag == null || uiState.selectedReaderTag.tagSlug == currentFragmentTag) {
+            return
+        }
+
+        childFragmentManager.beginTransaction().apply {
+            val selectedTag = uiState.selectedReaderTag
+            val fragment = when {
+                selectedTag.isDiscover -> ReaderDiscoverFragment()
+                selectedTag.isTags -> ReaderTagsFeedFragment.newInstance(selectedTag)
+                else -> ReaderPostListFragment.newInstanceForTag(
+                    selectedTag,
+                    ReaderTypes.ReaderPostListType.TAG_FOLLOWED,
+                    true,
+                    selectedTag.isFilterable
+                )
+            }
+            replace(R.id.container, fragment, uiState.selectedReaderTag.tagSlug)
+            commit()
+        }
+        viewModel.uiState.value?.let {
+            if (it is ContentUiState) {
+                viewModel.onTagChanged(uiState.selectedReaderTag)
+            }
+        }
     }
 
     private fun observeJetpackOverlayEvent(savedInstanceState: Bundle?) {
@@ -258,62 +395,11 @@ class ReaderFragment : Fragment(R.layout.reader_fragment_layout), MenuProvider, 
         )
     }
 
-    private fun ReaderFragmentLayoutBinding.updateTabs(uiState: ContentUiState) {
-        if (viewPager.adapter == null || uiState.shouldUpdateViewPager) {
-            updateViewPagerAdapterAndMediator(uiState)
-        }
-        uiState.tabUiStates.forEachIndexed { index, tabUiState ->
-            val tab = tabLayout.getTabAt(index) as TabLayout.Tab
-            updateTab(tab, tabUiState)
-        }
-    }
-
-    private fun ReaderFragmentLayoutBinding.updateTab(tab: TabLayout.Tab, tabUiState: TabUiState) {
-        val customView = tab.customView ?: createTabCustomView(tab)
-        with(customView) {
-            val title = findViewById<TextView>(R.id.tab_label)
-            title.text = uiHelpers.getTextOfUiString(requireContext(), tabUiState.label)
-        }
-    }
-
-    private fun ReaderFragmentLayoutBinding.updateViewPagerAdapterAndMediator(uiState: ContentUiState) {
-        viewPager.adapter = TabsAdapter(this@ReaderFragment, uiState.readerTagList)
-        TabLayoutMediator(tabLayout, viewPager, ReaderTabConfigurationStrategy(uiState)).attach()
-    }
-
-    private inner class ReaderTabConfigurationStrategy(
-        private val uiState: ContentUiState
-    ) : TabLayoutMediator.TabConfigurationStrategy {
-        override fun onConfigureTab(tab: TabLayout.Tab, position: Int) {
-            binding?.updateTab(tab, uiState.tabUiStates[position])
-        }
-    }
-
-    private fun ReaderFragmentLayoutBinding.createTabCustomView(tab: TabLayout.Tab): View {
-        val customView = LayoutInflater.from(context)
-            .inflate(R.layout.tab_custom_view, tabLayout, false)
-        tab.customView = customView
-        return customView
-    }
-
     fun requestBookmarkTab() {
-        viewModel.bookmarkTabRequested()
-    }
-
-    private class TabsAdapter(parent: Fragment, private val tags: ReaderTagList) : FragmentStateAdapter(parent) {
-        override fun getItemCount(): Int = tags.size
-
-        override fun createFragment(position: Int): Fragment {
-            return if (tags[position].isDiscover) {
-                ReaderDiscoverFragment()
-            } else {
-                ReaderPostListFragment.newInstanceForTag(
-                    tags[position],
-                    ReaderPostListType.TAG_FOLLOWED,
-                    true
-                )
-            }
+        if (!::viewModel.isInitialized) {
+            viewModel = ViewModelProvider(this@ReaderFragment, viewModelFactory)[ReaderViewModel::class.java]
         }
+        viewModel.bookmarkTabRequested()
     }
 
     private fun showReaderInterests() {
@@ -383,5 +469,110 @@ class ReaderFragment : Fragment(R.layout.reader_fragment_layout), MenuProvider, 
         }
         viewModel.onQuickStartEventReceived(event)
         EventBus.getDefault().removeStickyEvent(event)
+    }
+
+    private fun getCurrentFeedFragment(): Fragment? {
+        return childFragmentManager.findFragmentById(R.id.container)
+    }
+
+    private fun tryOpenFilterList(type: ReaderFilterType) {
+        val viewModel = getSubFilterViewModel() ?: return
+
+        val category = when (type) {
+            ReaderFilterType.BLOG -> SubfilterCategory.SITES
+            ReaderFilterType.TAG -> SubfilterCategory.TAGS
+        }
+
+        viewModel.onSubFiltersListButtonClicked(category)
+    }
+
+    private fun clearFilter() {
+        val viewModel = getSubFilterViewModel() ?: return
+        viewModel.setDefaultSubfilter(isClearingFilter = true)
+    }
+
+    override fun onScrollToTop() {
+        binding?.appBar?.setExpanded(true, true)
+        // Instance of ReaderPostListFragment or ReaderDiscoverFragment
+        val currentFragment = getCurrentFeedFragment()
+        if (currentFragment is OnScrollToTopListener) {
+            currentFragment.onScrollToTop()
+        }
+    }
+
+    /**
+     * The owner of the SubFilterViewModel should be the current feed Fragment, so it can be properly cleared when the
+     * feed is changed, since it will be properly tied to the expected feed Fragment lifecycle instead of the
+     * [ReaderFragment] lifecycle.
+     *
+     * This method exists mainly for readability purposes and to avoid passing the Fragment as a parameter.
+     *
+     * Note: it can cause a crash if the current feed Fragment is not available for any reason, which should never
+     * happen since the calling methods are always called by the feed Fragment or their children.
+     */
+    private fun getSubFilterViewModelOwner(): ViewModelStoreOwner {
+        return getCurrentFeedFragment() as ViewModelStoreOwner
+    }
+
+    private fun getSubFilterViewModel(): SubFilterViewModel? {
+        val selectedTag = (viewModel.uiState.value as? ContentUiState)?.selectedReaderTag ?: return null
+        return getSubFilterViewModelForTag(selectedTag)
+    }
+
+    /**
+     * Get the SubFilterViewModel for the given key. It doesn't initialize the ViewModel if it's not already started, so
+     * should only be used for getting a ViewModel that's already been started.
+     */
+    override fun getSubFilterViewModelForKey(key: String): SubFilterViewModel {
+        return ViewModelProvider(getSubFilterViewModelOwner(), viewModelFactory)[key, SubFilterViewModel::class.java]
+    }
+
+    override fun getSubFilterViewModelForTag(tag: ReaderTag, savedInstanceState: Bundle?): SubFilterViewModel {
+        return ViewModelProvider(getSubFilterViewModelOwner(), viewModelFactory)[
+            SubFilterViewModel.getViewModelKeyForTag(tag),
+            SubFilterViewModel::class.java
+        ].also {
+            it.initSubFilterViewModel(tag, savedInstanceState)
+        }
+    }
+
+    private fun SubFilterViewModel.initSubFilterViewModel(startedTag: ReaderTag, savedInstanceState: Bundle?) {
+        bottomSheetUiState.observe(
+            viewLifecycleOwner,
+            bottomSheetUiStateObserver
+        )
+
+        bottomSheetAction.observe(
+            viewLifecycleOwner,
+            bottomSheetActionObserver
+        )
+
+        currentSubFilter.observe(
+            viewLifecycleOwner,
+            currentSubfilterObserver
+        )
+
+
+        updateTagsAndSites.observe(
+            viewLifecycleOwner,
+            updateTagsAndSitesObserver
+        )
+
+        if (startedTag.isFilterable) {
+            subFilters.observe(
+                viewLifecycleOwner,
+                subFiltersObserver
+            )
+
+            updateTagsAndSites()
+        } else {
+            viewModel.hideTopBarFilterGroup(startedTag)
+        }
+
+        start(startedTag, startedTag, savedInstanceState)
+    }
+
+    companion object {
+        private const val SUBFILTER_BOTTOM_SHEET_TAG = "SUBFILTER_BOTTOM_SHEET_TAG"
     }
 }

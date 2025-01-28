@@ -34,7 +34,9 @@ import org.wordpress.android.WordPress;
 import org.wordpress.android.fluxc.model.SiteModel;
 import org.wordpress.android.fluxc.store.SiteStore;
 import org.wordpress.android.fluxc.tools.FluxCImageLoader;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
 import org.wordpress.android.ui.posts.EditPostActivity;
+import org.wordpress.android.ui.posts.EditPostActivityConstants;
 import org.wordpress.android.util.SiteUtils;
 import org.wordpress.android.util.ToastUtils;
 
@@ -43,7 +45,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class AddQuickPressShortcutActivity extends LocaleAwareActivity {
+public class AddQuickPressShortcutActivity extends BaseAppCompatActivity {
     public String[] blogNames;
     public int[] siteIds;
     public String[] blogUrls;
@@ -142,8 +144,8 @@ public class AddQuickPressShortcutActivity extends LocaleAwareActivity {
                     shortcutIntent.setAction(Intent.ACTION_MAIN);
                     shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    shortcutIntent.putExtra(EditPostActivity.EXTRA_QUICKPRESS_BLOG_ID, siteIds[position]);
-                    shortcutIntent.putExtra(EditPostActivity.EXTRA_IS_QUICKPRESS, true);
+                    shortcutIntent.putExtra(EditPostActivityConstants.EXTRA_QUICKPRESS_BLOG_ID, siteIds[position]);
+                    shortcutIntent.putExtra(EditPostActivityConstants.EXTRA_IS_QUICKPRESS, true);
 
                     String shortcutName = quickPressShortcutName.getText().toString();
 

@@ -34,7 +34,7 @@ import org.wordpress.android.fluxc.store.TaxonomyStore.OnTaxonomyChanged;
 import org.wordpress.android.fluxc.store.TaxonomyStore.OnTermUploaded;
 import org.wordpress.android.fluxc.store.TaxonomyStore.RemoteTermPayload;
 import org.wordpress.android.models.CategoryNode;
-import org.wordpress.android.ui.LocaleAwareActivity;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.ToastUtils.Duration;
@@ -49,10 +49,10 @@ import java.util.HashSet;
 
 import javax.inject.Inject;
 
-import static org.wordpress.android.ui.posts.EditPostActivity.EXTRA_POST_LOCAL_ID;
+import static org.wordpress.android.ui.posts.EditPostActivityConstants.EXTRA_POST_LOCAL_ID;
 import static org.wordpress.android.util.WPSwipeToRefreshHelper.buildSwipeToRefreshHelper;
 
-public class SelectCategoriesActivity extends LocaleAwareActivity {
+public class SelectCategoriesActivity extends BaseAppCompatActivity {
     public static final String KEY_SELECTED_CATEGORY_IDS = "KEY_SELECTED_CATEGORY_IDS";
 
     private ListView mListView;
@@ -196,7 +196,7 @@ public class SelectCategoriesActivity extends LocaleAwareActivity {
         ft.addToBackStack(null);
 
         // Create and show the dialog.
-        AddCategoryFragment newFragment = AddCategoryFragment.newInstance(mSite);
+        AddCategoryFragment newFragment = AddCategoryFragment.Companion.newInstance(mSite);
         newFragment.show(ft, "dialog");
     }
 

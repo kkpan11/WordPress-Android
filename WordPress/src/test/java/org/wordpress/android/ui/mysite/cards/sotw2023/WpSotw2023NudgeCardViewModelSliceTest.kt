@@ -9,10 +9,11 @@ import org.mockito.Mockito
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.wordpress.android.BaseUnitTest
+import org.wordpress.android.ui.mysite.MySiteCardAndItem
 import org.wordpress.android.ui.mysite.SiteNavigationAction.OpenExternalUrl
 import org.wordpress.android.ui.prefs.AppPrefsWrapper
 import org.wordpress.android.util.DateTimeUtilsWrapper
-import org.wordpress.android.util.LocaleManagerWrapper
+import org.wordpress.android.util.PerAppLocaleManager
 import org.wordpress.android.util.config.WpSotw2023NudgeFeatureConfig
 import java.time.Instant
 
@@ -28,12 +29,14 @@ class WpSotw2023NudgeCardViewModelSliceTest : BaseUnitTest() {
     lateinit var dateTimeUtilsWrapper: DateTimeUtilsWrapper
 
     @Mock
-    lateinit var localeManagerWrapper: LocaleManagerWrapper
+    lateinit var perAppLocaleManager: PerAppLocaleManager
 
     @Mock
     lateinit var tracker: WpSotw2023NudgeCardAnalyticsTracker
 
     private lateinit var viewModelSlice: WpSotw2023NudgeCardViewModelSlice
+
+    private val uiModels = mutableListOf<MySiteCardAndItem.Card.WpSotw2023NudgeCardModel?>()
 
     @Before
     fun setUp() {
@@ -41,76 +44,82 @@ class WpSotw2023NudgeCardViewModelSliceTest : BaseUnitTest() {
             featureConfig,
             appPrefsWrapper,
             dateTimeUtilsWrapper,
-            localeManagerWrapper,
+            perAppLocaleManager,
             tracker,
         )
         viewModelSlice.initialize(testScope())
+
+        viewModelSlice.uiModel.observeForever { uiModel ->
+            uiModels.add(uiModel)
+        }
     }
 
     @Test
-    fun `WHEN feature is disabled THEN buildCard returns null `() {
+    fun `WHEN feature is disabled THEN buildCard returns null `() = test {
         mockCardRequisites(isFeatureEnabled = false)
 
-        val card = viewModelSlice.buildCard()
+        viewModelSlice.buildCard()
 
-        assertThat(card).isNull()
+        assertThat(uiModels.last()).isNull()
     }
 
     @Test
-    fun `WHEN card is hidden in app prefs THEN buildCard returns null`() {
+    fun `WHEN card is hidden in app prefs THEN buildCard returns null`() = test {
         mockCardRequisites(isCardHidden = true)
 
-        val card = viewModelSlice.buildCard()
+        viewModelSlice.buildCard()
 
-        assertThat(card).isNull()
+        assertThat(uiModels.last()).isNull()
     }
 
     @Test
-    fun `WHEN date is before event THEN buildCard returns null`() {
+    fun `WHEN date is before event THEN buildCard returns null`() = test{
         mockCardRequisites(isDateAfterEvent = false)
 
-        val card = viewModelSlice.buildCard()
+        viewModelSlice.buildCard()
 
-        assertThat(card).isNull()
+        assertThat(uiModels.last()).isNull()
     }
 
     @Test
-    fun `WHEN language is not english THEN buildCard returns null`() {
+    fun `WHEN language is not english THEN buildCard returns null`() = test{
         mockCardRequisites(isLanguageEnglish = false)
 
-        val card = viewModelSlice.buildCard()
+        viewModelSlice.buildCard()
 
-        assertThat(card).isNull()
+        assertThat(uiModels.last()).isNull()
     }
 
     @Test
-    fun `WHEN requisites are met THEN buildCard returns card `() {
+    fun `WHEN requisites are met THEN buildCard returns card `() = test{
         mockCardRequisites()
 
-        val card = viewModelSlice.buildCard()
+        viewModelSlice.buildCard()
 
-        assertThat(card).isNotNull
+        assertThat(uiModels.last()).isNotNull
     }
 
     @Test
-    fun `WHEN card onCtaClick is clicked THEN navigate to URL`() {
+    fun `WHEN card onCtaClick is clicked THEN navigate to URL`() = test{
         mockCardRequisites()
 
-        val card = viewModelSlice.buildCard()!!
-        card.onCtaClick.click()
+        viewModelSlice.buildCard()
+        uiModels.last()?.onCtaClick?.click()
 
         assertThat(viewModelSlice.onNavigation.value?.peekContent()).isEqualTo(OpenExternalUrl(EXPECTED_URL))
     }
 
     @Test
-    fun `WHEN card onHideMenuItemClick is clicked THEN hide card in app prefs and refresh`() {
+    fun `WHEN card onHideMenuItemClick is clicked THEN hide card in app prefs and refresh`() = test{
         mockCardRequisites()
 
-        val card = viewModelSlice.buildCard()!!
-        card.onHideMenuItemClick.click()
+        viewModelSlice.buildCard()
+
+        val uiModel = uiModels.last() as MySiteCardAndItem.Card.WpSotw2023NudgeCardModel
+        uiModel.onHideMenuItemClick.click()
 
         verify(appPrefsWrapper).setShouldHideSotw2023NudgeCard(true)
-        assertThat(viewModelSlice.refresh.value?.peekContent()).isTrue
+        assertThat(uiModels.last()).isNull()
     }
 
     // region Analytics
@@ -124,20 +133,21 @@ class WpSotw2023NudgeCardViewModelSliceTest : BaseUnitTest() {
     }
 
     @Test
-    fun `WHEN card onCtaClick is clicked THEN analytics is tracked`() {
+    fun `WHEN card onCtaClick is clicked THEN analytics is tracked`() = test{
         mockCardRequisites()
 
-        val card = viewModelSlice.buildCard()!!
-        card.onCtaClick.click()
+        viewModelSlice.buildCard()
+        uiModels.last()?.onCtaClick?.click()
+
         verify(tracker).trackCtaTapped()
     }
 
     @Test
-    fun `WHEN card onHideMenuItemClick is clicked THEN analytics is tracked`() {
+    fun `WHEN card onHideMenuItemClick is clicked THEN analytics is tracked`() = test{
         mockCardRequisites()
 
-        val card = viewModelSlice.buildCard()!!
-        card.onHideMenuItemClick.click()
+        viewModelSlice.buildCard()
+        uiModels.last()?.onHideMenuItemClick?.click()
 
         verify(tracker).trackHideTapped()
     }
@@ -155,7 +165,7 @@ class WpSotw2023NudgeCardViewModelSliceTest : BaseUnitTest() {
             val date = if (isDateAfterEvent) "2023-12-12T00:00:01Z" else "2021-12-11T00:00:00Z"
             whenever(dateTimeUtilsWrapper.getInstantNow()).thenReturn(Instant.parse(date))
             val language = if (isLanguageEnglish) "en_US" else "fr_FR"
-            whenever(localeManagerWrapper.getLanguage()).thenReturn(language)
+            whenever(perAppLocaleManager.getCurrentLocaleLanguageCode()).thenReturn(language)
         }
     }
 

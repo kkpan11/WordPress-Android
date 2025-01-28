@@ -23,6 +23,11 @@ import org.wordpress.android.ui.posts.EditPostActivity;
 import org.wordpress.android.util.UiTestingUtils;
 import org.wordpress.android.util.image.ImageType;
 
+import dagger.hilt.android.testing.HiltAndroidTest;
+import tools.fastlane.screengrab.Screengrab;
+import tools.fastlane.screengrab.UiAutomatorScreenshotStrategy;
+import tools.fastlane.screengrab.locale.LocaleTestRule;
+
 import static org.wordpress.android.support.WPSupportUtils.clickOn;
 import static org.wordpress.android.support.WPSupportUtils.clickOnViewWithTag;
 import static org.wordpress.android.support.WPSupportUtils.getCurrentActivity;
@@ -38,20 +43,13 @@ import static org.wordpress.android.support.WPSupportUtils.waitForElementToBeDis
 import static org.wordpress.android.support.WPSupportUtils.waitForElementToBeDisplayedWithoutFailure;
 import static org.wordpress.android.support.WPSupportUtils.waitForImagesOfTypeWithPlaceholder;
 
-import dagger.hilt.android.testing.HiltAndroidTest;
-import tools.fastlane.screengrab.Screengrab;
-import tools.fastlane.screengrab.UiAutomatorScreenshotStrategy;
-import tools.fastlane.screengrab.locale.LocaleTestRule;
-
 @LargeTest
 @HiltAndroidTest
 public class WPScreenshotTest extends BaseTest {
     @ClassRule
     public static final RuleChain LOCALE_TEST_RULES = RuleChain
             // Run fastlane's official LocaleTestRule (which switches device language + sets up screengrab) first
-            .outerRule(new LocaleTestRule())
-            // Run our own rule (which handles our in-app locale switching logic) second
-            .around(new WPLocaleTestRule());
+            .outerRule(new LocaleTestRule());
 
     // Note: running this as a static @ClassRule as part of the above RuleChain doesn't seem to work
     // (apparently that would make those run too early?), but running it as @Rule does fix the issue.

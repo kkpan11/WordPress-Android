@@ -6,10 +6,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.ViewConfiguration;
@@ -19,8 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.exifinterface.media.ExifInterface;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -31,6 +29,7 @@ import org.wordpress.android.fluxc.model.SiteModel;
 import org.wordpress.android.fluxc.store.MediaStore.MediaError;
 import org.wordpress.android.fluxc.store.media.MediaErrorSubType;
 import org.wordpress.android.fluxc.store.media.MediaErrorSubType.MalformedMediaArgSubType;
+import org.wordpress.android.fluxc.utils.ExifUtils;
 import org.wordpress.android.fluxc.utils.MimeTypes;
 import org.wordpress.android.fluxc.utils.MimeTypes.Plan;
 import org.wordpress.android.imageeditor.preview.PreviewImageFragment;
@@ -46,12 +45,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class WPMediaUtils {
     public interface LaunchCameraCallback {
         void onMediaCapturePathReady(String mediaCapturePath);
+
+        void onCameraError(String errorMessage);
     }
 
     // 3000px is the utmost max resolution you can set in the picker but 2000px is the default max for optimized images.
@@ -68,6 +69,9 @@ public class WPMediaUtils {
             return null;
         }
 
+        // Read EXIF data from the original image
+        final Map<String, String> exifData = ExifUtils.readExifData(path);
+
         int resizeDimension =
                 AppPrefs.getImageOptimizeMaxSize() > 1 ? AppPrefs.getImageOptimizeMaxSize() : Integer.MAX_VALUE;
         int quality = AppPrefs.getImageOptimizeQuality();
@@ -81,6 +85,12 @@ public class WPMediaUtils {
             AppLog.e(AppLog.T.EDITOR, "Optimized picture was null!");
             AnalyticsTracker.track(AnalyticsTracker.Stat.MEDIA_PHOTO_OPTIMIZE_ERROR);
         } else {
+            // Set the default orientation tag for the EXIF data
+            exifData.put("Orientation", String.valueOf(ExifInterface.ORIENTATION_NORMAL));
+
+            // Write EXIF data to the new image
+            ExifUtils.writeExifData(exifData, optimizedPath);
+
             AnalyticsTracker.track(AnalyticsTracker.Stat.MEDIA_PHOTO_OPTIMIZED);
             return Uri.parse(optimizedPath);
         }
@@ -102,75 +112,6 @@ public class WPMediaUtils {
 
     public static boolean isVideoOptimizationEnabled() {
         return AppPrefs.isVideoOptimize();
-    }
-
-    /**
-     * Check if we should advertise image optimization feature for the current site.
-     * <p>
-     * The following condition need to be all true:
-     * 1) Image optimization is ON on the site.
-     * 2) Didn't already ask to keep or disable the feature.
-     * 3) The user has granted storage access to the app.
-     * This is because we don't want to ask so much things to users the first time they try to add a picture to the app.
-     *
-     * @param context The context
-     * @return true if we should advertise the feature, false otherwise.
-     */
-    public static boolean shouldAdvertiseImageOptimization(final Context context) {
-        boolean isPromoRequired = AppPrefs.isImageOptimizePromoRequired();
-        if (!isPromoRequired) {
-            return false;
-        }
-
-        // Check we can access storage before asking for optimizing image
-        boolean hasStoreAccess = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                                 || ContextCompat.checkSelfPermission(context,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-        if (!hasStoreAccess) {
-            return false;
-        }
-
-        // Check whether image optimization is enabled for the site
-        return AppPrefs.isImageOptimize();
-    }
-
-    public interface OnAdvertiseImageOptimizationListener {
-        void done();
-    }
-
-    public static void advertiseImageOptimization(final Context context,
-                                                  final OnAdvertiseImageOptimizationListener listener) {
-        DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String propertyValue = (which == DialogInterface.BUTTON_POSITIVE) ? "on" : "off";
-                AnalyticsTracker.track(AnalyticsTracker.Stat.APP_SETTINGS_OPTIMIZE_IMAGES_POPUP_TAPPED,
-                        Collections.singletonMap("option", propertyValue));
-
-                if (which == DialogInterface.BUTTON_NEGATIVE && AppPrefs.isImageOptimize()) {
-                    AppPrefs.setImageOptimize(false);
-                }
-
-                listener.done();
-            }
-        };
-
-        DialogInterface.OnCancelListener onCancelListener = new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                listener.done();
-            }
-        };
-
-        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(context);
-        builder.setTitle(R.string.image_optimization_popup_title);
-        builder.setMessage(R.string.image_optimization_popup_desc);
-        builder.setPositiveButton(R.string.leave_on, onClickListener);
-        builder.setNegativeButton(R.string.turn_off, onClickListener);
-        builder.setOnCancelListener(onCancelListener);
-        builder.show();
-        // Do not ask again
-        AppPrefs.setImageOptimizePromoRequired(false);
     }
 
     /**
@@ -373,7 +314,13 @@ public class WPMediaUtils {
     public static void launchCamera(Activity activity, String applicationId, LaunchCameraCallback callback) {
         Intent intent = prepareLaunchCamera(activity, applicationId, callback);
         if (intent != null) {
-            activity.startActivityForResult(intent, RequestCodes.TAKE_PHOTO);
+            // Check if there is an app that can handle the camera intent
+            if (intent.resolveActivity(activity.getPackageManager()) != null) {
+                activity.startActivityForResult(intent, RequestCodes.TAKE_PHOTO);
+            } else {
+                // Handle the case where no camera app is available
+                callback.onCameraError(activity.getString(R.string.error_no_camera_available));
+            }
         }
     }
 
@@ -528,9 +475,15 @@ public class WPMediaUtils {
             return MediaUtils.downloadExternalMedia(context, mediaUri);
         } catch (IllegalStateException e) {
             // Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/5823
-            AppLog.e(AppLog.T.UTILS, "Can't download the image at: " + mediaUri.toString()
-                                     + " See issue #5823", e);
-
+            AppLog.e(AppLog.T.UTILS, "Can't download the media at: " + mediaUri + " See issue #5823", e);
+            return null;
+        } catch (IllegalArgumentException e) {
+            // Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/20615
+            AppLog.e(AppLog.T.UTILS, "Can't download the media at: " + mediaUri + ": ", e);
+            return null;
+        } catch (SecurityException e) {
+            // Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/19438
+            AppLog.e(AppLog.T.UTILS, "Can't access the media at: " + mediaUri + ": ", e);
             return null;
         }
     }

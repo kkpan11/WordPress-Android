@@ -29,7 +29,7 @@ import org.wordpress.android.support.ZendeskHelper
 import org.wordpress.android.ui.ActivityLauncher
 import org.wordpress.android.ui.accounts.HelpActivity
 import org.wordpress.android.ui.accounts.signup.BaseUsernameChangerFullScreenDialogFragment
-import org.wordpress.android.ui.compose.theme.AppTheme
+import org.wordpress.android.ui.compose.theme.AppThemeM3
 import org.wordpress.android.ui.pages.SnackbarMessageHolder
 import org.wordpress.android.ui.prefs.DetailListPreference
 import org.wordpress.android.ui.prefs.EditTextPreferenceWithValidation
@@ -202,7 +202,7 @@ class AccountSettingsFragment : PreferenceFragmentLifeCycleOwner(),
             listView.addFooterView(ComposeView(context).apply {
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
                 setContent {
-                    AppTheme {
+                    AppThemeM3 {
                         AccountClosureUi(viewModel)
                     }
                 }
@@ -264,7 +264,7 @@ class AccountSettingsFragment : PreferenceFragmentLifeCycleOwner(),
         primarySiteSettingsUiState?.let { state ->
             primarySitePreference.apply {
                 value = (state.primarySite?.siteId ?: "").toString()
-                summary = state.primarySite?.siteName
+                summary = state.primarySite?.siteName?.replace("%", "%%")
                 entries = state.siteNames
                 entryValues = state.siteIds
                 canShowDialog = state.canShowChoosePrimarySiteDialog

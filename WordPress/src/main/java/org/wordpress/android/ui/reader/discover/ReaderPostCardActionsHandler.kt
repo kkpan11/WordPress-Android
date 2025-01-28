@@ -27,6 +27,7 @@ import org.wordpress.android.ui.reader.discover.ReaderNavigationEvents.ShowBookm
 import org.wordpress.android.ui.reader.discover.ReaderNavigationEvents.ShowBookmarkedTab
 import org.wordpress.android.ui.reader.discover.ReaderNavigationEvents.ShowPostDetail
 import org.wordpress.android.ui.reader.discover.ReaderNavigationEvents.ShowReaderComments
+import org.wordpress.android.ui.reader.discover.ReaderNavigationEvents.ShowReadingPreferences
 import org.wordpress.android.ui.reader.discover.ReaderNavigationEvents.ShowReportPost
 import org.wordpress.android.ui.reader.discover.ReaderNavigationEvents.ShowReportUser
 import org.wordpress.android.ui.reader.discover.ReaderNavigationEvents.ShowVideoViewer
@@ -36,6 +37,7 @@ import org.wordpress.android.ui.reader.discover.ReaderPostCardActionType.BOOKMAR
 import org.wordpress.android.ui.reader.discover.ReaderPostCardActionType.COMMENTS
 import org.wordpress.android.ui.reader.discover.ReaderPostCardActionType.FOLLOW
 import org.wordpress.android.ui.reader.discover.ReaderPostCardActionType.LIKE
+import org.wordpress.android.ui.reader.discover.ReaderPostCardActionType.READING_PREFERENCES
 import org.wordpress.android.ui.reader.discover.ReaderPostCardActionType.REBLOG
 import org.wordpress.android.ui.reader.discover.ReaderPostCardActionType.REPORT_POST
 import org.wordpress.android.ui.reader.discover.ReaderPostCardActionType.REPORT_USER
@@ -76,7 +78,7 @@ import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.AppLog.T
 import org.wordpress.android.viewmodel.Event
 import org.wordpress.android.viewmodel.ResourceProvider
-import org.wordpress.android.widgets.AppRatingDialogWrapper
+import org.wordpress.android.widgets.AppReviewsManagerWrapper
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -95,12 +97,14 @@ class ReaderPostCardActionsHandler @Inject constructor(
     private val dispatcher: Dispatcher,
     private val resourceProvider: ResourceProvider,
     private val htmlMessageUtils: HtmlMessageUtils,
-    private val appRatingDialogWrapper: AppRatingDialogWrapper,
+    private val appReviewsManagerWrapper: AppReviewsManagerWrapper,
     private val seenStatusToggleUseCase: ReaderSeenStatusToggleUseCase,
     private val readerBlogTableWrapper: ReaderBlogTableWrapper,
     @Named(BG_THREAD) private val bgDispatcher: CoroutineDispatcher
 ) {
     private lateinit var coroutineScope: CoroutineScope
+
+    private var updateBlockedStateFunction: ((Boolean) -> Unit)? = null
 
     private val _navigationEvents = MediatorLiveData<Event<ReaderNavigationEvents>>()
     val navigationEvents: LiveData<Event<ReaderNavigationEvents>> = _navigationEvents
@@ -195,6 +199,7 @@ class ReaderPostCardActionsHandler @Inject constructor(
             REPORT_POST -> handleReportPostClicked(post)
             REPORT_USER -> handleReportUserClicked(post)
             TOGGLE_SEEN_STATUS -> handleToggleSeenStatusClicked(post, source)
+            READING_PREFERENCES -> handleReadingPreferencesClicked()
             SPACER_NO_ACTION -> Unit // Do nothing
         }
     }
@@ -204,7 +209,7 @@ class ReaderPostCardActionsHandler @Inject constructor(
         source: String
     ) {
         withContext(bgDispatcher) {
-            appRatingDialogWrapper.incrementInteractions(
+            appReviewsManagerWrapper.incrementInteractions(
                 AnalyticsTracker.Stat.APP_REVIEWS_EVENT_INCREMENTED_BY_OPENING_READER_POST
             )
 
@@ -393,6 +398,14 @@ class ReaderPostCardActionsHandler @Inject constructor(
         _navigationEvents.postValue(Event(OpenPost(post)))
     }
 
+    private fun handleReadingPreferencesClicked() {
+        _navigationEvents.postValue(Event(ShowReadingPreferences))
+    }
+
+    fun initUpdateBlockedStateFunction(func: (Boolean)->Unit){
+        updateBlockedStateFunction = func
+    }
+
     private suspend fun handleBlockSiteClicked(
         blogId: Long,
         feedId: Long,
@@ -402,15 +415,24 @@ class ReaderPostCardActionsHandler @Inject constructor(
             when (it) {
                 is BlockSiteState.SiteBlockedInLocalDb -> {
                     _refreshPosts.postValue(Event(Unit))
+                    updateBlockedStateFunction?.let { func -> func(true) }
                     _snackbarEvents.postValue(
                         Event(
                             SnackbarMessageHolder(
-                                UiStringRes(R.string.reader_toast_blog_blocked),
+                                UiStringRes(R.string.reader_toast_posts_from_this_blog_blocked),
                                 UiStringRes(R.string.undo),
                                 {
                                     coroutineScope.launch {
                                         undoBlockBlogUseCase.undoBlockBlog(it.blockedBlogData, source)
                                         _refreshPosts.postValue(Event(Unit))
+                                        _snackbarEvents.postValue(
+                                            Event(
+                                                SnackbarMessageHolder(
+                                                    UiStringRes(R.string.reader_toast_success_undo)
+                                                )
+                                            )
+                                        )
+                                        updateBlockedStateFunction?.let { func -> func(false) }
                                     }
                                 })
                         )
@@ -419,14 +441,16 @@ class ReaderPostCardActionsHandler @Inject constructor(
                 BlockSiteState.Success, BlockSiteState.Failed.AlreadyRunning -> Unit // do nothing
                 BlockSiteState.Failed.NoNetwork -> {
                     _snackbarEvents.postValue(
-                        Event(SnackbarMessageHolder(UiStringRes(R.string.reader_toast_err_block_blog)))
+                        Event(SnackbarMessageHolder(UiStringRes(R.string.reader_toast_err_unable_to_block_blog)))
                     )
+                    updateBlockedStateFunction?.let { func -> func(false) }
                 }
                 BlockSiteState.Failed.RequestFailed -> {
                     _refreshPosts.postValue(Event(Unit))
                     _snackbarEvents.postValue(
-                        Event(SnackbarMessageHolder(UiStringRes(R.string.reader_toast_err_block_blog)))
+                        Event(SnackbarMessageHolder(UiStringRes(R.string.reader_toast_err_unable_to_block_blog)))
                     )
+                    updateBlockedStateFunction?.let { func -> func(false) }
                 }
             }
         }

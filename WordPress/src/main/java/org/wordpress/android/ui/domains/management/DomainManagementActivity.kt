@@ -2,7 +2,6 @@ package org.wordpress.android.ui.domains.management
 
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
@@ -12,15 +11,17 @@ import kotlinx.coroutines.flow.onEach
 import org.wordpress.android.ui.ActivityLauncher
 import org.wordpress.android.ui.domains.management.DomainManagementViewModel.ActionEvent
 import org.wordpress.android.ui.domains.management.details.DomainManagementDetailsActivity
+import org.wordpress.android.ui.compose.theme.AppThemeM3
+import org.wordpress.android.ui.main.BaseAppCompatActivity
 import org.wordpress.android.util.extensions.setContent
 
 @AndroidEntryPoint
-class DomainManagementActivity : AppCompatActivity() {
+class DomainManagementActivity : BaseAppCompatActivity() {
     private val viewModel: DomainManagementViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            M3Theme {
+            AppThemeM3 {
                 val uiState by viewModel.uiStateFlow.collectAsState()
 
                 MyDomainsScreen(

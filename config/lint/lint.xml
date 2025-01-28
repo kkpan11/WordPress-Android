@@ -4,6 +4,7 @@
     <issue id="MissingTranslation" severity="ignore" />
     <issue id="ExtraTranslation" severity="ignore" />
     <issue id="PluralsCandidate" severity="ignore" /> <!-- GlotPress doesn't support plurals -->
+    <issue id="CredentialDependency" severity="ignore" /> <!-- False positive, fixed in AGP 8.6.0: https://issuetracker.google.com/issues/339841694 -->
     <!-- TODO: https://github.com/wordpress-mobile/WordPress-Android/issues/18226 -->
     <issue id="LocaleFolder">
         <!-- MAIN -->
@@ -19,8 +20,9 @@
     <!-- TODO: https://github.com/wordpress-mobile/WordPress-Android/issues/18185 -->
     <issue id="MissingFirebaseInstanceTokenRefresh">
         <!-- GCM -->
-        <ignore path="**/generated/source/kapt/**/org/wordpress/android/push/Hilt_GCMMessageService.java" />
+        <ignore path="**/generated/ksp/**/org/wordpress/android/push/Hilt_GCMMessageService.java" />
     </issue>
+    <issue id="AndroidGradlePluginVersion" severity="ignore" /> <!-- The AGP update is done manually -->
     <issue id="GradleDependency" severity="ignore" /> <!-- Dependabot will take care of this -->
     <issue id="MissingNullAnnotationOnField">
         <ignore path="**/generated/**" />
@@ -34,11 +36,19 @@
     <issue id="MissingNullAnnotationOnMethodReturnType">
         <ignore path="**/generated/**" />
     </issue>
+    <issue id="VectorRaster" severity="warning" /> <!--    fluxc-->
     <!-- SECURITY -->
     <issue id="TrustAllX509TrustManager">
         <!-- EDITOR -->
         <ignore path="**/org.jsoup/**" /> <!-- jsoup -->
     </issue>
+    <!--  TODO: After addressing them, remove the below set of security issues from this list  -->
+    <issue id="MissingAutoVerifyAttribute" severity="warning" />
+    <issue id="SensitiveExternalPath" severity="warning" />
+    <issue id="WeakPrng" severity="warning" />
+    <issue id="TapjackingVulnerable" severity="warning" />
+    <issue id="InsecurePermissionProtectionLevel" severity="warning" />
+    <issue id="CustomX509TrustManager" severity="warning" /> <!--    fluxc-->
     <!-- PERFORMANCE -->
     <issue id="UnusedResources">
         <!-- EDITOR -->
@@ -46,7 +56,8 @@
         <ignore path="**/libs/editor/src/main/res/drawable-hdpi/**" />  <!-- 6 errors -->
         <!-- GOOGLE SERVICES -->
         <ignore path="**/generated/res/google-services/**/values/values.xml" />
-        <ignore path="**/generated/res/google-services/**/xml/global_tracker.xml" />
+        <ignore path="**/xml/global_tracker.xml" />
+        <ignore regexp="ga_trackingId|project_id" />
         <!-- LOCALIZATION -->
         <ignore regexp=".*\/values\-([a-z]|[A-Z]|\-){2,6}\/strings\.xml$"/>
         <ignore regexp=".*\/values\/strings\.xml$"/>
@@ -63,10 +74,10 @@
         <ignore path="**/src/wordpress/res" /> <!-- drawable-hdpi, drawable-xxhdpi -->
     </issue>
     <issue id="ObsoleteSdkInt">
-        <ignore path="**/generated/source/kapt/**/org/wordpress/android/ui/main/Hilt_WPMainNavigationView.java" />
+        <ignore path="**/generated/ksp/**/org/wordpress/android/ui/main/Hilt_WPMainNavigationView.java" />
     </issue>
+    <issue id="IconDensities" severity="warning" /> <!--    fluxc-->
     <!-- INTEROPERABILITY -->
-    <issue id="UnknownNullness" severity="informational">
-        <ignore path="**/generated/**" />
-    </issue>
+    <!-- TODO: https://github.com/wordpress-mobile/WordPress-Android/pull/21430 -->
+    <issue id="ObsoleteLintCustomCheck" severity="warning" />
 </lint>

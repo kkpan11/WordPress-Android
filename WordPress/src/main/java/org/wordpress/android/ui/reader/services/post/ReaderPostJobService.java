@@ -11,6 +11,10 @@ import org.wordpress.android.ui.reader.ReaderEvents;
 import org.wordpress.android.ui.reader.services.ServiceCompletionListener;
 import org.wordpress.android.util.AppLog;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
 import static org.wordpress.android.ui.reader.services.post.ReaderPostServiceStarter.ARG_ACTION;
 import static org.wordpress.android.ui.reader.services.post.ReaderPostServiceStarter.ARG_BLOG_ID;
 import static org.wordpress.android.ui.reader.services.post.ReaderPostServiceStarter.ARG_FEED_ID;
@@ -26,7 +30,9 @@ import static org.wordpress.android.ui.reader.services.post.ReaderPostServiceSta
  * EventBus to alert of update status
  */
 
+@AndroidEntryPoint
 public class ReaderPostJobService extends JobService implements ServiceCompletionListener {
+    @Inject ReaderPostLogicFactory mPostLogicFactory;
     private ReaderPostLogic mReaderPostLogic;
 
     @Override public boolean onStartJob(JobParameters params) {
@@ -66,7 +72,7 @@ public class ReaderPostJobService extends JobService implements ServiceCompletio
     @Override
     public void onCreate() {
         super.onCreate();
-        mReaderPostLogic = new ReaderPostLogic(this);
+        mReaderPostLogic = mPostLogicFactory.create(this);
         AppLog.i(AppLog.T.READER, "reader post job service > created");
     }
 

@@ -8,14 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Divider
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Switch
-import androidx.compose.material.SwitchColors
-import androidx.compose.material.SwitchDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchColors
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +26,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import org.wordpress.android.ui.compose.theme.AppTheme
+import org.wordpress.android.ui.compose.theme.AppThemeM3
+import org.wordpress.android.ui.compose.utils.isLightTheme
 import org.wordpress.android.widgets.WPSwitchCompat
 import com.google.android.material.R as MaterialR
 
@@ -79,30 +79,28 @@ object WPSwitchDefaults {
     fun colors(): SwitchColors {
         // thumb colors
         val thumbDisabledColor = colorResource(
-            if (MaterialTheme.colors.isLight) {
+            if (isLightTheme()) {
                 MaterialR.color.switch_thumb_disabled_material_light
             } else {
                 MaterialR.color.switch_thumb_disabled_material_dark
             }
         )
         val thumbEnabledUncheckedColor = colorResource(
-            if (MaterialTheme.colors.isLight) {
+            if (isLightTheme()) {
                 MaterialR.color.switch_thumb_normal_material_light
             } else {
                 MaterialR.color.switch_thumb_normal_material_dark
             }
         )
-        val thumbEnabledCheckedColor = MaterialTheme.colors.primary
+        val thumbEnabledCheckedColor = MaterialTheme.colorScheme.primary
 
         // track colors
-        val baseTrackColor = MaterialTheme.colors.surface
-        val trackDisabledColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
-        val trackEnabledUncheckedColor = MaterialTheme.colors.onSurface
-        val trackEnabledCheckedColor = MaterialTheme.colors.primary
+        val baseTrackColor = MaterialTheme.colorScheme.surface
+        val trackDisabledColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+        val trackEnabledUncheckedColor = MaterialTheme.colorScheme.onSurface
+        val trackEnabledCheckedColor = MaterialTheme.colorScheme.primary
 
         return SwitchDefaults.colors(
-            checkedTrackAlpha = ContentAlpha.disabled,
-            uncheckedTrackAlpha = ContentAlpha.disabled,
             checkedThumbColor = thumbEnabledCheckedColor,
             checkedTrackColor = trackEnabledCheckedColor,
             uncheckedThumbColor = thumbEnabledUncheckedColor,
@@ -133,8 +131,8 @@ private fun StatefulWPSwitchWithText(
         Text(
             text,
             modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.body2,
-            color = if (enabled) Color.Unspecified else LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (enabled) Color.Unspecified else LocalContentColor.current.copy(alpha = 0.38f),
         )
         WPSwitch(
             checked = checkedState.value,
@@ -149,7 +147,7 @@ private fun StatefulWPSwitchWithText(
 @Preview(name = "Dark mode", uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun WPSwitchPreview() {
-    AppTheme {
+    AppThemeM3 {
         Column(modifier = Modifier.fillMaxWidth()) {
             val viewModifier = Modifier
                 .fillMaxWidth()
@@ -166,7 +164,7 @@ private fun WPSwitchPreview() {
                 initialCheckedState = true,
             )
 
-            Divider()
+            HorizontalDivider()
 
             // view enabled checked
             AndroidView(
@@ -180,7 +178,7 @@ private fun WPSwitchPreview() {
                 modifier = viewModifier
             )
 
-            Divider()
+            HorizontalDivider()
 
             // compose enabled unchecked
             StatefulWPSwitchWithText(
@@ -189,7 +187,7 @@ private fun WPSwitchPreview() {
                 initialCheckedState = false,
             )
 
-            Divider()
+            HorizontalDivider()
 
             // view enabled unchecked
             AndroidView(
@@ -203,7 +201,7 @@ private fun WPSwitchPreview() {
                 modifier = viewModifier
             )
 
-            Divider()
+            HorizontalDivider()
 
             // compose disabled checked
             StatefulWPSwitchWithText(
@@ -213,7 +211,7 @@ private fun WPSwitchPreview() {
                 enabled = false,
             )
 
-            Divider()
+            HorizontalDivider()
 
             // view disabled checked
             AndroidView(
@@ -227,7 +225,7 @@ private fun WPSwitchPreview() {
                 modifier = viewModifier
             )
 
-            Divider()
+            HorizontalDivider()
 
             // compose disabled unchecked
             StatefulWPSwitchWithText(
@@ -237,7 +235,7 @@ private fun WPSwitchPreview() {
                 enabled = false,
             )
 
-            Divider()
+            HorizontalDivider()
 
             // view disabled unchecked
             AndroidView(

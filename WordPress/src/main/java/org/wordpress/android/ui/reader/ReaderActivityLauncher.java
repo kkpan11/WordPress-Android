@@ -13,7 +13,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 
-import org.wordpress.android.R;
 import org.wordpress.android.analytics.AnalyticsTracker;
 import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.ReaderTag;
@@ -176,22 +175,33 @@ public class ReaderActivityLauncher {
                 tag.getTagSlug(),
                 source
         );
-        Intent intent = new Intent(context, ReaderPostListActivity.class);
-        intent.putExtra(ReaderConstants.ARG_SOURCE, source);
-        intent.putExtra(ReaderConstants.ARG_TAG, tag);
-        intent.putExtra(ReaderConstants.ARG_POST_LIST_TYPE, ReaderPostListType.TAG_PREVIEW);
+        final Intent intent = createReaderTagPreviewIntent(context, tag, source);
         context.startActivity(intent);
     }
 
+    @NonNull
+    public static Intent createReaderTagPreviewIntent(@NonNull final Context context,
+                                                      @NonNull final ReaderTag tag,
+                                                      @NonNull final String source) {
+        final Intent intent = new Intent(context, ReaderPostListActivity.class);
+        intent.putExtra(ReaderConstants.ARG_SOURCE, source);
+        intent.putExtra(ReaderConstants.ARG_TAG, tag);
+        intent.putExtra(ReaderConstants.ARG_POST_LIST_TYPE, ReaderPostListType.TAG_PREVIEW);
+        return intent;
+    }
+
     public static void showReaderSearch(Context context) {
-        Intent intent = new Intent(context, ReaderSearchActivity.class);
-        context.startActivity(intent);
+        context.startActivity(createReaderSearchIntent(context));
+    }
+
+    public static Intent createReaderSearchIntent(@NonNull final Context context) {
+        return new Intent(context, ReaderSearchActivity.class);
     }
 
     /*
      * show comments for the passed Ids
      */
-    public static void showReaderComments(Context context,
+    public static void showReaderComments(@NonNull Context context,
                                           long blogId,
                                           long postId,
                                           String source) {
@@ -203,7 +213,7 @@ public class ReaderActivityLauncher {
      * show specific comment for the passed Ids
      */
     public static void showReaderComments(
-        Context context,
+        @NonNull Context context,
         long blogId,
         long postId,
         long commentId,
@@ -230,7 +240,7 @@ public class ReaderActivityLauncher {
      * @param commentId       specific comment id to perform an action on
      * @param interceptedUri  URI to fall back into (i.e. to be able to open in external browser)
      */
-    public static void showReaderComments(Context context, long blogId, long postId, DirectOperation
+    public static void showReaderComments(@NonNull Context context, long blogId, long postId, DirectOperation
             directOperation, long commentId, String interceptedUri, String source) {
         Intent intent = buildShowReaderCommentsIntent(
                 context,
@@ -245,7 +255,7 @@ public class ReaderActivityLauncher {
     }
 
     public static void showReaderCommentsForResult(
-            Fragment fragment,
+            @NonNull Fragment fragment,
             long blogId,
             long postId,
             String source
@@ -253,8 +263,11 @@ public class ReaderActivityLauncher {
         showReaderCommentsForResult(fragment, blogId, postId, null, 0, null, source);
     }
 
-    public static void showReaderCommentsForResult(Fragment fragment, long blogId, long postId, DirectOperation
+    public static void showReaderCommentsForResult(@NonNull Fragment fragment, long blogId, long postId, DirectOperation
             directOperation, long commentId, String interceptedUri, String source) {
+        if (fragment.getContext() == null) {
+            return;
+        }
         Intent intent = buildShowReaderCommentsIntent(
                 fragment.getContext(),
                 blogId,
@@ -267,8 +280,8 @@ public class ReaderActivityLauncher {
         fragment.startActivityForResult(intent, RequestCodes.READER_FOLLOW_CONVERSATION);
     }
 
-    private static Intent buildShowReaderCommentsIntent(Context context, long blogId, long postId, DirectOperation
-            directOperation, long commentId, String interceptedUri, String source) {
+    private static Intent buildShowReaderCommentsIntent(@NonNull Context context, long blogId, long postId,
+            DirectOperation directOperation, long commentId, String interceptedUri, String source) {
         Intent intent = new Intent(
                 context,
                 ReaderCommentListActivity.class
@@ -312,9 +325,13 @@ public class ReaderActivityLauncher {
     }
 
     public static void showReaderSubs(Context context, int selectPosition) {
-        Intent intent = new Intent(context, ReaderSubsActivity.class);
+        context.startActivity(createIntentShowReaderSubs(context, selectPosition));
+    }
+
+    public static Intent createIntentShowReaderSubs(@NonNull final Context context, final int selectPosition) {
+        final Intent intent = new Intent(context, ReaderSubsActivity.class);
         intent.putExtra(ReaderConstants.ARG_SUBS_TAB_POSITION, selectPosition);
-        context.startActivity(intent);
+        return intent;
     }
 
     public static void showReaderInterests(Activity activity) {
@@ -396,13 +413,7 @@ public class ReaderActivityLauncher {
 
     public static void sharePost(Context context, ReaderPost post) throws ActivityNotFoundException {
         String url = (post.hasShortUrl() ? post.getShortUrl() : post.getUrl());
-
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, url);
-        intent.putExtra(Intent.EXTRA_SUBJECT, post.getTitle());
-
-        context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_link)));
+        ActivityLauncher.openShareIntent(context, url, post.getTitle());
     }
 
     public static void openUrl(Context context, String url, OpenUrlType openUrlType) {

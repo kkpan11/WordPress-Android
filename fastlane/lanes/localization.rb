@@ -120,7 +120,7 @@ platform :android do
       }
       # Add entries for `screenshot_*.txt` files as well
       Dir.glob('screenshot_*.txt', base: metadata_folder).sort.each do |screenshot_file|
-        key = "play_store_#{File.basename(screenshot_file, '.txt')}".to_sym
+        key = :"play_store_#{File.basename(screenshot_file, '.txt')}"
         files[key] = File.join(metadata_folder, screenshot_file)
       end
 
@@ -134,8 +134,7 @@ platform :android do
 
     push_to_git_remote(tags: false)
 
-    release_branch = "release/#{version}"
-    create_release_management_pull_request(release_branch, "Merge #{version} editorialized release notes to #{release_branch}")
+    create_backmerge_pr(source_branch: git_branch, target_branch: "release/#{version}")
   end
 
   # Updates the metadata in the Play Store (Main store listing) from the content of `fastlane/{metadata|jetpack_metadata}/android/*/*.txt` files
@@ -166,69 +165,86 @@ platform :android do
   # Downloads the translated metadata (release notes, app store strings, title, etc.)
   # from GlotPress, and updates the local `.txt` files with them.
   #
-  # @option [String|Symbol] app The app to take screenshots for. Must be `wordpress` or `jetpack`
-  # @option [String] version The `versionName` of the app, used to extract the release notes from the right GlotPress key. Defaults to current `versionName`.
-  # @option [Int] build_number The `versionCode` of the app, used to save the release notes to the right `changelogs/*.txt` file. Defaults to current `versionCode`.
-  # @option [Boolean] skip_release_notes If set to true, will not download release notes. Defaults to `false`. This can be useful when all you want to download
-  #         is screenshots translations and metadata not linked to a specific version (in which case `version` and `build_number` parameters are optional).
-  # @option [Boolean] skip_commit If set to true, will skip the `git add`, `git commit` and `git push` operations. Default to false.
-  # @option [Boolean] skip_git_push If set to true, will skip the `git push` at the end. Default to false. Inferred to `true` if `skip_commit` is `true`.
+  # @param [Symbol|String] app The app to download metadata for. If nil, downloads for both WordPress and Jetpack
+  # @param [String] version The `versionName` of the app, used to extract release notes from GlotPress.
+  #                         Defaults to current `versionName`. Only required if skip_release_notes is false
+  # @param [Boolean] skip_release_notes Whether to skip downloading release notes. Default false
+  # @param [Boolean] skip_commit If true, will skip the `git add`, `git commit` and `git push` operations. Default to false.
+  # @param [Boolean] skip_git_push If true, will skip the `git push` at the end. Default to false. Inferred to `true` if `skip_commit` is `true`.
   #
-  desc 'Downloads translated metadata from GlotPress'
-  lane :download_metadata_strings do |options|
-    skip_release_notes = options.fetch(:skip_release_notes, false)
-    version = skip_release_notes ? nil : options.fetch(:version, current_release_version)
-    build_number = skip_release_notes ? nil : options.fetch(:build_number, current_build_code)
-
-    skip_commit = options.fetch(:skip_commit, false)
-    skip_git_push = options.fetch(:skip_git_push, false)
+  # @return [void]
+  #
+  lane :download_metadata_strings do |app: nil, version: current_release_version, skip_release_notes: false, skip_commit: false, skip_git_push: false|
+    version = nil if skip_release_notes
 
     # If no `app:` is specified, call this for both WordPress and Jetpack
-    apps = options[:app].nil? ? %i[wordpress jetpack] : Array(options[:app]&.to_s&.downcase&.to_sym)
+    apps = if app.nil?
+             %i[wordpress jetpack]
+           else
+             Array(app.to_s.downcase.to_sym)
+           end
 
-    apps.each do |app|
-      app_values = APP_SPECIFIC_VALUES[app]
+    apps.each do |current_app|
+      app_values = APP_SPECIFIC_VALUES[current_app]
       metadata_source_dir = File.join(PROJECT_ROOT_FOLDER, 'WordPress', app_values[:metadata_dir])
+      metadata_download_path = File.join(FASTLANE_FOLDER, app_values[:metadata_dir], 'android')
+      locales = { wordpress: WP_RELEASE_NOTES_LOCALES, jetpack: JP_RELEASE_NOTES_LOCALES }[current_app]
 
       files = {
         play_store_app_title: { desc: 'title.txt', max_size: 30 },
         play_store_promo: { desc: 'short_description.txt', max_size: 80 },
         play_store_desc: { desc: 'full_description.txt', max_size: 4000 }
       }
+
       unless skip_release_notes
-        delete_old_changelogs(app: app, build: build_number)
         version_suffix = version.split('.').join
-        files["release_note_#{version_suffix}"] = { desc: "changelogs/#{build_number}.txt", max_size: 500, alternate_key: "release_note_short_#{version_suffix}" }
+
+        source_notes_file = File.join(metadata_source_dir, 'release_notes.txt')
+        if !File.exist?(source_notes_file) || File.read(source_notes_file).strip.empty?
+          # Clear release notes if the source file is empty
+          all_app_locales = locales + [%w[en en-US]]
+          all_app_locales.each_value do |google_play_locale|
+            changelog_dir = File.join(metadata_download_path, google_play_locale, 'changelogs')
+            FileUtils.mkdir_p(changelog_dir)
+            File.write(File.join(changelog_dir, 'default.txt'), '')
+          end
+        else
+          # Make sure to also download the release notes translations as the source file (release_notes.txt) is not empty
+          files["release_note_#{version_suffix}"] = {
+            desc: 'changelogs/default.txt',
+            max_size: 500,
+            alternate_key: "release_note_short_#{version_suffix}"
+          }
+        end
       end
+
       # Add key mappings for `screenshots_*` files too
       Dir.glob('screenshot_*.txt', base: metadata_source_dir).each do |f|
         key = "play_store_#{File.basename(f, '.txt')}"
         files[key] = { desc: f }
       end
 
-      download_path = File.join(FASTLANE_FOLDER, app_values[:metadata_dir], 'android')
-      locales = { wordpress: WP_RELEASE_NOTES_LOCALES, jetpack: JP_RELEASE_NOTES_LOCALES }[app]
       UI.header("Downloading metadata translations for #{app_values[:display_name]}")
       gp_downloadmetadata(
         project_url: app_values[:glotpress_metadata_project],
         target_files: files,
         locales: locales,
-        download_path: download_path
+        download_path: metadata_download_path
       )
 
       # Copy the source `.txt` files (used as source of truth when we generated the `.po`) to the `fastlane/*metadata/android/en-US` dir,
       # as `en-US` is the source language, and isn't exported from GlotPress during `gp_downloadmetadata`
       files.each do |key, h|
         source_file = key.to_s.start_with?('release_note_') ? 'release_notes.txt' : h[:desc]
-        FileUtils.cp(File.join(metadata_source_dir, source_file), File.join(download_path, 'en-US', h[:desc]))
+        FileUtils.cp(File.join(metadata_source_dir, source_file), File.join(metadata_download_path, 'en-US', h[:desc]))
       end
 
       next if skip_commit
 
-      git_add(path: download_path)
+      git_add(path: metadata_download_path)
       message = "Update #{app_values[:display_name]} metadata translations"
       message += " for #{version}" unless version.nil?
-      git_commit(path: download_path, message: message, allow_nothing_to_commit: true)
+      git_commit(path: metadata_download_path, message: message, allow_nothing_to_commit: true)
     end
     push_to_git_remote unless skip_commit || skip_git_push
   end
@@ -247,34 +263,20 @@ platform :android do
     # NOTE: for those we don't set `add_ignore_attr` to true because we currently use `checkDependencies true` in `WordPress/build.gradle`
     # Which will correctly detect strings from the app's `strings.xml` being used by one of the module.
     { library: 'Image Editor', strings_path: './libs/image-editor/src/main/res/values/strings.xml', source_id: 'module:image-editor' },
-    { library: 'Editor', strings_path: './libs/editor/src/main/res/values/strings.xml', source_id: 'module:editor' }
+    { library: 'Editor', strings_path: './libs/editor/src/main/res/values/strings.xml', source_id: 'module:editor' },
+    { library: 'Login Library', strings_path: './libs/login/src/main/res/values/strings.xml', source_id: 'module:login' }
   ].freeze
   REMOTE_LIBRARIES_STRINGS_PATHS = [
     {
       name: 'Gutenberg Native',
-      import_key: 'gutenbergMobileVersion',
+      import_key: 'gutenberg-mobile',
       repository: 'wordpress-mobile/gutenberg-mobile',
       strings_file_path: 'bundle/android/strings.xml',
       source_id: 'gutenberg'
     },
     {
-      name: 'Login Library',
-      import_key: 'wordPressLoginVersion',
-      repository: 'wordpress-mobile/WordPress-Login-Flow-Android',
-      strings_file_path: 'WordPressLoginFlow/src/main/res/values/strings.xml',
-      exclusions: ['default_web_client_id'],
-      source_id: 'login'
-    },
-    {
-      name: 'Stories Library',
-      import_key: 'automatticStoriesVersion',
-      repository: 'Automattic/stories-android',
-      strings_file_path: 'stories/src/main/res/values/strings.xml',
-      source_id: 'stories'
-    },
-    {
       name: 'About Library',
-      import_key: 'automatticAboutVersion',
+      import_key: 'automattic-about',
       repository: 'Automattic/about-automattic-android',
       strings_file_path: 'library/src/main/res/values/strings.xml',
       source_id: 'about'
@@ -306,7 +308,7 @@ platform :android do
         import_key: lib[:import_key],
         repository: lib[:repository],
         file_path: lib[:strings_file_path],
-        build_gradle_path: File.join(PROJECT_ROOT_FOLDER, 'build.gradle')
+        build_gradle_path: File.join(PROJECT_ROOT_FOLDER, 'gradle/libs.versions.toml')
       )
 
       if download_path.nil?
@@ -344,7 +346,6 @@ platform :android do
   #####################################################################################
   lane :download_translations do
     # WordPress strings
-    check_declared_locales_consistency(app_flavor: 'wordpress', locales_list: WP_APP_LOCALES)
     android_download_translations(
       res_dir: File.join('WordPress', 'src', 'main', 'res'),
       glotpress_url: APP_SPECIFIC_VALUES[:wordpress][:glotpress_appstrings_project],
@@ -352,7 +353,6 @@ platform :android do
     )
 
     # Jetpack strings
-    check_declared_locales_consistency(app_flavor: 'jetpack', locales_list: JP_APP_LOCALES)
     android_download_translations(
       res_dir: File.join('WordPress', 'src', 'jetpack', 'res'),
       glotpress_url: APP_SPECIFIC_VALUES[:jetpack][:glotpress_appstrings_project],
@@ -379,17 +379,25 @@ platform :android do
   # Compares the list of locales declared in the `resourceConfigurations` field of `build.gradle` for a given flavor
   # with the hardcoded list of locales we use in our Fastlane lanes, to ensure they match and we are consistent.
   #
-  # @param [String] app_flavor `"wordpress"` or `"jetpack"` — The `productFlavor` to read from in the build.gradle
-  # @param [Array<Hash>] locales_list The list of Hash defining the locales to compare that list to.
-  #        Typically one of the `WP_APP_LOCALES` or `JP_APP_LOCALES` constants
-  def check_declared_locales_consistency(app_flavor:, locales_list:)
+  # @param [String] app `"wordpress"` or `"jetpack"` — The `productFlavor` to read from in the build.gradle
+  lane :check_declared_locales_consistency do |app:|
+    validate_app_name!(app)
+
     output = gradle(task: 'printResourceConfigurations', flags: '--quiet')
-    resource_configs = output.match(/^#{app_flavor}: \[(.*)\]$/)&.captures&.first&.gsub(' ', '')&.split(',')&.sort
-    if resource_configs.nil? || resource_configs.empty?
-      UI.message("No `resourceConfigurations` field set in `build.gradle` for the `#{app_flavor}` flavor. Nothing to check.")
-      return
+
+    configs_match = output.match(/^#{app}: \[(.*)\]$/)
+    if configs_match.nil?
+      UI.message("No `resourceConfigurations` field set in `build.gradle` for the `#{app}` flavor. Nothing to check.")
+      next
     end
 
+    resource_configs = configs_match.captures.first.gsub(' ', '').split(',').sort
+    if resource_configs.nil? || resource_configs.empty?
+      UI.message("No `resourceConfigurations` field set in `build.gradle` for the `#{app}` flavor. Nothing to check.")
+      next
+    end
+
+    locales_list = { 'wordpress' => WP_APP_LOCALES, 'jetpack' => JP_APP_LOCALES }.fetch(app, nil)
     expected_locales = locales_list.map { |l| l[:android] }
     # Support for legacy locale codes
     expected_locales << 'in' if expected_locales.include?('id')
@@ -397,10 +405,10 @@ platform :android do
     expected_locales.sort!
 
     if resource_configs == expected_locales
-      UI.message("The `resourceConfigurations` field set in `build.gradle` for the `#{app_flavor}` flavor matches what is set in our Fastfile. All is good!")
+      UI.message("The `resourceConfigurations` field set in `build.gradle` for the `#{app}` flavor matches what is set in our Fastfile. All is good!")
     else
       UI.user_error! <<~ERROR
-        The list of `resourceConfigurations` declared in your `build.gradle` for the `#{app_flavor}` flavor
+        The list of `resourceConfigurations` declared in your `build.gradle` for the `#{app}` flavor
         does not match the list of locales we hardcoded in the `fastlane/lanes/localization.rb` for this app.
 
         If you recently updated the hardcoded list of locales to include for this app, be sure to apply those

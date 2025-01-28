@@ -1,13 +1,16 @@
 package org.wordpress.android.ui.accounts;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -20,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.wordpress.android.R;
 import org.wordpress.android.analytics.AnalyticsTracker;
+import org.wordpress.android.analytics.AnalyticsTracker.Stat;
 import org.wordpress.android.fluxc.model.SiteModel;
 import org.wordpress.android.fluxc.network.MemorizingTrustManager;
 import org.wordpress.android.fluxc.store.AccountStore.AuthEmailPayloadScheme;
@@ -47,7 +51,6 @@ import org.wordpress.android.support.ZendeskExtraTags;
 import org.wordpress.android.support.ZendeskHelper;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.JetpackConnectionSource;
-import org.wordpress.android.ui.LocaleAwareActivity;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.accounts.HelpActivity.Origin;
 import org.wordpress.android.ui.accounts.LoginNavigationEvents.ShowNoJetpackSites;
@@ -56,12 +59,14 @@ import org.wordpress.android.ui.accounts.SmartLockHelper.Callback;
 import org.wordpress.android.ui.accounts.UnifiedLoginTracker.Click;
 import org.wordpress.android.ui.accounts.UnifiedLoginTracker.Flow;
 import org.wordpress.android.ui.accounts.UnifiedLoginTracker.Source;
-import org.wordpress.android.ui.accounts.login.LoginPrologueFragment;
+import org.wordpress.android.ui.accounts.UnifiedLoginTracker.Step;
 import org.wordpress.android.ui.accounts.login.LoginPrologueListener;
 import org.wordpress.android.ui.accounts.login.LoginPrologueRevampedFragment;
+import org.wordpress.android.ui.accounts.login.WPcomLoginHelper;
 import org.wordpress.android.ui.accounts.login.jetpack.LoginNoSitesFragment;
 import org.wordpress.android.ui.accounts.login.jetpack.LoginSiteCheckErrorFragment;
-import org.wordpress.android.ui.main.SitePickerActivity;
+import org.wordpress.android.ui.main.BaseAppCompatActivity;
+import org.wordpress.android.ui.main.ChooseSiteActivity;
 import org.wordpress.android.ui.notifications.services.NotificationsUpdateServiceStarter;
 import org.wordpress.android.ui.posts.BasicFragmentDialog;
 import org.wordpress.android.ui.posts.BasicFragmentDialog.BasicDialogPositiveClickInterface;
@@ -77,7 +82,6 @@ import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPActivityUtils;
 import org.wordpress.android.util.WPUrlUtils;
 import org.wordpress.android.util.config.ContactSupportFeatureConfig;
-import org.wordpress.android.util.config.LandingScreenRevampFeatureConfig;
 import org.wordpress.android.widgets.WPSnackbar;
 
 import java.util.ArrayList;
@@ -87,15 +91,15 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.wordpress.android.util.ActivityUtils.hideKeyboard;
-
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasAndroidInjector;
 import dagger.hilt.android.AndroidEntryPoint;
 
+import static org.wordpress.android.util.ActivityUtils.hideKeyboard;
+
 @AndroidEntryPoint
-public class LoginActivity extends LocaleAwareActivity implements ConnectionCallbacks, OnConnectionFailedListener,
+public class LoginActivity extends BaseAppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener,
         Callback, LoginListener, GoogleListener, LoginPrologueListener,
         HasAndroidInjector, BasicDialogPositiveClickInterface {
     public static final String ARG_JETPACK_CONNECT_SOURCE = "ARG_JETPACK_CONNECT_SOURCE";
@@ -130,6 +134,7 @@ public class LoginActivity extends LocaleAwareActivity implements ConnectionCall
 
     private LoginMode mLoginMode;
     private LoginViewModel mViewModel;
+    @Inject protected WPcomLoginHelper mLoginHelper;
 
     @Inject DispatchingAndroidInjector<Object> mDispatchingAndroidInjector;
     @Inject protected LoginAnalyticsListener mLoginAnalyticsListener;
@@ -138,14 +143,23 @@ public class LoginActivity extends LocaleAwareActivity implements ConnectionCall
     @Inject protected SiteStore mSiteStore;
     @Inject protected ViewModelProvider.Factory mViewModelFactory;
     @Inject BuildConfigWrapper mBuildConfigWrapper;
-
-    @Inject LandingScreenRevampFeatureConfig mLandingScreenRevampFeatureConfig;
-
     @Inject ContactSupportFeatureConfig mContactSupportFeatureConfig;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Attempt Login if this activity was created in response to a user confirming login
+        mLoginHelper.tryLoginWithDataString(getIntent().getDataString());
+
+        // Start preloading the WordPress.com login page if needed – this avoids visual hitches
+        // when displaying that screen
+        mLoginHelper.bindCustomTabsService(this);
+
+        if (mLoginHelper.isLoggedIn()) {
+            this.loggedInAndFinish(new ArrayList<Integer>(), true);
+            return;
+        }
 
         LoginFlowThemeHelper.injectMissingCustomAttributes(getTheme());
 
@@ -187,7 +201,7 @@ public class LoginActivity extends LocaleAwareActivity implements ConnectionCall
                     break;
                 case WPCOM_REAUTHENTICATE:
                     mUnifiedLoginTracker.setSource(Source.REAUTHENTICATION);
-                    checkSmartLockPasswordAndStartLogin();
+                    showWPcomLoginScreen(getBaseContext());
                     break;
                 case SHARE_INTENT:
                     mUnifiedLoginTracker.setSource(Source.SHARE);
@@ -232,11 +246,7 @@ public class LoginActivity extends LocaleAwareActivity implements ConnectionCall
     }
 
     private void loginFromPrologue() {
-        if (mLandingScreenRevampFeatureConfig.isEnabled()) {
-            showFragment(new LoginPrologueRevampedFragment(), LoginPrologueRevampedFragment.TAG);
-        } else {
-            showFragment(new LoginPrologueFragment(), LoginPrologueFragment.TAG);
-        }
+        showFragment(new LoginPrologueRevampedFragment(), LoginPrologueRevampedFragment.TAG);
         mIsSmartLockTriggeredFromPrologue = true;
         mIsSiteLoginAvailableFromPrologue = true;
         initSmartLockIfNotFinished(true);
@@ -277,11 +287,6 @@ public class LoginActivity extends LocaleAwareActivity implements ConnectionCall
         googleFragment.setRetainInstance(true);
         fragmentTransaction.add(googleFragment, tag);
         fragmentTransaction.commit();
-    }
-
-    private LoginPrologueFragment getLoginPrologueFragment() {
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(LoginPrologueFragment.TAG);
-        return fragment == null ? null : (LoginPrologueFragment) fragment;
     }
 
     private LoginPrologueRevampedFragment getLoginPrologueRevampedFragment() {
@@ -352,7 +357,7 @@ public class LoginActivity extends LocaleAwareActivity implements ConnectionCall
 
                 if (newSitesIds.size() > 0) {
                     Intent intent = new Intent();
-                    intent.putExtra(SitePickerActivity.KEY_SITE_LOCAL_ID, newSitesIds.get(0));
+                    intent.putExtra(ChooseSiteActivity.KEY_SITE_LOCAL_ID, newSitesIds.get(0));
                     setResult(Activity.RESULT_OK, intent);
                 } else {
                     AppLog.e(T.MAIN, "Couldn't detect newly added self-hosted site. "
@@ -448,7 +453,7 @@ public class LoginActivity extends LocaleAwareActivity implements ConnectionCall
             return;
         }
 
-        if (getLoginPrologueFragment() == null && getLoginPrologueRevampedFragment() == null) {
+        if (getLoginPrologueRevampedFragment() == null) {
             // prologue fragment is not shown so, the email screen will be the initial screen on the fragment container
             showFragment(LoginEmailFragment.newInstance(mIsSignupFromLoginEnabled), LoginEmailFragment.TAG);
 
@@ -463,9 +468,20 @@ public class LoginActivity extends LocaleAwareActivity implements ConnectionCall
 
     // LoginPrologueListener implementation methods
 
-    @Override
-    public void showEmailLoginScreen() {
-        checkSmartLockPasswordAndStartLogin();
+    public void showWPcomLoginScreen(@NonNull Context context) {
+        AnalyticsTracker.track(AnalyticsTracker.Stat.LOGIN_WPCOM_WEBVIEW);
+        mUnifiedLoginTracker.setFlowAndStep(Flow.WORDPRESS_COM_WEB, Step.WPCOM_WEB_START);
+
+        CustomTabsIntent intent = new CustomTabsIntent.Builder()
+                .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
+                .setStartAnimations(this, R.anim.activity_slide_in_from_right, R.anim.activity_slide_out_to_left)
+                .setExitAnimations(this, R.anim.activity_slide_in_from_left, R.anim.activity_slide_out_to_right)
+                .setUrlBarHidingEnabled(true)
+                .setInstantAppsEnabled(false)
+                .setShowTitle(false)
+                .build();
+
+        intent.launchUrl(this, mLoginHelper.getWpcomLoginUri());
     }
 
     @Override
@@ -666,6 +682,16 @@ public class LoginActivity extends LocaleAwareActivity implements ConnectionCall
         LoginUsernamePasswordFragment loginUsernamePasswordFragment =
                 LoginUsernamePasswordFragment.newInstance(inputSiteAddress, endpointAddress, null, null, false);
         slideInFragment(loginUsernamePasswordFragment, true, LoginUsernamePasswordFragment.TAG);
+
+        // In the background, run the API discovery test to see if we can add this site for the REST API
+        try {
+            String authorizationUrl = mViewModel.runApiDiscoveryTest(inputSiteAddress);
+            Log.d("WP_RS", "Found authorization URL: " + authorizationUrl);
+            AnalyticsTracker.track(Stat.BACKGROUND_REST_AUTODISCOVERY_SUCCESSFUL);
+        } catch (Exception ex) {
+            Log.e("WP_RS", "Unable to find authorization URL:" + ex.getMessage());
+            AnalyticsTracker.track(Stat.BACKGROUND_REST_AUTODISCOVERY_FAILED);
+        }
     }
 
     @Override

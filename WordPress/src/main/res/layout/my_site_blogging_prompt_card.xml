@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:contentDescription="@string/content_description_more"
+            android:contentDescription="@string/more_content_description_blogging_prompts"
             android:focusable="true"
             android:src="@drawable/ic_more_vert_white_24dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -53,13 +53,17 @@
 
         <LinearLayout
             android:id="@+id/attribution_container"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal|center_vertical"
+            android:background="?attr/selectableItemBackground"
             android:orientation="horizontal"
             android:paddingTop="@dimen/margin_medium"
+            android:paddingBottom="@dimen/margin_medium"
             android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@+id/prompt_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             tools:visibility="visible">
 
             <ImageView
@@ -75,7 +79,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_small"
                 android:textAppearance="?attr/textAppearanceCaption"
-                tools:text="@string/my_site_blogging_prompt_card_attribution_dayone" />
+                tools:text="@string/my_site_blogging_prompt_card_attribution_day_one" />
+
+            <ImageView
+                android:id="@+id/attribution_external_link_icon"
+                style="@style/PluginCardViewSecondaryElement.ExternalLinkImage"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/margin_small"
+                android:visibility="gone"
+                android:contentDescription="@string/open_external_link_desc"
+                android:src="@drawable/ic_external_white_24dp"
+                app:tint="?attr/colorPrimary" />
 
         </LinearLayout>
 
@@ -83,7 +97,7 @@
             android:id="@+id/answered_users_avatars"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_large"
+            android:layout_marginTop="@dimen/margin_small"
             app:iconSize="@dimen/avatar_sz_extra_small"
             app:placeholder="@drawable/bg_oval_placeholder_user_32dp"
             app:chainUseRtl="true"

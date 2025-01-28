@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import org.wordpress.android.R
 import org.wordpress.android.analytics.AnalyticsTracker.Stat
@@ -19,19 +18,20 @@ import org.wordpress.android.fluxc.store.QuickStartStore.QuickStartTask
 import org.wordpress.android.fluxc.store.SiteStore
 import org.wordpress.android.fluxc.store.bloggingprompts.BloggingPromptsStore
 import org.wordpress.android.modules.UI_THREAD
-import org.wordpress.android.ui.bloggingprompts.BloggingPromptsSettingsHelper
-import org.wordpress.android.ui.jetpackoverlay.JetpackFeatureRemovalPhaseHelper
+import org.wordpress.android.ui.debug.preferences.DebugPrefs
 import org.wordpress.android.ui.main.MainActionListItem
 import org.wordpress.android.ui.main.MainActionListItem.ActionType
 import org.wordpress.android.ui.main.MainActionListItem.ActionType.ANSWER_BLOGGING_PROMPT
 import org.wordpress.android.ui.main.MainActionListItem.ActionType.CREATE_NEW_PAGE
 import org.wordpress.android.ui.main.MainActionListItem.ActionType.CREATE_NEW_PAGE_FROM_PAGES_CARD
 import org.wordpress.android.ui.main.MainActionListItem.ActionType.CREATE_NEW_POST
-import org.wordpress.android.ui.main.MainActionListItem.ActionType.CREATE_NEW_STORY
 import org.wordpress.android.ui.main.MainActionListItem.ActionType.NO_ACTION
 import org.wordpress.android.ui.main.MainActionListItem.AnswerBloggingPromptAction
 import org.wordpress.android.ui.main.MainActionListItem.CreateAction
 import org.wordpress.android.ui.main.MainFabUiState
+import org.wordpress.android.ui.main.WPMainNavigationView.PageType
+import org.wordpress.android.ui.main.analytics.MainCreateSheetTracker
+import org.wordpress.android.ui.main.utils.MainCreateSheetHelper
 import org.wordpress.android.ui.mysite.SelectedSiteRepository
 import org.wordpress.android.ui.mysite.cards.dashboard.bloggingprompts.BloggingPromptAttribution
 import org.wordpress.android.ui.mysite.cards.quickstart.QuickStartRepository
@@ -42,21 +42,18 @@ import org.wordpress.android.ui.whatsnew.FeatureAnnouncementProvider
 import org.wordpress.android.util.BuildConfigWrapper
 import org.wordpress.android.util.FluxCUtils
 import org.wordpress.android.util.SiteUtils.hasFullAccessToContent
-import org.wordpress.android.util.SiteUtilsWrapper
 import org.wordpress.android.util.analytics.AnalyticsTrackerWrapper
-import org.wordpress.android.util.mapSafe
 import org.wordpress.android.util.mapNullable
+import org.wordpress.android.util.mapSafe
 import org.wordpress.android.util.merge
 import org.wordpress.android.viewmodel.Event
 import org.wordpress.android.viewmodel.ScopedViewModel
 import org.wordpress.android.viewmodel.SingleLiveEvent
 import java.io.Serializable
 import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Named
 
-private const val SWITCH_TO_MY_SITE_DELAY = 500L
 private const val ONE_SITE = 1
 
 class WPMainActivityViewModel @Inject constructor(
@@ -68,12 +65,11 @@ class WPMainActivityViewModel @Inject constructor(
     private val selectedSiteRepository: SelectedSiteRepository,
     private val accountStore: AccountStore,
     private val siteStore: SiteStore,
-    private val bloggingPromptsSettingsHelper: BloggingPromptsSettingsHelper,
     private val bloggingPromptsStore: BloggingPromptsStore,
-    @Named(UI_THREAD) private val mainDispatcher: CoroutineDispatcher,
-    private val jetpackFeatureRemovalPhaseHelper: JetpackFeatureRemovalPhaseHelper,
-    private val siteUtilsWrapper: SiteUtilsWrapper,
     private val shouldAskPrivacyConsent: ShouldAskPrivacyConsent,
+    private val mainCreateSheetHelper: MainCreateSheetHelper,
+    private val mainCreateSheetTracker: MainCreateSheetTracker,
+    @Named(UI_THREAD) private val mainDispatcher: CoroutineDispatcher,
 ) : ScopedViewModel(mainDispatcher) {
     private var isStarted = false
 
@@ -113,11 +109,8 @@ class WPMainActivityViewModel @Inject constructor(
     private val _isBottomSheetShowing = MutableLiveData<Event<Boolean>>()
     val isBottomSheetShowing: LiveData<Event<Boolean>> = _isBottomSheetShowing
 
-    private val _startLoginFlow = MutableLiveData<Event<Unit>>()
-    val startLoginFlow: LiveData<Event<Unit>> = _startLoginFlow
-
-    private val _switchToMySite = MutableLiveData<Event<Unit>>()
-    val switchToMySite: LiveData<Event<Unit>> = _switchToMySite
+    private val _switchToMeTab = MutableLiveData<Event<Unit>>()
+    val switchToMeTab: LiveData<Event<Unit>> = _switchToMeTab
 
     private val _onFeatureAnnouncementRequested = SingleLiveEvent<Unit?>()
     val onFeatureAnnouncementRequested: LiveData<Unit?> = _onFeatureAnnouncementRequested
@@ -156,7 +149,7 @@ class WPMainActivityViewModel @Inject constructor(
     val isSignedInWPComOrHasWPOrgSite: Boolean
         get() = FluxCUtils.isSignedInWPComOrHasWPOrgSite(accountStore, siteStore)
 
-    fun start(site: SiteModel?) {
+    fun start(site: SiteModel?, page: PageType) {
         if (isStarted) return
         isStarted = true
 
@@ -166,17 +159,17 @@ class WPMainActivityViewModel @Inject constructor(
             }
         }
 
-        setMainFabUiState(false, site)
+        setMainFabUiState(false, site, page)
 
-        launch { loadMainActions(site) }
+        launch { loadMainActions(site, page) }
 
         updateFeatureAnnouncements()
     }
 
     @Suppress("LongMethod")
-    private suspend fun loadMainActions(site: SiteModel?, onFabClicked: Boolean = false) {
+    private suspend fun loadMainActions(site: SiteModel?, page: PageType, onFabClicked: Boolean = false) {
         val actionsList = ArrayList<MainActionListItem>()
-        if (bloggingPromptsSettingsHelper.shouldShowPromptsFeature()) {
+        if (mainCreateSheetHelper.canCreatePromptAnswer()) {
             val prompt = site?.let {
                 bloggingPromptsStore.getPromptForDate(it, Date()).firstOrNull()?.model
             }
@@ -189,8 +182,14 @@ class WPMainActivityViewModel @Inject constructor(
                         isAnswered = prompt.isAnswered,
                         promptId = prompt.id,
                         attribution = BloggingPromptAttribution.fromPrompt(prompt),
-                        onClickAction = ::onAnswerPromptActionClicked,
-                        onHelpAction = ::onHelpPrompActionClicked
+                        onClickAction = { prompt, attribution ->
+                            onAnswerPromptActionClicked(
+                                prompt,
+                                attribution,
+                                page
+                            )
+                        },
+                        onHelpAction = { onHelpPromptActionClicked(page) }
                     )
                 )
             }
@@ -204,42 +203,46 @@ class WPMainActivityViewModel @Inject constructor(
                 onClickAction = null
             )
         )
-        if (siteUtilsWrapper.supportsStoriesFeature(site, jetpackFeatureRemovalPhaseHelper)) {
+
+        if (mainCreateSheetHelper.canCreatePost()) {
             actionsList.add(
                 CreateAction(
-                    actionType = CREATE_NEW_STORY,
-                    iconRes = R.drawable.ic_story_icon_24dp,
-                    labelRes = R.string.my_site_bottom_sheet_add_story,
-                    onClickAction = ::onCreateActionClicked
+                    actionType = CREATE_NEW_POST,
+                    iconRes = R.drawable.ic_posts_white_24dp,
+                    labelRes = R.string.my_site_bottom_sheet_add_post,
+                    onClickAction = { onCreateActionClicked(it, page) }
                 )
             )
         }
-        actionsList.add(
-            CreateAction(
-                actionType = CREATE_NEW_POST,
-                iconRes = R.drawable.ic_posts_white_24dp,
-                labelRes = R.string.my_site_bottom_sheet_add_post,
-                onClickAction = ::onCreateActionClicked
+
+        if (mainCreateSheetHelper.canCreatePostFromAudio(site)) {
+            actionsList.add(
+                CreateAction(
+                    actionType = ActionType.CREATE_NEW_POST_FROM_AUDIO,
+                    iconRes = R.drawable.ic_mic_white_24dp,
+                    labelRes = R.string.my_site_bottom_sheet_add_post_from_audio,
+                    onClickAction = { onCreateActionClicked(it, page) }
+                )
             )
-        )
-        if (hasFullAccessToContent(site)) {
+        }
+
+        if (mainCreateSheetHelper.canCreatePage(site, page)) {
             actionsList.add(
                 CreateAction(
                     actionType = CREATE_NEW_PAGE,
                     iconRes = R.drawable.ic_pages_white_24dp,
                     labelRes = R.string.my_site_bottom_sheet_add_page,
-                    onClickAction = ::onCreateActionClicked
+                    onClickAction = { onCreateActionClicked(it, page) }
                 )
             )
         }
 
         _mainActions.postValue(actionsList)
-        if (onFabClicked) trackCreateActionsSheetCard(actionsList)
+        if (onFabClicked) mainCreateSheetTracker.trackCreateActionsSheetCard(actionsList)
     }
 
-    private fun onCreateActionClicked(actionType: ActionType) {
-        val properties = mapOf("action" to actionType.name.lowercase(Locale.ROOT))
-        analyticsTracker.track(Stat.MY_SITE_CREATE_SHEET_ACTION_TAPPED, properties)
+    private fun onCreateActionClicked(actionType: ActionType, page: PageType) {
+        mainCreateSheetTracker.trackActionTapped(page, actionType)
         _isBottomSheetShowing.postValue(Event(false))
         _createAction.postValue(actionType)
 
@@ -251,37 +254,23 @@ class WPMainActivityViewModel @Inject constructor(
         }
     }
 
-    private fun onAnswerPromptActionClicked(promptId: Int, attribution: BloggingPromptAttribution) {
-        analyticsTracker.track(
-            Stat.MY_SITE_CREATE_SHEET_ANSWER_PROMPT_TAPPED,
-            mapOf("attribution" to attribution.value).filterValues { !it.isNullOrBlank() }
-        )
+    private fun onAnswerPromptActionClicked(promptId: Int, attribution: BloggingPromptAttribution, page: PageType) {
+        mainCreateSheetTracker.trackAnswerPromptActionTapped(page, attribution)
         _isBottomSheetShowing.postValue(Event(false))
         _createPostWithBloggingPrompt.postValue(promptId)
     }
 
-    private fun onHelpPrompActionClicked() {
-        analyticsTracker.track(Stat.MY_SITE_CREATE_SHEET_PROMPT_HELP_TAPPED)
+    private fun onHelpPromptActionClicked(page: PageType) {
+        mainCreateSheetTracker.trackHelpPromptActionTapped(page)
         _openBloggingPromptsOnboarding.call()
     }
 
-    private fun trackCreateActionsSheetCard(actions: List<MainActionListItem>) {
-        if (actions.any { it is AnswerBloggingPromptAction }) {
-            analyticsTracker.track(Stat.BLOGGING_PROMPTS_CREATE_SHEET_CARD_VIEWED)
-        }
-    }
-
-    fun onFabClicked(site: SiteModel?) {
+    fun onFabClicked(site: SiteModel?, page: PageType) {
         appPrefsWrapper.setMainFabTooltipDisabled(true)
-        setMainFabUiState(true, site)
 
         _showQuickStarInBottomSheet.postValue(quickStartRepository.activeTask.value == PUBLISH_POST)
 
-        if (siteUtilsWrapper.supportsStoriesFeature(
-            site,
-            jetpackFeatureRemovalPhaseHelper) ||
-            hasFullAccessToContent(site)
-        ) {
+        if (hasFullAccessToContent(site)) {
             launch {
                 // The user has at least two create options available for this site (pages and/or story posts),
                 // so we should show a bottom sheet.
@@ -289,9 +278,9 @@ class WPMainActivityViewModel @Inject constructor(
 
                 // Reload main actions, since the first time this is initialized the SiteModel may not contain the
                 // latest info.
-                loadMainActions(site, onFabClicked = true)
+                loadMainActions(site, page, onFabClicked = true)
 
-                analyticsTracker.track(Stat.MY_SITE_CREATE_SHEET_SHOWN)
+                mainCreateSheetTracker.trackSheetShown(page)
                 _isBottomSheetShowing.postValue(Event(true))
             }
         } else {
@@ -300,21 +289,18 @@ class WPMainActivityViewModel @Inject constructor(
         }
     }
 
-    fun onPageChanged(isOnMySitePageWithValidSite: Boolean, site: SiteModel?) {
-        val showFab = if (buildConfigWrapper.isCreateFabEnabled) isOnMySitePageWithValidSite else false
-        setMainFabUiState(showFab, site)
+    fun onPageChanged(site: SiteModel?, hasValidSite: Boolean, page: PageType) {
+        val showFab = hasValidSite && mainCreateSheetHelper.shouldShowFabForPage(page)
+        setMainFabUiState(showFab, site, page)
     }
 
-    fun onOpenLoginPage(mySitePosition: Int) = launch {
-        _startLoginFlow.value = Event(Unit)
-        appPrefsWrapper.setMainPageIndex(mySitePosition)
-        delay(SWITCH_TO_MY_SITE_DELAY)
-        _switchToMySite.value = Event(Unit)
+    fun onOpenLoginPage() = launch {
+        _switchToMeTab.value = Event(Unit)
     }
 
-    fun onResume(site: SiteModel?, isOnMySitePageWithValidSite: Boolean) {
-        val showFab = if (buildConfigWrapper.isCreateFabEnabled) isOnMySitePageWithValidSite else false
-        setMainFabUiState(showFab, site)
+    fun onResume(site: SiteModel?, hasValidSite: Boolean, page: PageType?) {
+        val showFab = hasValidSite && mainCreateSheetHelper.shouldShowFabForPage(page)
+        setMainFabUiState(showFab, site, page)
 
         checkAndShowFeatureAnnouncement()
     }
@@ -324,9 +310,12 @@ class WPMainActivityViewModel @Inject constructor(
             launch {
                 val currentVersionCode = buildConfigWrapper.getAppVersionCode()
                 val previousVersionCode = appPrefsWrapper.lastFeatureAnnouncementAppVersionCode
+                val alwaysShowAnnouncement = appPrefsWrapper.getDebugBooleanPref(
+                    DebugPrefs.ALWAYS_SHOW_ANNOUNCEMENT.key
+                )
 
                 // only proceed to feature announcement logic if we are upgrading the app
-                if (previousVersionCode != 0 && previousVersionCode < currentVersionCode) {
+                if (alwaysShowAnnouncement || previousVersionCode != 0 && previousVersionCode < currentVersionCode) {
                     if (canShowFeatureAnnouncement()) {
                         analyticsTracker.track(Stat.FEATURE_ANNOUNCEMENT_SHOWN_ON_APP_UPGRADE)
                         _onFeatureAnnouncementRequested.call()
@@ -338,40 +327,25 @@ class WPMainActivityViewModel @Inject constructor(
         }
     }
 
-    private fun setMainFabUiState(isFabVisible: Boolean, site: SiteModel?) {
+    private fun setMainFabUiState(isFabVisible: Boolean, site: SiteModel?, page: PageType?) {
+        if (isFabVisible && page != null) mainCreateSheetTracker.trackFabShown(page)
+
         val newState = MainFabUiState(
             isFabVisible = isFabVisible,
             isFabTooltipVisible = if (appPrefsWrapper.isMainFabTooltipDisabled()) false else isFabVisible,
-            CreateContentMessageId = getCreateContentMessageId(site)
+            CreateContentMessageId = getCreateContentMessageId(site, page)
         )
 
         _fabUiState.value = newState
     }
 
-    fun getCreateContentMessageId(site: SiteModel?): Int {
-        return if (siteUtilsWrapper.supportsStoriesFeature(site, jetpackFeatureRemovalPhaseHelper)) {
-            getCreateContentMessageIdStoriesFlagOn(hasFullAccessToContent(site))
-        } else {
-            getCreateContentMessageIdStoriesFlagOff(hasFullAccessToContent(site))
-        }
-    }
-
-    // create_post_page_fab_tooltip_stories_feature_flag_on
-    private fun getCreateContentMessageIdStoriesFlagOn(hasFullAccessToContent: Boolean): Int {
-        return if (hasFullAccessToContent) {
-            R.string.create_post_page_fab_tooltip_stories_enabled
-        } else {
-            R.string.create_post_page_fab_tooltip_contributors_stories_enabled
-        }
-    }
-
-    private fun getCreateContentMessageIdStoriesFlagOff(hasFullAccessToContent: Boolean): Int {
-        return if (hasFullAccessToContent) {
+    fun getCreateContentMessageId(site: SiteModel?, page: PageType?): Int =
+        if (mainCreateSheetHelper.canCreatePage(site, page)) {
             R.string.create_post_page_fab_tooltip
         } else {
             R.string.create_post_page_fab_tooltip_contributors
         }
-    }
+
 
     private fun updateFeatureAnnouncements() {
         launch {
@@ -381,9 +355,11 @@ class WPMainActivityViewModel @Inject constructor(
 
     private suspend fun canShowFeatureAnnouncement(): Boolean {
         val cachedAnnouncement = featureAnnouncementProvider.getLatestFeatureAnnouncement(true)
+        val alwaysShowAnnouncement = appPrefsWrapper.getDebugBooleanPref(DebugPrefs.ALWAYS_SHOW_ANNOUNCEMENT.key)
         return cachedAnnouncement != null &&
-                cachedAnnouncement.canBeDisplayedOnAppUpgrade(buildConfigWrapper.getAppVersionName()) &&
-                appPrefsWrapper.featureAnnouncementShownVersion < cachedAnnouncement.announcementVersion
+                (alwaysShowAnnouncement ||
+                        cachedAnnouncement.canBeDisplayedOnAppUpgrade(buildConfigWrapper.getAppVersionName()) &&
+                        appPrefsWrapper.featureAnnouncementShownVersion < cachedAnnouncement.announcementVersion)
     }
 
     private fun getExternalFocusPointInfo(task: QuickStartTask?): List<FocusPointInfo> {
@@ -401,7 +377,7 @@ class WPMainActivityViewModel @Inject constructor(
         selectedSiteRepository.removeSite()
     }
 
-    fun triggerCreatePageFlow(){
+    fun triggerCreatePageFlow() {
         _createAction.postValue(CREATE_NEW_PAGE_FROM_PAGES_CARD)
     }
 

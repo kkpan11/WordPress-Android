@@ -3,6 +3,7 @@ package org.wordpress.android.ui.reader.views
 import android.content.Context
 import android.content.res.Resources
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewTreeObserver.OnPreDrawListener
@@ -14,9 +15,10 @@ import org.wordpress.android.R
 import org.wordpress.android.WordPress
 import org.wordpress.android.analytics.AnalyticsTracker.Stat
 import org.wordpress.android.ui.reader.discover.interests.TagUiState
+import org.wordpress.android.ui.reader.models.ReaderReadingPreferences
 import org.wordpress.android.ui.reader.tracker.ReaderTracker
+import org.wordpress.android.ui.reader.utils.toTypeface
 import org.wordpress.android.ui.utils.UiHelpers
-import org.wordpress.android.util.config.ReaderImprovementsFeatureConfig
 import javax.inject.Inject
 import android.R as AndroidR
 
@@ -30,9 +32,6 @@ class ReaderExpandableTagsView @JvmOverloads constructor(
 
     @Inject
     lateinit var readerTracker: ReaderTracker
-
-    @Inject
-    lateinit var readerImprovementsFeatureConfig: ReaderImprovementsFeatureConfig
 
     private var tagsUiState: List<TagUiState>? = null
 
@@ -54,36 +53,44 @@ class ReaderExpandableTagsView @JvmOverloads constructor(
     private val isOverflowIndicatorChipOutsideBounds
         get() = !isChipWithinBounds(overflowIndicatorChip)
 
-    private val chipStyle
-        get() = if (readerImprovementsFeatureConfig.isEnabled()) ChipStyle.New else ChipStyle.Legacy
+    private val chipStyle = ChipStyle()
 
     init {
         (context.applicationContext as WordPress).component().inject(this)
         layoutDirection = View.LAYOUT_DIRECTION_LOCALE
     }
 
-    fun updateUi(tagsUiState: List<TagUiState>) {
+    fun updateUi(
+        tagsUiState: List<TagUiState>,
+        readingPreferences: ReaderReadingPreferences? = null
+    ) {
         if (this.tagsUiState != null && this.tagsUiState == tagsUiState) {
             return
         }
         this.tagsUiState = tagsUiState
         removeAllViews()
-        addOverflowIndicatorChip()
-        addTagChips(tagsUiState)
+        addOverflowIndicatorChip(readingPreferences)
+        addTagChips(tagsUiState, readingPreferences)
         expandLayout(false)
     }
 
-    private fun addOverflowIndicatorChip() {
+    private fun addOverflowIndicatorChip(readingPreferences: ReaderReadingPreferences?) {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val chip = inflater.inflate(chipStyle.overflowChipLayoutRes, this, false) as Chip
         chip.setOnCheckedChangeListener { _, isChecked ->
             readerTracker.track(Stat.READER_CHIPS_MORE_TOGGLED)
             expandLayout(isChecked)
         }
+
+        readingPreferences?.let {
+            chip.setTextSize(TypedValue.COMPLEX_UNIT_PX, chip.textSize * it.fontSize.multiplier)
+            chip.typeface = it.fontFamily.toTypeface()
+        }
+
         addView(chip)
     }
 
-    private fun addTagChips(tagsUiState: List<TagUiState>) {
+    private fun addTagChips(tagsUiState: List<TagUiState>, readingPreferences: ReaderReadingPreferences?) {
         tagsUiState.forEachIndexed { index, tagUiState ->
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val chip = inflater.inflate(chipStyle.chipLayoutRes, this, false) as Chip
@@ -95,6 +102,12 @@ class ReaderExpandableTagsView @JvmOverloads constructor(
                     onClick.invoke(tagUiState.slug)
                 }
             }
+
+            readingPreferences?.let { prefs ->
+                chip.setTextSize(TypedValue.COMPLEX_UNIT_PX, chip.textSize * prefs.fontSize.multiplier)
+                chip.typeface = prefs.fontFamily.toTypeface()
+            }
+
             addView(chip, index)
         }
     }
@@ -139,10 +152,8 @@ class ReaderExpandableTagsView @JvmOverloads constructor(
     private fun updateOverflowIndicatorChip() {
         val showOverflowIndicatorChip = hiddenTagChipsCount > 0 || !isSingleLine
         uiHelpers.updateVisibility(overflowIndicatorChip, showOverflowIndicatorChip)
-        overflowIndicatorChip.contentDescription = String.format(
-            resources.getString(R.string.show_n_hidden_items_desc),
-            hiddenTagChipsCount
-        )
+        overflowIndicatorChip.contentDescription =
+            resources.getString(R.string.show_n_hidden_items_desc, hiddenTagChipsCount.toString())
 
         overflowIndicatorChip.text = if (isSingleLine) {
             chipStyle.overflowChipText(resources, hiddenTagChipsCount)
@@ -150,10 +161,7 @@ class ReaderExpandableTagsView @JvmOverloads constructor(
             resources.getString(R.string.reader_expandable_tags_view_overflow_indicator_collapse_title)
         }
 
-        chipStyle.overflowBackgroundColorRes(isSingleLine)?.let { chipBackgroundColorRes ->
-            overflowIndicatorChip.setChipBackgroundColorResource(chipBackgroundColorRes)
-        }
-        chipStyle.overflowStrokeColorRes(isSingleLine)?.let { chipStrokeColorRes ->
+        chipStyle.overflowStrokeColorRes(isSingleLine).let { chipStrokeColorRes ->
             overflowIndicatorChip.setChipStrokeColorResource(chipStrokeColorRes)
         }
     }
@@ -168,62 +176,25 @@ class ReaderExpandableTagsView @JvmOverloads constructor(
         })
     }
 
-    private sealed interface ChipStyle {
+    private class ChipStyle {
         @get:LayoutRes
-        val chipLayoutRes: Int
-        @get:LayoutRes
-        val overflowChipLayoutRes: Int
+        val chipLayoutRes: Int = R.layout.reader_expandable_tags_view_chip
 
-        fun overflowChipText(resources: Resources, hiddenChipsCount: Int): String
+        @get:LayoutRes
+        val overflowChipLayoutRes: Int = R.layout.reader_expandable_tags_view_overflow_chip
+
+        fun overflowChipText(resources: Resources, hiddenChipsCount: Int): String =
+            String.format(
+                resources.getString(R.string.reader_expandable_tags_view_overflow_indicator_expand_title_new),
+                hiddenChipsCount.toString()
+            )
 
         @ColorRes
-        fun overflowBackgroundColorRes(isCollapsed: Boolean): Int? = null
-
-        @ColorRes
-        fun overflowStrokeColorRes(isCollapsed: Boolean): Int? = null
-
-        object Legacy : ChipStyle {
-            override val chipLayoutRes: Int
-                get() = R.layout.reader_expandable_tags_view_chip
-            override val overflowChipLayoutRes: Int
-                get() = R.layout.reader_expandable_tags_view_overflow_chip
-
-            override fun overflowChipText(resources: Resources, hiddenChipsCount: Int): String {
-                return String.format(
-                    resources.getString(R.string.reader_expandable_tags_view_overflow_indicator_expand_title),
-                    hiddenChipsCount
-                )
+        fun overflowStrokeColorRes(isCollapsed: Boolean): Int =
+            if (isCollapsed) {
+                R.color.reader_chip_stroke_color
+            } else {
+                AndroidR.color.transparent
             }
-
-            override fun overflowBackgroundColorRes(isCollapsed: Boolean): Int {
-                return if (isCollapsed) {
-                    R.color.on_surface_chip
-                } else {
-                    AndroidR.color.transparent
-                }
-            }
-        }
-
-        object New : ChipStyle {
-            override val chipLayoutRes: Int
-                get() = R.layout.reader_expandable_tags_view_chip_new
-            override val overflowChipLayoutRes: Int
-                get() = R.layout.reader_expandable_tags_view_overflow_chip_new
-
-            override fun overflowChipText(resources: Resources, hiddenChipsCount: Int): String {
-                return String.format(
-                    resources.getString(R.string.reader_expandable_tags_view_overflow_indicator_expand_title_new),
-                    hiddenChipsCount
-                )
-            }
-
-            override fun overflowStrokeColorRes(isCollapsed: Boolean): Int {
-                return if (isCollapsed) {
-                    R.color.reader_chip_stroke_color
-                } else {
-                    AndroidR.color.transparent
-                }
-            }
-        }
     }
 }

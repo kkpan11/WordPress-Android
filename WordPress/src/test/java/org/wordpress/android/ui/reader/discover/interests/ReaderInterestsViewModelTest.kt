@@ -88,6 +88,20 @@ class ReaderInterestsViewModelTest : BaseUnitTest() {
         }
 
     @Test
+    fun `getInterests invoked if only daily prompt user tag received from repo`() =
+        testWithDailyPromptUserTag {
+            // Given
+            val interests = getInterests()
+            whenever(readerTagRepository.getInterests()).thenReturn(SuccessWithData(interests))
+
+            // When
+            initViewModel()
+
+            // Then
+            verify(readerTagRepository, times(1)).getInterests()
+        }
+
+    @Test
     fun `discover close reader screen triggered if non empty user tags are received from repo`() =
         testWithNonEmptyUserTags {
             // When
@@ -307,20 +321,6 @@ class ReaderInterestsViewModelTest : BaseUnitTest() {
         }
 
     @Test
-    fun `when interest tag is toggled, then complete follow site quick start task if needed is invoked`() =
-        testWithEmptyUserTags {
-            val interests = getInterests()
-            whenever(readerTagRepository.getInterests()).thenReturn(SuccessWithData(interests))
-            val selectInterestAtIndex = 2
-
-            initViewModel()
-            viewModel.onInterestAtIndexToggled(index = selectInterestAtIndex, isChecked = true)
-
-            // Then
-            verify(parentViewModel).completeQuickStartFollowSiteTaskIfNeeded()
-        }
-
-    @Test
     fun `done button shown in enabled state if an interest is in selected state`() =
         testWithEmptyUserTags {
             // Given
@@ -413,6 +413,8 @@ class ReaderInterestsViewModelTest : BaseUnitTest() {
             val interests = getInterests()
             whenever(readerTagRepository.getInterests()).thenReturn(SuccessWithData(interests))
             val selectInterestAtIndex = 2
+            whenever(readerTagRepository.saveInterests(eq(listOf(interests[selectInterestAtIndex]))))
+                .thenReturn(Success)
 
             // When
             initViewModel()
@@ -566,7 +568,7 @@ class ReaderInterestsViewModelTest : BaseUnitTest() {
         }
 
     @Test
-    fun `discover close reader screen on back button click`() {
+    fun `discover close reader screen on back button click`() = testWithEmptyUserTags {
         // When
         initViewModel(EntryPoint.DISCOVER)
 
@@ -577,7 +579,7 @@ class ReaderInterestsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `settings close reader screen on back button click`() {
+    fun `settings close reader screen on back button click`() = testWithEmptyUserTags {
         // When
         initViewModel(EntryPoint.SETTINGS)
 
@@ -598,6 +600,25 @@ class ReaderInterestsViewModelTest : BaseUnitTest() {
     private fun <T> testWithEmptyUserTags(block: suspend CoroutineScope.() -> T) {
         test {
             whenever(readerTagRepository.getUserTags()).thenReturn(SuccessWithData(ReaderTagList()))
+            block()
+        }
+    }
+
+    private fun <T> testWithDailyPromptUserTag(block: suspend CoroutineScope.() -> T) {
+        test {
+            val tagsWithDailyPrompt = ReaderTagList().apply {
+                add(
+                    ReaderTag(
+                        "dailyprompt",
+                        "dailyprompt",
+                        "dailyprompt",
+                        "https://public-api.wordpress.com/rest/v1.2/read/tags/dailyprompt/posts",
+                        ReaderTagType.DEFAULT
+                    )
+                )
+            }
+
+            whenever(readerTagRepository.getUserTags()).thenReturn(SuccessWithData(tagsWithDailyPrompt))
             block()
         }
     }

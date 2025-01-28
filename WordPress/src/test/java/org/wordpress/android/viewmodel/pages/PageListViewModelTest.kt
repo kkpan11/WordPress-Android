@@ -39,7 +39,6 @@ import org.wordpress.android.ui.posts.AuthorFilterSelection
 import org.wordpress.android.ui.posts.AuthorFilterSelection.EVERYONE
 import org.wordpress.android.ui.posts.AuthorFilterSelection.ME
 import org.wordpress.android.util.LocaleManagerWrapper
-import org.wordpress.android.util.config.GlobalStyleSupportFeatureConfig
 import org.wordpress.android.util.config.SiteEditorMVPFeatureConfig
 import org.wordpress.android.viewmodel.pages.PageListViewModel.PageListState
 import org.wordpress.android.viewmodel.pages.PageListViewModel.PageListType.PUBLISHED
@@ -80,9 +79,6 @@ class PageListViewModelTest : BaseUnitTest() {
     lateinit var accountStore: AccountStore
 
     @Mock
-    lateinit var globalStyleSupportFeatureConfig: GlobalStyleSupportFeatureConfig
-
-    @Mock
     lateinit var siteEditorMVPFeatureConfig: SiteEditorMVPFeatureConfig
 
     @Mock
@@ -90,6 +86,9 @@ class PageListViewModelTest : BaseUnitTest() {
 
     @Mock
     lateinit var blazeFeatureUtils: BlazeFeatureUtils
+
+    @Mock
+    lateinit var pageConflictDetector: PageConflictDetector
 
     private lateinit var viewModel: PageListViewModel
 
@@ -111,11 +110,11 @@ class PageListViewModelTest : BaseUnitTest() {
             dispatcher,
             localeManagerWrapper,
             accountStore,
-            globalStyleSupportFeatureConfig,
             editorThemeStore,
             siteEditorMVPFeatureConfig,
             blazeFeatureUtils,
-            testDispatcher()
+            testDispatcher(),
+            pageConflictDetector
         )
 
         whenever(pageItemProgressUiStateUseCase.getProgressStateForPage(any())).thenReturn(
@@ -418,7 +417,8 @@ class PageListViewModelTest : BaseUnitTest() {
                 anyOrNull(),
                 anyOrNull(),
                 any(),
-                any()
+                any(),
+                any(),
             )
         ).thenReturn(
             actions
