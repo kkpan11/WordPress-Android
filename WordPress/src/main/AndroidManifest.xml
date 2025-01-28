@@ -189,6 +189,10 @@
             android:name="zendesk.support.requestlist.RequestListActivity"
             android:theme="@style/WordPress.ZenDesk" />
 
+        <activity
+            android:name=".support.SupportWebViewActivity"
+            android:theme="@style/WordPress.NoActionBar.NoEdgeToEdge" />
+
         <!-- empty title -->
 
         <!-- Preferences activities -->
@@ -778,10 +782,6 @@
         <activity
             android:name=".ui.prefs.MyProfileActivity"
             android:label="@string/my_profile"
-            android:theme="@style/WordPress.NoActionBar" />
-
-        <activity
-            android:name=".support.SupportWebViewActivity"
             android:theme="@style/WordPress.NoActionBar" />
 
         <!-- Lib activities-->
